@@ -25,9 +25,10 @@ const updateSurveySchema = z.object({
 // GET - Obtener una encuesta específica
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
@@ -35,7 +36,7 @@ export async function GET(
 
     const survey = await db.query.surveys.findFirst({
       where: and(
-        eq(surveys.id, params.id),
+        eq(surveys.id, id),
         eq(surveys.tenantId, session.user.tenantId)
       ),
       with: {
@@ -65,9 +66,10 @@ export async function GET(
 // PUT - Actualizar una encuesta
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
@@ -90,7 +92,7 @@ export async function PUT(
     // Verify survey belongs to user's tenant
     const existingSurvey = await db.query.surveys.findFirst({
       where: and(
-        eq(surveys.id, params.id),
+        eq(surveys.id, id),
         eq(surveys.tenantId, session.user.tenantId)
       ),
     });
@@ -113,7 +115,7 @@ export async function PUT(
           status,
           updatedAt: new Date(),
         })
-        .where(eq(surveys.id, params.id))
+        .where(eq(surveys.id, id))
         .returning();
 
       // Handle questions
@@ -127,7 +129,7 @@ export async function PUT(
           .delete(questions)
           .where(
             and(
-              eq(questions.surveyId, params.id),
+              eq(questions.surveyId, id),
               // @ts-ignore - Drizzle typing issue
               eq(questions.id, deletedQuestionIds[0])
             )
@@ -158,7 +160,7 @@ export async function PUT(
               const [created] = await tx
                 .insert(questions)
                 .values({
-                  surveyId: params.id,
+                  surveyId: id,
                   questionType: q.type,
                   questionText: q.text,
                   options: q.options ? JSON.stringify(q.options) : null,
@@ -190,9 +192,10 @@ export async function PUT(
 // DELETE - Eliminar una encuesta
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
@@ -201,7 +204,7 @@ export async function DELETE(
     // Verify survey belongs to user's tenant
     const existingSurvey = await db.query.surveys.findFirst({
       where: and(
-        eq(surveys.id, params.id),
+        eq(surveys.id, id),
         eq(surveys.tenantId, session.user.tenantId)
       ),
     });
@@ -214,7 +217,7 @@ export async function DELETE(
     }
 
     // Delete survey (cascade will delete questions)
-    await db.delete(surveys).where(eq(surveys.id, params.id));
+    await db.delete(surveys).where(eq(surveys.id, id));
 
     return NextResponse.json({ success: true });
   } catch (error) {

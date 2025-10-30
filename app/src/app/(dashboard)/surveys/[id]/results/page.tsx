@@ -16,8 +16,9 @@ import {
 export default async function SurveyResultsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
@@ -26,7 +27,7 @@ export default async function SurveyResultsPage({
   // Get survey with questions
   const survey = await db.query.surveys.findFirst({
     where: and(
-      eq(surveys.id, params.id),
+      eq(surveys.id, id),
       eq(surveys.tenantId, session.user.tenantId)
     ),
     with: {
