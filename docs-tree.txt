@@ -1,0 +1,67 @@
+📚 ChatForm - Documentation Tree
+=====================================
+
+ROOT
+│
+├─ 📖 README.md
+│  └─ Overview del proyecto + Links a toda la documentación
+│
+├─ ⭐ DEPLOYMENT_WORKFLOW.md (NUEVO)
+│  ├─ Resumen ejecutivo
+│  ├─ Problemas encontrados y soluciones (5 errores principales)
+│  ├─ Configuración completa de Dokploy
+│  ├─ Comandos de Git ejecutados
+│  ├─ Testing y verificación
+│  └─ Troubleshooting guide detallado
+│
+├─ ⚡ QUICK_REFERENCE.md (NUEVO)
+│  ├─ Configuración rápida Dokploy
+│  ├─ Top 5 errores comunes + fixes
+│  ├─ Estructura de archivos clave
+│  └─ Comandos útiles
+│
+├─ 🚀 DEPLOYMENT.md
+│  ├─ Guía básica de deployment
+│  ├─ Variables de entorno
+│  ├─ DNS configuration
+│  └─ Checklist básico
+│
+├─ 🔧 DOKPLOY-SETUP.md
+│  ├─ Setup paso a paso en Dokploy
+│  ├─ Screenshots y UI guide
+│  └─ Troubleshooting específico de Dokploy
+│
+├─ 💻 claude.md
+│  └─ Documentación técnica detallada
+│
+└─ 🔐 CREDENCIALES.md (gitignored)
+   └─ Passwords y secrets
+
+SUBDIRECTORIOS
+│
+├─ website/
+│  ├─ README.md (landing page)
+│  └─ Documentación específica del website
+│
+└─ app/
+   ├─ README.md (aplicación)
+   ├─ Dockerfile (configuración Docker)
+   └─ Documentación específica de la app
+
+FLUJO DE LECTURA RECOMENDADO
+=============================
+
+Para desarrollo:
+1. README.md (overview)
+2. QUICK_REFERENCE.md (comandos rápidos)
+
+Para deployment:
+1. DEPLOYMENT_WORKFLOW.md (guía completa)
+2. DOKPLOY-SETUP.md (UI de Dokploy)
+3. QUICK_REFERENCE.md (troubleshooting)
+
+Para troubleshooting:
+1. QUICK_REFERENCE.md (errores comunes)
+2. DEPLOYMENT_WORKFLOW.md (troubleshooting detallado)
+3. DOKPLOY-SETUP.md (problemas específicos)
+
