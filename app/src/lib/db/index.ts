@@ -2,13 +2,12 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not defined');
-}
+// Allow build to succeed without DATABASE_URL (it's only needed at runtime)
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/placeholder';
 
 // For query purposes
 // Force IPv4 to avoid IPv6 connection issues
-const queryClient = postgres(process.env.DATABASE_URL, {
+const queryClient = postgres(databaseUrl, {
   connect_timeout: 10,
   idle_timeout: 20,
   max_lifetime: 60 * 30,
