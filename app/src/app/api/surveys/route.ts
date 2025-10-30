@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     const validation = createSurveySchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: validation.error.errors[0].message },
+        { error: validation.error.issues[0].message },
         { status: 400 }
       );
     }

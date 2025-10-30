@@ -81,7 +81,7 @@ export async function PUT(
     const validation = updateSurveySchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: validation.error.errors[0].message },
+        { error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
