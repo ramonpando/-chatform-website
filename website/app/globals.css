@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "./design-tokens.css";
+@import "./design-system-v2.css";
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
@@ -13,9 +13,9 @@ html {
 }
 
 body {
-  background: var(--bg-primary);
+  background: white;
   color: var(--text-primary);
-  font-family: var(--font-primary);
+  font-family: var(--font-body);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
 }

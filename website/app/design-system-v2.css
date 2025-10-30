@@ -1,0 +1,454 @@
+/**
+ * ChatForm Design System v2.0
+ * Soft Modern Premium - Inspired by Linear, Stripe, Productlane
+ */
+
+@layer base {
+  :root {
+    /* ========================================
+       COLORS V2 - Professional Blue & Pastels
+       ======================================== */
+
+    /* Primary - Professional Blue */
+    --color-primary: #2563EB;           /* Blue 600 */
+    --color-primary-light: #3B82F6;     /* Blue 500 */
+    --color-primary-dark: #1E40AF;      /* Blue 700 */
+    --color-primary-50: #EFF6FF;        /* Blue 50 */
+
+    /* Accent - Pink Highlights */
+    --color-accent: #EC4899;            /* Pink 500 */
+    --color-accent-light: #F472B6;      /* Pink 400 */
+    --color-accent-dark: #DB2777;       /* Pink 600 */
+
+    /* Success - Green */
+    --color-success: #10B981;
+    --color-success-light: #34D399;
+
+    /* Semantic */
+    --color-error: #EF4444;
+    --color-warning: #F59E0B;
+    --color-info: #3B82F6;
+
+    /* ========================================
+       BACKGROUND PASTELS - Bento Cards
+       ======================================== */
+
+    --bg-lavender: #F3F4FF;   /* Lavanda suave */
+    --bg-mint: #ECFDF5;       /* Menta clara */
+    --bg-peach: #FFF7ED;      /* Durazno */
+    --bg-sky: #EFF6FF;        /* Azul cielo */
+    --bg-rose: #FDF2F8;       /* Rosa claro */
+    --bg-amber: #FFFBEB;      /* Amarillo suave */
+
+    /* ========================================
+       GRADIENTS
+       ======================================== */
+
+    --gradient-hero: linear-gradient(135deg, #EFF6FF 0%, #F3E8FF 50%, #FDF2F8 100%);
+    --gradient-blue-pink: linear-gradient(135deg, #3B82F6 0%, #EC4899 100%);
+    --gradient-purple-pink: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    --gradient-blue-teal: linear-gradient(135deg, #2563EB 0%, #14B8A6 100%);
+
+    /* ========================================
+       NEUTRALS - Premium Grays
+       ======================================== */
+
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+
+    /* Text colors */
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+    --text-tertiary: #9CA3AF;
+    --text-inverse: #FFFFFF;
+
+    /* ========================================
+       TYPOGRAPHY - Cal Sans + Inter
+       ======================================== */
+
+    --font-display: 'Cal Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* Font Sizes - Large & Bold */
+    --text-xs: 0.75rem;        /* 12px */
+    --text-sm: 0.875rem;       /* 14px */
+    --text-base: 1rem;         /* 16px */
+    --text-lg: 1.125rem;       /* 18px */
+    --text-xl: 1.25rem;        /* 20px */
+    --text-2xl: 1.5rem;        /* 24px */
+    --text-3xl: 1.875rem;      /* 30px */
+    --text-4xl: 2.25rem;       /* 36px */
+    --text-5xl: 3rem;          /* 48px */
+    --text-6xl: 3.75rem;       /* 60px */
+    --text-7xl: 4.5rem;        /* 72px */
+
+    /* Line Heights */
+    --leading-tight: 1.1;
+    --leading-snug: 1.2;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.6;
+
+    /* Letter Spacing */
+    --tracking-tight: -0.02em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.025em;
+
+    /* ========================================
+       SPACING - Generous
+       ======================================== */
+
+    --space-1: 0.25rem;    /* 4px */
+    --space-2: 0.5rem;     /* 8px */
+    --space-3: 0.75rem;    /* 12px */
+    --space-4: 1rem;       /* 16px */
+    --space-5: 1.25rem;    /* 20px */
+    --space-6: 1.5rem;     /* 24px */
+    --space-8: 2rem;       /* 32px */
+    --space-10: 2.5rem;    /* 40px */
+    --space-12: 3rem;      /* 48px */
+    --space-16: 4rem;      /* 64px */
+    --space-20: 5rem;      /* 80px */
+    --space-24: 6rem;      /* 96px */
+
+    /* ========================================
+       BORDER RADIUS - Very Rounded
+       ======================================== */
+
+    --radius-sm: 0.5rem;    /* 8px */
+    --radius-md: 0.75rem;   /* 12px */
+    --radius-lg: 1rem;      /* 16px */
+    --radius-xl: 1.5rem;    /* 24px */
+    --radius-2xl: 2rem;     /* 32px */
+    --radius-full: 9999px;
+
+    /* ========================================
+       SHADOWS - Soft & Deep
+       ======================================== */
+
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 16px 0 rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 12px 24px 0 rgba(0, 0, 0, 0.12);
+    --shadow-2xl: 0 20px 40px 0 rgba(0, 0, 0, 0.15);
+
+    /* ========================================
+       TRANSITIONS
+       ======================================== */
+
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+  }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+@layer utilities {
+  /* Backgrounds */
+  .bg-lavender { background-color: var(--bg-lavender); }
+  .bg-mint { background-color: var(--bg-mint); }
+  .bg-peach { background-color: var(--bg-peach); }
+  .bg-sky { background-color: var(--bg-sky); }
+  .bg-rose { background-color: var(--bg-rose); }
+  .bg-amber { background-color: var(--bg-amber); }
+
+  /* Gradients */
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-text {
+    background: var(--gradient-blue-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Bento Card Base */
+  .bento-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-10);
+    box-shadow: var(--shadow-lg);
+    transition: all var(--duration-normal) var(--ease-out);
+    border: 1px solid var(--gray-200);
+  }
+
+  .bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-2xl);
+  }
+
+  /* Bento Grid Layouts */
+  .bento-grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .bento-grid-2 {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .bento-grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .bento-grid-3 {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    .bento-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Glassmorphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* Mockup Container */
+  .mockup-container {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .mockup-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Button Variants */
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    transition: all var(--duration-fast);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-accent {
+    background: var(--gradient-blue-pink);
+    color: white;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    transition: all var(--duration-fast);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2xl);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--gray-300);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    transition: all var(--duration-fast);
+  }
+
+  .btn-outline:hover {
+    background: var(--gray-50);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+
+  /* Metric Cards */
+  .metric-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+  }
+
+  .metric-value {
+    font-size: var(--text-5xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: var(--leading-tight);
+  }
+
+  .metric-label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-top: var(--space-2);
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .badge-primary {
+    background: var(--color-primary-50);
+    color: var(--color-primary);
+  }
+
+  .badge-accent {
+    background: var(--bg-rose);
+    color: var(--color-accent);
+  }
+
+  /* Pulse Animation */
+  @keyframes pulse-dot {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .pulse-dot {
+    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Fade In Animations */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s var(--ease-out);
+  }
+
+  /* Delay classes for staggered animations */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+}
+
+/* ========================================
+   COMPONENT STYLES
+   ======================================== */
+
+/* Hero Section */
+.hero-section {
+  min-height: 100vh;
+  background: var(--gradient-hero);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-20) var(--space-6);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--text-7xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: var(--text-5xl);
+  }
+}
+
+.hero-subtitle {
+  font-size: var(--text-xl);
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto var(--space-12);
+  line-height: var(--leading-relaxed);
+}
+
+/* Section Titles */
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  font-weight: 700;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+.section-subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto var(--space-16);
+  line-height: var(--leading-relaxed);
+}
+
+/* Card Title */
+.card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.card-description {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}

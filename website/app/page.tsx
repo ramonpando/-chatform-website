@@ -1,5 +1,5 @@
 import { Navigation } from "@/components/navigation"
-import { Hero } from "@/components/sections/hero"
+import { HeroV2 } from "@/components/sections/hero-v2"
 import { SocialProof } from "@/components/sections/social-proof"
 import { HowItWorks } from "@/components/sections/how-it-works"
 import { Features } from "@/components/sections/features"
@@ -15,7 +15,7 @@ export default function Home() {
     <div className="min-h-screen">
       <Navigation />
       <main>
-        <Hero />
+        <HeroV2 />
         <SocialProof />
         <HowItWorks />
         <Features />
