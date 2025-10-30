@@ -53,8 +53,18 @@ const { id } = await params;
 ### ❌ "error.errors does not exist"
 ✅ **Fix**: Cambiar `error.errors` → `error.issues` (Zod v4)
 
-### ❌ "Cannot connect to database"
-✅ **Fix**: Whitelist IP de Dokploy en Supabase
+### ❌ "connect ENETUNREACH 2600:xxxx (IPv6)"
+✅ **Fix**: Usar Transaction Pooler en lugar de Direct Connection
+```env
+# ANTES (Direct - IPv6)
+postgresql://postgres:PASSWORD@db.PROJECT.supabase.co:5432/postgres
+
+# DESPUÉS (Pooler - IPv4)
+postgresql://postgres.PROJECT:PASSWORD@aws-REGION.pooler.supabase.com:6543/postgres
+```
+
+### ❌ "UntrustedHost error"
+✅ **Fix**: Agregar `trustHost: true` en NextAuth config
 
 ---
 
