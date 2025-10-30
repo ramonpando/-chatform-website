@@ -71,11 +71,11 @@ export function Footer() {
             <div className="col-span-2">
               <Link href="/" className="flex items-center mb-6">
                 <Image
-                  src="/logo.svg"
+                  src="/logo-white.svg"
                   alt="ChatForm"
                   width={160}
                   height={28}
-                  className="h-7 w-auto brightness-0 invert hover:opacity-80 transition-opacity"
+                  className="h-7 w-auto hover:opacity-80 transition-opacity"
                 />
               </Link>
               <p className="text-neutral-400 mb-6 max-w-sm">

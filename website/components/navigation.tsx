@@ -12,7 +12,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image
-              src="/logo.svg"
+              src="/logo-black.svg"
               alt="ChatForm"
               width={160}
               height={28}
