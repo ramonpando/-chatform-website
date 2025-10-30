@@ -89,21 +89,32 @@ Ver [DEPLOYMENT.md](DEPLOYMENT.md) y [DOKPLOY-SETUP.md](DOKPLOY-SETUP.md) para i
 
 ## Documentación
 
-- **[claude.md](claude.md)** - Documentación técnica completa
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guía de deployment
+### 📚 Guías Principales
+
+- **[DEPLOYMENT_WORKFLOW.md](DEPLOYMENT_WORKFLOW.md)** - ⭐ Workflow completo de deployment (NUEVO)
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - ⚡ Referencia rápida (NUEVO)
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guía básica de deployment
 - **[DOKPLOY-SETUP.md](DOKPLOY-SETUP.md)** - Setup en Dokploy paso a paso
+- **[claude.md](claude.md)** - Documentación técnica completa
 
 ## Estado Actual
 
 ✅ **Completado:**
 - Landing page deployada en chatform.mx
-- App base con autenticación
+- App base con autenticación multi-tenant
 - Survey builder completo (create, edit, list, results)
-- Multi-tenancy configurado
-- Database schema en Supabase
+- API REST para CRUD de surveys
+- Database schema en Supabase con stats
+- Dockerfile optimizado con Node 20
+- Compatibilidad con Next.js 16 + React 19
+- Zod v4 y TypeScript errors resueltos
+- Documentación completa de deployment
+- Configuración de Dokploy lista
 
-🚧 **En Progreso:**
-- Deployment de app a app.chatform.mx
+🚀 **Deployment Status:**
+- ✅ Website: Deployado en chatform.mx
+- ✅ App: Configurado y listo para deploy en app.chatform.mx
+- ✅ Git: Todo el código en GitHub
 
 📝 **Próximos Pasos:**
 - WhatsApp Business API integration
