@@ -44,10 +44,10 @@ export function HeroV2() {
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <div className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-75 group-hover:opacity-100 transition duration-300 blur-sm group-hover:blur"></div>
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg opacity-75 group-hover:opacity-100 transition duration-300 blur-sm group-hover:blur"></div>
                   <a
                     href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
-                    className="relative inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-xl font-semibold text-lg hover:bg-slate-800 transition-all"
+                    className="relative inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-lg font-semibold text-lg hover:bg-slate-800 transition-all"
                   >
                     Comenzar gratis
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -55,7 +55,7 @@ export function HeroV2() {
                 </div>
                 <a
                   href="#demo"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-semibold text-lg hover:border-slate-300 hover:bg-slate-50 transition-all"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white border-2 border-slate-200 text-slate-700 rounded-lg font-semibold text-lg hover:border-slate-300 hover:bg-slate-50 transition-all"
                 >
                   Ver demo
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
