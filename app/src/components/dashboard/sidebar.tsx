@@ -32,14 +32,14 @@ export function Sidebar() {
   return (
     <div className="flex h-screen w-64 flex-col bg-white border-r border-slate-200">
       {/* Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-slate-200">
+      <div className="flex h-16 items-center justify-center px-6 border-b border-slate-200">
         <Link href="/dashboard" className="flex items-center">
           <Image
             src="/logo-black.svg"
             alt="ChatForm"
-            width={120}
-            height={20}
-            className="h-5 w-auto"
+            width={150}
+            height={25}
+            className="h-6 w-auto"
           />
         </Link>
       </div>
