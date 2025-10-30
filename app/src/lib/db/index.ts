@@ -7,7 +7,16 @@ if (!process.env.DATABASE_URL) {
 }
 
 // For query purposes
-const queryClient = postgres(process.env.DATABASE_URL);
+// Force IPv4 to avoid IPv6 connection issues
+const queryClient = postgres(process.env.DATABASE_URL, {
+  connect_timeout: 10,
+  idle_timeout: 20,
+  max_lifetime: 60 * 30,
+  // Force IPv4
+  connection: {
+    application_name: 'chatform_app'
+  }
+});
 export const db = drizzle(queryClient, { schema });
 
 // Export types

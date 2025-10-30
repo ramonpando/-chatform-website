@@ -26,6 +26,7 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true, // Required for production with proxies
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
