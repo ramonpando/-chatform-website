@@ -17,29 +17,26 @@ export function HeroV2() {
             {/* LEFT COLUMN - Text Content */}
             <div className="space-y-8">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50/80 border border-blue-100/50 text-blue-600 text-xs font-normal">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
-                </span>
-                Gratis hasta 100 respuestas
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100/50 text-blue-600 text-xs font-normal">
+                <Sparkles className="w-3 h-3" />
+                AI genera tu encuesta en segundos
               </div>
 
               {/* Hero Title */}
               <h1 className="text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1]">
-                El Typeform de{" "}
+                Crea encuestas con{" "}
                 <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  WhatsApp
+                  IA
                 </span>
-                <br />
-                con IA
+                {" "}y envíalas por WhatsApp
               </h1>
 
               {/* Subtitle */}
               <p className="text-xl text-slate-600 leading-relaxed max-w-xl">
-                Crea encuestas conversacionales, envíalas por WhatsApp y obtén{" "}
-                <span className="font-semibold text-slate-900">análisis automático con IA</span>.
-                De feedback a insights en minutos.
+                Describe tu encuesta, la <span className="font-semibold text-slate-900">IA la crea por ti</span>.
+                Envía por WhatsApp y obtén{" "}
+                <span className="font-semibold text-slate-900">análisis automático</span>.
+                10x más respuestas que email.
               </p>
 
               {/* CTAs */}
@@ -50,7 +47,7 @@ export function HeroV2() {
                     href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
                     className="relative inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-md font-semibold text-lg hover:bg-slate-800 transition-all"
                   >
-                    Comenzar gratis
+                    Crear encuesta en 2 minutos
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </a>
                 </div>
@@ -68,17 +65,25 @@ export function HeroV2() {
 
               {/* Trust Indicators */}
               <div className="flex flex-wrap items-center gap-6 pt-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-sm font-medium text-slate-900">4.9</span>
+                  <span className="text-xs text-slate-500">• 127 reviews</span>
+                </div>
+                <div className="h-4 w-px bg-slate-300" />
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  <span>No requiere tarjeta</span>
+                  <span>Gratis 25 respuestas/mes</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  <span>Setup en 5 minutos</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-slate-500">
-                  <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  <span>Soporte en español</span>
+                  <span>Sin tarjeta</span>
                 </div>
               </div>
             </div>
