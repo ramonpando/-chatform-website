@@ -626,7 +626,7 @@ function PropertiesPanel({
               value={welcomeMessage}
               onChange={(e) => onUpdateWelcomeMessage(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 placeholder:text-slate-400"
               placeholder="Escribe tu mensaje de bienvenida..."
             />
             <p className="text-xs text-slate-500 mt-2">
@@ -649,7 +649,7 @@ function PropertiesPanel({
               value={thankYouMessage}
               onChange={(e) => onUpdateThankYouMessage(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 placeholder:text-slate-400"
               placeholder="Escribe tu mensaje de despedida..."
             />
             <p className="text-xs text-slate-500 mt-2">
@@ -691,7 +691,7 @@ function PropertiesPanel({
             value={selectedQuestion.text}
             onChange={(e) => onUpdateQuestion(selectedQuestion.id, { text: e.target.value })}
             rows={3}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 placeholder:text-slate-400"
             placeholder="¿Qué quieres preguntar?"
           />
         </div>
@@ -711,7 +711,7 @@ function PropertiesPanel({
                     newOptions[i] = e.target.value;
                     onUpdateQuestion(selectedQuestion.id, { options: newOptions });
                   }}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm text-slate-900 placeholder:text-slate-400"
                 />
               ))}
               <button
