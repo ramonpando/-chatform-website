@@ -85,7 +85,7 @@ export function HeroV2() {
             {/* RIGHT COLUMN - App Preview with floating cards */}
             <div className="relative lg:h-[700px] flex items-center justify-center">
               {/* Main App Mockup */}
-              <div className="relative z-10 w-full max-w-md">
+              <div className="relative z-0 w-full max-w-md">
                 <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/60">
                   {/* Phone frame header */}
                   <div className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 p-4">
@@ -138,7 +138,7 @@ export function HeroV2() {
               </div>
 
               {/* Floating Stats Card - Top Right */}
-              <div className="hidden lg:block absolute top-8 -right-8 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 w-52 animate-float">
+              <div className="hidden lg:block absolute top-8 -right-8 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 w-52 animate-float z-20">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 text-green-600" />
@@ -150,7 +150,7 @@ export function HeroV2() {
               </div>
 
               {/* Floating AI Card - Bottom Left */}
-              <div className="hidden lg:block absolute bottom-12 -left-8 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 w-56 animate-float-delayed">
+              <div className="hidden lg:block absolute bottom-12 -left-8 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 w-56 animate-float-delayed z-20">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-purple-600" />
@@ -174,7 +174,7 @@ export function HeroV2() {
               </div>
 
               {/* Floating Dashboard Card - Middle Right */}
-              <div className="hidden lg:block absolute top-1/2 -translate-y-1/2 -right-12 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 w-44 animate-float">
+              <div className="hidden lg:block absolute top-1/2 -translate-y-1/2 -right-12 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 w-44 animate-float z-20">
                 <div className="flex items-center gap-2 mb-3">
                   <BarChart3 className="w-3.5 h-3.5 text-blue-600" />
                   <div className="text-[10px] font-normal text-slate-400 uppercase tracking-wide">Esta semana</div>
@@ -188,6 +188,43 @@ export function HeroV2() {
                   <div className="w-full bg-blue-400 rounded-sm" style={{height: '80%'}}></div>
                   <div className="w-full bg-blue-500 rounded-sm" style={{height: '100%'}}></div>
                   <div className="w-full bg-blue-600 rounded-sm" style={{height: '75%'}}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Logo Carousel - Trust Badges */}
+          <div className="mt-24">
+            <p className="text-center text-xs text-slate-400 uppercase tracking-wide mb-8">
+              Empresas que confían en ChatForm
+            </p>
+            <div className="relative overflow-hidden">
+              <div className="flex gap-12 items-center justify-center flex-wrap md:flex-nowrap">
+                {/* Placeholder logos - replace with actual logos */}
+                <div className="grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                  <div className="h-8 w-32 bg-slate-200 rounded flex items-center justify-center text-xs font-semibold text-slate-600">
+                    Company 1
+                  </div>
+                </div>
+                <div className="grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                  <div className="h-8 w-32 bg-slate-200 rounded flex items-center justify-center text-xs font-semibold text-slate-600">
+                    Company 2
+                  </div>
+                </div>
+                <div className="grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                  <div className="h-8 w-32 bg-slate-200 rounded flex items-center justify-center text-xs font-semibold text-slate-600">
+                    Company 3
+                  </div>
+                </div>
+                <div className="grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                  <div className="h-8 w-32 bg-slate-200 rounded flex items-center justify-center text-xs font-semibold text-slate-600">
+                    Company 4
+                  </div>
+                </div>
+                <div className="grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300 hidden md:block">
+                  <div className="h-8 w-32 bg-slate-200 rounded flex items-center justify-center text-xs font-semibold text-slate-600">
+                    Company 5
+                  </div>
                 </div>
               </div>
             </div>
