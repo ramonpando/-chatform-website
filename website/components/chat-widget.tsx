@@ -20,16 +20,16 @@ export function ChatWidget() {
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full opacity-75 group-hover:opacity-100 transition duration-300 blur-md"></div>
 
           {/* Button */}
-          <div className="relative w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+          <div className="relative w-16 h-16 bg-[#0066FF] rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
             {isOpen ? (
               <X className="w-7 h-7 text-white" />
             ) : (
               <Image
-                src="/logo-white.svg"
+                src="/chatform-icon.svg"
                 alt="ChatForm"
-                width={32}
-                height={32}
-                className="w-8 h-8"
+                width={40}
+                height={25}
+                className="w-10 h-auto"
               />
             )}
           </div>
@@ -52,15 +52,13 @@ export function ChatWidget() {
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
             {/* Header - WhatsApp style */}
             <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-5 py-4 flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                <Image
-                  src="/logo-black.svg"
-                  alt="ChatForm"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
-                />
-              </div>
+              <Image
+                src="/chatform-icon.svg"
+                alt="ChatForm"
+                width={40}
+                height={25}
+                className="w-10 h-auto"
+              />
               <div className="flex-1">
                 <h3 className="font-semibold text-white text-sm">ChatForm</h3>
                 <p className="text-xs text-slate-300">Responde en minutos</p>
