@@ -73,6 +73,10 @@ export const surveys = pgTable('surveys', {
   status: varchar('status', { length: 50 }).notNull().default('draft'), // draft, active, paused, archived
   shortCode: varchar('short_code', { length: 20 }).notNull().unique(),
 
+  // Stats
+  viewCount: integer('view_count').notNull().default(0),
+  responseCount: integer('response_count').notNull().default(0),
+
   // Metadata
   createdBy: uuid('created_by').references(() => users.id),
   createdAt: timestamp('created_at').notNull().defaultNow(),

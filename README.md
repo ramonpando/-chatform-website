@@ -1,86 +1,115 @@
 # ChatForm
 
-ChatForm es una plataforma SaaS para crear formularios conversacionales e interactivos.
-
-## Tecnologías
-
-- **Frontend**: Next.js 15 con React 19
-- **Lenguaje**: TypeScript
-- **Estilos**: Tailwind CSS
-- **Base de datos**: PostgreSQL (por configurar)
-- **ORM**: Prisma (por configurar)
-- **Autenticación**: NextAuth.js (por configurar)
+> El Typeform de WhatsApp - Crea encuestas conversacionales que obtienen 3x más respuestas
 
 ## Estructura del Proyecto
 
+Este repositorio contiene dos proyectos Next.js separados:
+
 ```
 chatform/
-├── src/
-│   ├── app/              # App Router de Next.js
-│   │   ├── api/          # API Routes
-│   │   ├── auth/         # Páginas de autenticación
-│   │   ├── dashboard/    # Dashboard de la aplicación
-│   │   ├── layout.tsx    # Layout principal
-│   │   ├── page.tsx      # Página principal
-│   │   └── globals.css   # Estilos globales
-│   ├── components/       # Componentes reutilizables
-│   │   ├── ui/           # Componentes de UI
-│   │   ├── forms/        # Componentes de formularios
-│   │   └── layouts/      # Layouts
-│   ├── lib/              # Utilidades y librerías
-│   ├── types/            # Tipos de TypeScript
-│   ├── hooks/            # React Hooks personalizados
-│   ├── services/         # Servicios y lógica de negocio
-│   └── config/           # Configuración
-├── public/               # Archivos estáticos
-└── package.json
+├── website/          # Landing page (Next.js 15)
+│   ├── components/   # Componentes de la landing
+│   ├── app/          # App Router de Next.js
+│   └── README.md     # Documentación del website
+│
+├── app/              # Aplicación ChatForm (Next.js 16)
+│   ├── src/          # Código fuente
+│   │   ├── app/      # App Router (auth, dashboard, surveys)
+│   │   ├── components/ # Componentes React
+│   │   └── lib/      # Auth, DB, utils
+│   ├── drizzle.config.ts # Configuración de Drizzle ORM
+│   └── README.md     # Documentación de la app
+│
+└── docs/             # Documentación general
+    ├── DEPLOYMENT.md     # Guía de deployment
+    ├── DOKPLOY-SETUP.md  # Guía de Dokploy
+    └── claude.md         # Documentación técnica
 ```
 
-## Instalación
+## Stack Tecnológico
 
+### Website (Landing Page)
+- **Framework:** Next.js 15
+- **Styling:** Tailwind CSS v4
+- **Deployment:** Dokploy → https://chatform.mx
+
+### App (Aplicación)
+- **Framework:** Next.js 16 + React 19
+- **Styling:** Tailwind CSS v4
+- **Database:** PostgreSQL (Supabase)
+- **ORM:** Drizzle ORM
+- **Auth:** NextAuth v5 (JWT strategy)
+- **Deployment:** Dokploy → https://app.chatform.mx (pendiente)
+
+## Desarrollo Local
+
+### Website
 ```bash
-# Instalar dependencias
+cd website
+npm install
+npm run dev
+# → http://localhost:3000
+```
+
+### App
+```bash
+cd app
 npm install
 
-# Copiar archivo de variables de entorno
-cp .env.example .env
+# Configurar variables de entorno
+cp .env.example .env.local
+# Editar .env.local con credenciales
 
-# Ejecutar en modo desarrollo
+# Migrar base de datos
+npm run db:push
+
+# Iniciar servidor
 npm run dev
+# → http://localhost:3002
 ```
 
-## Scripts Disponibles
+## Deployment
 
-- `npm run dev` - Inicia el servidor de desarrollo con Turbopack
-- `npm run build` - Construye la aplicación para producción
-- `npm start` - Inicia el servidor de producción
-- `npm run lint` - Ejecuta el linter
+Ver [DEPLOYMENT.md](DEPLOYMENT.md) y [DOKPLOY-SETUP.md](DOKPLOY-SETUP.md) para instrucciones completas.
 
-## Variables de Entorno
+### Resumen:
 
-Copia el archivo `.env.example` a `.env` y configura las siguientes variables:
+**Website:**
+- Build path: `website`
+- Puerto: 3000
+- Dominio: chatform.mx
+- Env vars: `NEXT_PUBLIC_APP_URL`
 
-- `DATABASE_URL` - URL de conexión a PostgreSQL
-- `NEXTAUTH_URL` - URL de la aplicación
-- `NEXTAUTH_SECRET` - Secret para NextAuth.js
+**App:**
+- Build path: `app`
+- Puerto: 3000
+- Dominio: app.chatform.mx
+- Env vars: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `NEXT_PUBLIC_APP_URL`
 
-## Desarrollo
+## Documentación
 
-El proyecto está configurado con:
+- **[claude.md](claude.md)** - Documentación técnica completa
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guía de deployment
+- **[DOKPLOY-SETUP.md](DOKPLOY-SETUP.md)** - Setup en Dokploy paso a paso
 
-- ✅ Next.js 15 con App Router
-- ✅ TypeScript para tipado estático
-- ✅ Tailwind CSS para estilos
-- ✅ ESLint para calidad de código
-- ✅ Turbopack para desarrollo rápido
+## Estado Actual
 
-## Próximos Pasos
+✅ **Completado:**
+- Landing page deployada en chatform.mx
+- App base con autenticación
+- Survey builder completo (create, edit, list, results)
+- Multi-tenancy configurado
+- Database schema en Supabase
 
-- [ ] Configurar base de datos con Prisma
-- [ ] Implementar sistema de autenticación
-- [ ] Crear componentes del constructor de formularios
-- [ ] Implementar lógica conversacional
-- [ ] Agregar analytics y seguimiento
+🚧 **En Progreso:**
+- Deployment de app a app.chatform.mx
+
+📝 **Próximos Pasos:**
+- WhatsApp Business API integration
+- Stripe payments
+- Analytics dashboard
+- Team management
 
 ## Licencia
 

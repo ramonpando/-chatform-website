@@ -35,3 +35,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Credentials and old files
+CREDENCIALES.md
+_old/
+.claude/
+
+# Build artifacts and dependencies
+node_modules/

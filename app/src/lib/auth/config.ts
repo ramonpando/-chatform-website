@@ -1,7 +1,6 @@
 import NextAuth, { DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/lib/db";
 import { users, tenants, tenantUsers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -27,7 +26,6 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: DrizzleAdapter(db),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
