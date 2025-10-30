@@ -21,7 +21,7 @@ export function HeroV2() {
         <h1 className="hero-title animate-fade-in-up delay-100">
           Convierte conversaciones
           <br />
-          en <span className="gradient-text">insights accionables</span>
+          en <span className="text-accent">insights accionables</span>
         </h1>
 
         {/* Subtitle */}
@@ -83,7 +83,7 @@ export function HeroV2() {
             <BentoCard background="peach">
               <div className="flex flex-col h-full">
                 <div className="metric-card mb-6">
-                  <div className="metric-value gradient-text">78%</div>
+                  <div className="metric-value text-primary-color">78%</div>
                   <div className="metric-label">Tasa de respuesta</div>
                 </div>
                 <div className="mt-auto">
