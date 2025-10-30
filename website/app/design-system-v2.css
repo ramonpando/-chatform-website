@@ -389,6 +389,104 @@
   padding: var(--space-20) var(--space-6);
 }
 
+/* Hero Two-Column Grid */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+  }
+}
+
+/* Hero Content (Left Column) */
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-title-left {
+  font-family: var(--font-display);
+  font-size: var(--text-6xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  text-align: left;
+  margin-bottom: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .hero-title-left {
+    font-size: var(--text-7xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title-left {
+    font-size: var(--text-4xl);
+    text-align: center;
+  }
+}
+
+.hero-subtitle-left {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  text-align: left;
+  margin-bottom: var(--space-8);
+  line-height: var(--leading-relaxed);
+  max-width: 540px;
+}
+
+@media (min-width: 1024px) {
+  .hero-subtitle-left {
+    font-size: var(--text-xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-subtitle-left {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Hero App Preview (Right Column) */
+.hero-app-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 600px;
+}
+
+.app-mockup-container {
+  width: 100%;
+  max-width: 600px;
+  border-radius: var(--radius-2xl);
+  background: white;
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+}
+
+.mockup-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(135deg, var(--bg-lavender) 0%, var(--bg-sky) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Legacy centered hero styles (keep for backward compatibility) */
 .hero-title {
   font-family: var(--font-display);
   font-size: var(--text-7xl);
