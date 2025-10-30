@@ -1,97 +1,102 @@
-import { Button } from "@/components/ui/button"
-import { ArrowRight, CheckCircle } from "lucide-react"
-import Link from "next/link"
+import { ArrowRight, CheckCircle, Sparkles } from "lucide-react"
 
 export function FinalCTA() {
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden">
-      {/* Chatbase-style purple gradient background */}
-      <div className="absolute inset-0 bg-gradient-purple opacity-90" />
+    <section className="relative py-24 md:py-32 overflow-hidden bg-white">
+      {/* Subtle gradient orbs */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-50/40 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-50/40 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-6 lg:px-8 relative z-10">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Main CTA Card */}
-          <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-12 md:p-16 text-center overflow-hidden border-2 border-white/20 shadow-2xl">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMC0xMGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6TTI2IDM0YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMC0xMGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6bTAtMTBjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00ek00NiAzNGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6bTAtMTBjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
-
+          <div className="relative bg-gradient-to-br from-slate-50 to-white rounded-3xl p-12 md:p-16 text-center border border-slate-200 shadow-2xl">
             {/* Content */}
             <div className="relative">
-              <div className="inline-block px-4 py-2 rounded-full bg-white/20 text-white text-sm font-medium mb-6">
-                🎉 Lanzamiento especial
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50/80 border border-blue-100/50 text-blue-600 text-xs font-normal mb-8">
+                <Sparkles className="w-3 h-3" />
+                Lanzamiento especial
               </div>
 
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-                Comienza a recibir más respuestas hoy
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
+                Comienza a recibir más{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                  respuestas hoy
+                </span>
               </h2>
 
-              <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
+              <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed">
                 Únete a las empresas que ya están obteniendo 5-10x más respuestas
                 con encuestas por WhatsApp.
               </p>
 
               {/* Benefits */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-10">
-                <div className="flex items-center gap-2 text-white">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">Gratis hasta 100 respuestas</span>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                  <span>Gratis hasta 100 respuestas</span>
                 </div>
-                <div className="flex items-center gap-2 text-white">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">Sin tarjeta de crédito</span>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                  <span>Sin tarjeta de crédito</span>
                 </div>
-                <div className="flex items-center gap-2 text-white">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">Setup en 5 minutos</span>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                  <span>Setup en 5 minutos</span>
                 </div>
               </div>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button className="btn-gradient w-full sm:w-auto min-w-[220px]">
-                  <Link href="/signup" className="flex items-center justify-center gap-2 relative z-10">
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-75 group-hover:opacity-100 transition duration-300 blur-sm group-hover:blur"></div>
+                  <a
+                    href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
+                    className="relative inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-xl font-semibold text-lg hover:bg-slate-800 transition-all"
+                  >
                     Crear cuenta gratis
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </button>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </div>
 
-                <button className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 px-8 py-4 rounded-lg font-semibold text-lg transition-all border-2 border-white/30 hover:border-white/50 w-full sm:w-auto min-w-[220px]">
-                  <Link href="/contact">
-                    Hablar con ventas
-                  </Link>
-                </button>
+                <a
+                  href="/contact"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-semibold text-lg hover:border-slate-300 hover:bg-slate-50 transition-all"
+                >
+                  Hablar con ventas
+                </a>
               </div>
 
               {/* Trust indicator */}
-              <p className="text-white/80 text-sm mt-8">
+              <p className="text-slate-500 text-xs mt-10">
                 Ya confían en nosotros: Ecommerce, SaaS, Agencias, y más
               </p>
             </div>
           </div>
 
           {/* Bottom Stats */}
-          <div className="mt-12 grid grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-neutral-900 mb-2">
+          <div className="mt-16 grid grid-cols-3 gap-8 text-center">
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
                 100+
               </div>
-              <div className="text-neutral-600 text-sm">
+              <div className="text-slate-600 text-sm">
                 Encuestas creadas
               </div>
             </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-neutral-900 mb-2">
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
                 10K+
               </div>
-              <div className="text-neutral-600 text-sm">
+              <div className="text-slate-600 text-sm">
                 Respuestas procesadas
               </div>
             </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-neutral-900 mb-2">
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
                 4.9/5
               </div>
-              <div className="text-neutral-600 text-sm">
+              <div className="text-slate-600 text-sm">
                 Rating promedio
               </div>
             </div>
