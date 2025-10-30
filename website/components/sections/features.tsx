@@ -72,13 +72,16 @@ export function Features() {
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-white">
-      <div className="container mx-auto px-6 lg:px-8">
+    <section className="relative py-20 md:py-32 overflow-hidden">
+      {/* Chatbase-style gradient background */}
+      <div className="absolute inset-0 bg-gradient-cool opacity-20" />
+
+      <div className="container mx-auto px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-neutral-900 mb-4">
             Todo lo que necesitas para{" "}
-            <span className="text-primary-500">entender a tus clientes</span>
+            <span className="text-gradient">entender a tus clientes</span>
           </h2>
           <p className="text-lg md:text-xl text-neutral-600">
             Desde crear la encuesta hasta actuar sobre insights. Todo en un solo lugar.
@@ -90,11 +93,11 @@ export function Features() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group relative bg-white rounded-2xl p-8 border border-neutral-200 hover:border-primary-200 hover:shadow-soft transition-all duration-200"
+              className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-neutral-200/50 hover:border-primary-300 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               {/* Icon */}
-              <div className="w-14 h-14 rounded-xl bg-primary-50 flex items-center justify-center mb-6 group-hover:bg-primary-100 transition-colors">
-                <feature.icon className="w-7 h-7 text-primary-600" />
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <feature.icon className="w-7 h-7 text-white" />
               </div>
 
               {/* Content */}

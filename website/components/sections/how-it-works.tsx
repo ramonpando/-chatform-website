@@ -33,11 +33,14 @@ export function HowItWorks() {
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-neutral-50">
-      <div className="container mx-auto px-6 lg:px-8">
+    <section className="relative py-20 md:py-32 overflow-hidden">
+      {/* Chatbase-style warm gradient background */}
+      <div className="absolute inset-0 bg-gradient-warm opacity-15" />
+
+      <div className="container mx-auto px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-neutral-900 mb-4">
-            Tan fácil como <span className="text-primary-500">1, 2, 3</span>
+            Tan fácil como <span className="text-gradient-warm">1, 2, 3</span>
           </h2>
           <p className="text-lg md:text-xl text-neutral-600">
             De crear tu encuesta a obtener insights en minutos
@@ -55,15 +58,15 @@ export function HowItWorks() {
                 <div className="hidden lg:block absolute top-20 left-full w-full h-0.5 bg-neutral-200 -z-10" />
               )}
 
-              <div className="bg-white rounded-2xl p-8 border border-neutral-200 hover:border-primary-200 hover:shadow-soft transition-all duration-200">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-neutral-200/50 hover:border-primary-300 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 {/* Number badge */}
-                <div className="w-12 h-12 rounded-xl bg-primary-500 text-white flex items-center justify-center text-2xl font-bold mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] text-white flex items-center justify-center text-2xl font-bold mb-6 shadow-lg">
                   {step.number}
                 </div>
 
                 {/* Icon */}
-                <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-4">
-                  <step.icon className="w-6 h-6 text-primary-600" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-accent)]/10 flex items-center justify-center mb-4">
+                  <step.icon className="w-6 h-6 text-[var(--color-primary)]" />
                 </div>
 
                 {/* Content */}

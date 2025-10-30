@@ -9,16 +9,21 @@
        COLORS V2 - Professional Blue & Pastels
        ======================================== */
 
-    /* Primary - Professional Blue */
-    --color-primary: #2563EB;           /* Blue 600 */
+    /* Primary - Professional Blue (Chatbase-inspired) */
+    --color-primary: #0066FF;           /* Vibrant Blue */
     --color-primary-light: #3B82F6;     /* Blue 500 */
-    --color-primary-dark: #1E40AF;      /* Blue 700 */
+    --color-primary-dark: #0052CC;      /* Blue 700 */
     --color-primary-50: #EFF6FF;        /* Blue 50 */
 
-    /* Accent - Pink Highlights */
-    --color-accent: #EC4899;            /* Pink 500 */
-    --color-accent-light: #F472B6;      /* Pink 400 */
-    --color-accent-dark: #DB2777;       /* Pink 600 */
+    /* Accent - Cyan/Turquoise (replaces pink for Chatbase look) */
+    --color-accent: #06B6D4;            /* Cyan 500 */
+    --color-accent-light: #22D3EE;      /* Cyan 400 */
+    --color-accent-dark: #0891B2;       /* Cyan 600 */
+
+    /* Secondary Accent - Purple for gradients */
+    --color-purple: #A855F7;            /* Purple 500 */
+    --color-purple-light: #C084FC;      /* Purple 400 */
+    --color-purple-dark: #9333EA;       /* Purple 600 */
 
     /* Success - Green */
     --color-success: #10B981;
@@ -41,8 +46,29 @@
     --bg-amber: #FFFBEB;      /* Amarillo suave */
 
     /* ========================================
-       SOLID BACKGROUNDS (No gradients)
+       CHATBASE-STYLE GRADIENT BACKGROUNDS
        ======================================== */
+
+    /* Hero gradient (Pink to Purple - Chatbase style) */
+    --gradient-hero: linear-gradient(135deg, #FFA6C9 0%, #EC4899 25%, #C084FC 75%, #A855F7 100%);
+
+    /* Feature gradients (Orange to Red - Chatbase style) */
+    --gradient-warm: linear-gradient(135deg, #FF6B6B 0%, #FF4E50 50%, #F05A42 100%);
+
+    /* Cool gradient (Cyan to Blue) */
+    --gradient-cool: linear-gradient(135deg, #22D3EE 0%, #06B6D4 50%, #0891B2 100%);
+
+    /* Purple gradient */
+    --gradient-purple: linear-gradient(135deg, #C084FC 0%, #A855F7 50%, #9333EA 100%);
+
+    /* Mesh gradients (multi-color like Chatbase) */
+    --gradient-mesh-1: radial-gradient(at 0% 0%, #FFA6C9 0%, transparent 50%),
+                       radial-gradient(at 100% 0%, #A855F7 0%, transparent 50%),
+                       radial-gradient(at 100% 100%, #06B6D4 0%, transparent 50%);
+
+    --gradient-mesh-2: radial-gradient(at 0% 0%, #FF6B6B 0%, transparent 50%),
+                       radial-gradient(at 100% 0%, #EC4899 0%, transparent 50%),
+                       radial-gradient(at 50% 100%, #F97316 0%, transparent 50%);
 
     --bg-hero: #F9FAFB;              /* Light gray for hero */
     --bg-section-light: #FFFFFF;     /* White sections */
@@ -261,6 +287,36 @@
     transform: translateY(0);
   }
 
+  /* Chatbase-style gradient border button */
+  .btn-gradient {
+    position: relative;
+    background: black;
+    color: white;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    transition: all var(--duration-fast);
+    overflow: hidden;
+  }
+
+  .btn-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    padding: 2px;
+    background: linear-gradient(90deg, #FF6B6B 0%, #EC4899 50%, #A855F7 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(236, 72, 153, 0.3);
+  }
+
   .btn-accent {
     background: var(--color-accent);
     color: white;
@@ -372,6 +428,46 @@
   .delay-200 { animation-delay: 200ms; }
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
+
+  /* Chatbase-style gradient backgrounds */
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-warm {
+    background: var(--gradient-warm);
+  }
+
+  .bg-gradient-cool {
+    background: var(--gradient-cool);
+  }
+
+  .bg-gradient-purple {
+    background: var(--gradient-purple);
+  }
+
+  .bg-gradient-mesh-1 {
+    background: var(--gradient-mesh-1), white;
+  }
+
+  .bg-gradient-mesh-2 {
+    background: var(--gradient-mesh-2), white;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-warm {
+    background: linear-gradient(90deg, #FF6B6B 0%, #EC4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 /* ========================================
