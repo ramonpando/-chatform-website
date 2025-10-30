@@ -32,21 +32,21 @@ export function StructuredData() {
         "name": "Free Plan",
         "price": "0",
         "priceCurrency": "USD",
-        "description": "Hasta 100 respuestas/mes"
+        "description": "25 respuestas/mes con AI Form Generator"
       },
       {
         "@type": "Offer",
         "name": "Starter Plan",
-        "price": "19",
+        "price": "29",
         "priceCurrency": "USD",
-        "description": "Hasta 1,000 respuestas/mes"
+        "description": "500 respuestas/mes con AI ilimitado"
       },
       {
         "@type": "Offer",
         "name": "Pro Plan",
-        "price": "49",
+        "price": "79",
         "priceCurrency": "USD",
-        "description": "Hasta 5,000 respuestas/mes"
+        "description": "2,500 respuestas/mes con AI Analysis"
       }
     ],
     "aggregateRating": {

@@ -34,15 +34,15 @@ export function FinalCTA() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  <span>Gratis hasta 100 respuestas</span>
+                  <span>Gratis 25 respuestas/mes</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  <span>Sin tarjeta de crédito</span>
+                  <span>AI crea tu encuesta</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  <span>Setup en 5 minutos</span>
+                  <span>Sin tarjeta</span>
                 </div>
               </div>
 

@@ -1,6 +1,8 @@
 # ChatForm
 
-> El Typeform de WhatsApp - Crea encuestas conversacionales que obtienen 3x más respuestas
+> Crea encuestas con IA y envíalas por WhatsApp - 10x más respuestas que email
+
+**La IA crea tu encuesta en segundos.** Describe lo que quieres preguntar y nuestra IA genera el formulario completo. Envía por WhatsApp, obtén análisis automático y toma decisiones basadas en datos reales.
 
 ## Estructura del Proyecto
 

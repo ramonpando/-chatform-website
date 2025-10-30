@@ -1,9 +1,9 @@
 export function SocialProof() {
   const stats = [
-    { value: "50-80%", label: "Tasa de respuesta" },
-    { value: "5-10x", label: "Más que email" },
-    { value: "<30s", label: "Análisis por IA" },
-    { value: "$19", label: "Desde /mes" },
+    { value: "10x", label: "Más respuestas" },
+    { value: "<2min", label: "Con IA" },
+    { value: "50-80%", label: "Tasa respuesta" },
+    { value: "$29", label: "Desde /mes" },
   ]
 
   return (
