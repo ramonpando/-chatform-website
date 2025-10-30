@@ -1,6 +1,7 @@
 "use client"
 
 import { ArrowRight, MessageCircle, Sparkles, BarChart3, CheckCircle, TrendingUp } from "lucide-react"
+import Image from "next/image"
 
 export function HeroV2() {
   return (
@@ -90,9 +91,13 @@ export function HeroV2() {
                   {/* Phone frame header */}
                   <div className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                        <MessageCircle className="w-5 h-5 text-white" />
-                      </div>
+                      <Image
+                        src="/chatform-icon.svg"
+                        alt="ChatForm"
+                        width={40}
+                        height={25}
+                        className="w-10 h-auto"
+                      />
                       <div>
                         <div className="font-semibold text-slate-900 text-sm">ChatForm</div>
                         <div className="text-xs text-slate-500">Encuesta activa</div>
