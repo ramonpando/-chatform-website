@@ -1,0 +1,53 @@
+# Dependencies
+node_modules
+*/node_modules
+**/node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Build outputs
+.next
+*/. next
+**/.next
+out
+dist
+build
+
+# Git
+.git
+.gitignore
+.github
+
+# Environment
+.env
+.env*.local
+*.env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+!README.md
+docs
+
+# Old files
+_old
+
+# Large HTML files
+*.html
+
+# Claude
+.claude
+
+# Website (if building app)
+website

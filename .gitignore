@@ -43,3 +43,10 @@ _old/
 
 # Build artifacts and dependencies
 node_modules/
+
+# Large files
+*.html
+!**/public/*.html
+
+# Claude history
+.claude/
