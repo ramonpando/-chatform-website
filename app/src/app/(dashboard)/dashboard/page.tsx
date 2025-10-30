@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
 import { FileText, MessageSquare, TrendingUp, Users } from "lucide-react";
 
+type ChangeType = "positive" | "negative" | "neutral";
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -10,34 +12,40 @@ export default async function DashboardPage() {
   }
 
   // TODO: Fetch real stats from DB
-  const stats = [
+  const stats: Array<{
+    name: string;
+    value: string;
+    icon: any;
+    change: string;
+    changeType: ChangeType;
+  }> = [
     {
       name: "Encuestas Activas",
       value: "0",
       icon: FileText,
       change: "+0%",
-      changeType: "neutral" as const,
+      changeType: "neutral",
     },
     {
       name: "Respuestas este mes",
       value: "0",
       icon: MessageSquare,
       change: "+0%",
-      changeType: "neutral" as const,
+      changeType: "neutral",
     },
     {
       name: "Tasa de Completado",
       value: "0%",
       icon: TrendingUp,
       change: "+0%",
-      changeType: "neutral" as const,
+      changeType: "neutral",
     },
     {
       name: "Encuestas Totales",
       value: "0",
       icon: Users,
       change: "+0%",
-      changeType: "neutral" as const,
+      changeType: "neutral",
     },
   ];
 
