@@ -10,15 +10,17 @@ export function Pricing() {
       period: "siempre",
       description: "Perfecto para probar ChatForm",
       features: [
-        "50 respuestas/mes",
+        "25 respuestas/mes",
         "1 encuesta activa",
+        "AI Form Generator ✨",
+        "5 AI suggestions/mes",
         "Links y QR ilimitados",
-        "Dashboard básico",
-        "Soporte por email"
+        "WhatsApp preview",
+        "Analytics básico"
       ],
       limitations: [
-        "0 envíos automáticos",
         "Sin exportación CSV",
+        "Sin validación de email",
         "Branding ChatForm"
       ],
       cta: "Comenzar gratis",
@@ -31,39 +33,42 @@ export function Pricing() {
       description: "Para pequeñas empresas",
       features: [
         "500 respuestas/mes",
-        "3 encuestas activas",
+        "5 encuestas activas",
+        "AI Form Generator ilimitado ✨",
+        "50 AI suggestions/mes",
         "Links y QR ilimitados",
-        "100 envíos automáticos/mes",
-        "CSV upload para envíos",
-        "Dashboard avanzado",
-        "Exportar a CSV"
+        "Exportar a CSV",
+        "Validación de email",
+        "Sin branding ChatForm",
+        "Analytics avanzado"
       ],
       limitations: [
-        "Branding ChatForm"
+        "Sin envíos automáticos",
+        "Sin webhooks"
       ],
-      cta: "Probar 14 días gratis",
+      cta: "Comenzar ahora",
       highlighted: true,
       badge: "Más popular"
     },
     {
       name: "Pro",
-      price: "$59",
+      price: "$79",
       period: "/mes",
-      description: "Para agencias y e-commerce",
+      description: "Para empresas en crecimiento",
       features: [
-        "2,000 respuestas/mes",
+        "2,500 respuestas/mes",
         "Encuestas ilimitadas",
-        "Links y QR ilimitados",
-        "500 envíos automáticos/mes",
-        "Sin branding ChatForm ✨",
-        "3 webhooks configurables",
-        "API access completo",
-        "AI insights ilimitados",
-        "Logic jumps",
-        "Soporte prioritario 24/7"
+        "AI Generator ilimitado ✨",
+        "AI Suggestions ilimitadas",
+        "AI Response Analysis (próximamente)",
+        "100 envíos automáticos/mes",
+        "Webhooks ilimitados",
+        "Conditional logic",
+        "Multi-usuario (3 miembros)",
+        "Soporte prioritario"
       ],
       limitations: [],
-      cta: "Probar 14 días gratis",
+      cta: "Comenzar ahora",
       highlighted: false
     }
   ]
@@ -186,15 +191,14 @@ export function Pricing() {
               Enterprise
             </h3>
             <div className="flex items-baseline gap-1 justify-center mb-4">
-              <span className="text-5xl font-bold text-slate-900">$299</span>
-              <span className="text-slate-600 text-lg">/mes</span>
+              <span className="text-5xl font-bold text-slate-900">Custom</span>
             </div>
             <p className="text-slate-600 mb-6 leading-relaxed">
-              Para empresas con alto volumen. Incluye respuestas ilimitadas, 2,000 envíos automáticos/mes,
-              webhooks ilimitados, white-label completo, BYOA (tu propio WhatsApp), SLA 99.9% y account manager dedicado.
+              Para empresas con alto volumen. Incluye respuestas ilimitadas, AI custom models,
+              envíos automáticos ilimitados, white-label completo, SSO & SAML, SLA 99.9% y account manager dedicado.
             </p>
             <a
-              href="/contact"
+              href="mailto:sales@chatform.mx"
               className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-100 text-slate-900 rounded-md font-semibold hover:bg-slate-200 transition-all"
             >
               Hablar con ventas
@@ -206,7 +210,7 @@ export function Pricing() {
         {/* Add-ons Info */}
         <div className="mt-16 text-center max-w-3xl mx-auto">
           <p className="text-slate-600 text-base">
-            <span className="font-semibold text-slate-900">¿Necesitas más envíos automáticos?</span> Todos los planes pueden comprar créditos adicionales: +100 envíos por $10, +500 por $40, +1,000 por $70
+            <span className="font-semibold text-slate-900">Add-ons disponibles:</span> +100 envíos automáticos por $10 • Usuarios extra por $15/usuario • Respuestas adicionales disponibles
           </p>
         </div>
 
