@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { surveys } from "@/lib/db/schema";
+import { surveys, surveySessions } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
@@ -41,12 +41,45 @@ export default async function SurveyResultsPage({
     notFound();
   }
 
-  // TODO: Get responses from DB when we have them
-  const responses = [];
-  const responseCount = survey.responseCount || 0;
+  // Get sessions (responses) from DB
+  const sessions = await db.query.surveySessions.findMany({
+    where: and(
+      eq(surveySessions.surveyId, id),
+      eq(surveySessions.status, "completed")
+    ),
+    with: {
+      responses: {
+        with: {
+          question: true,
+        },
+      },
+    },
+    orderBy: (sessions, { desc }) => [desc(sessions.completedAt)],
+  });
+
+  const responseCount = sessions.length;
   const viewCount = survey.viewCount || 0;
   const completionRate =
     viewCount > 0 ? Math.round((responseCount / viewCount) * 100) : 0;
+
+  // Calculate average completion time
+  const completionTimes = sessions
+    .filter(s => s.startedAt && s.completedAt)
+    .map(s => {
+      const start = new Date(s.startedAt!).getTime();
+      const end = new Date(s.completedAt!).getTime();
+      return (end - start) / 1000; // seconds
+    });
+
+  const avgCompletionTime = completionTimes.length > 0
+    ? Math.round(completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length)
+    : 0;
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs}s`;
+  };
 
   return (
     <div className="space-y-6">
@@ -110,8 +143,8 @@ export default async function SurveyResultsPage({
         <StatCard
           icon={<TrendingUp className="w-5 h-5" />}
           label="Tiempo promedio"
-          value="2m 34s"
-          trend="-12s vs último mes"
+          value={avgCompletionTime > 0 ? formatTime(avgCompletionTime) : "N/A"}
+          trend={avgCompletionTime > 0 ? "Tiempo de completado" : "Sin datos"}
           trendUp={true}
         />
       </div>
@@ -127,6 +160,16 @@ export default async function SurveyResultsPage({
               ? JSON.parse(question.options as string)
               : null;
 
+            // Get all responses for this specific question
+            const questionResponses = sessions.flatMap((session) =>
+              session.responses
+                .filter((r) => r.questionId === question.id)
+                .map((r) => ({
+                  answer: r.answerText || r.answerOption || r.answerRating,
+                  createdAt: r.createdAt,
+                }))
+            );
+
             return (
               <QuestionResult
                 key={question.id}
@@ -139,7 +182,7 @@ export default async function SurveyResultsPage({
                     | "open_text"
                 }
                 options={options}
-                responses={[]} // TODO: Filter responses for this question
+                responses={questionResponses}
               />
             );
           })}
@@ -230,9 +273,11 @@ function QuestionResult({
       {type === "multiple_choice" && options && (
         <div className="space-y-4">
           {options.map((option, i) => {
-            // TODO: Calculate actual percentage from responses
-            const percentage = Math.floor(Math.random() * 100);
-            const count = Math.floor(Math.random() * 50);
+            // Calculate actual percentage from responses
+            const count = responses.filter((r) => r.answer === option).length;
+            const percentage = responses.length > 0
+              ? Math.round((count / responses.length) * 100)
+              : 0;
 
             return (
               <div key={i} className="space-y-2">
@@ -257,13 +302,27 @@ function QuestionResult({
       {type === "rating" && (
         <div className="space-y-6">
           <div className="text-center py-8 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100">
-            <div className="text-5xl font-bold text-slate-900 mb-2">8.5</div>
-            <div className="text-sm font-medium text-slate-600">Calificación promedio</div>
+            <div className="text-5xl font-bold text-slate-900 mb-2">
+              {responses.length > 0
+                ? (
+                    responses.reduce((sum, r) => sum + Number(r.answer), 0) /
+                    responses.length
+                  ).toFixed(1)
+                : "N/A"}
+            </div>
+            <div className="text-sm font-medium text-slate-600">
+              Calificación promedio ({responses.length} respuestas)
+            </div>
           </div>
           <div className="flex gap-1 justify-center bg-slate-50 rounded-xl p-4">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
-              const count = Math.floor(Math.random() * 20);
-              const maxCount = 20;
+              const count = responses.filter((r) => Number(r.answer) === num).length;
+              const maxCount = Math.max(
+                ...Array.from({ length: 10 }, (_, i) =>
+                  responses.filter((r) => Number(r.answer) === i + 1).length
+                ),
+                1
+              );
               const height = (count / maxCount) * 100;
 
               return (
@@ -275,6 +334,7 @@ function QuestionResult({
                     />
                   </div>
                   <div className="text-xs font-medium text-slate-600 mt-2">{num}</div>
+                  <div className="text-xs text-slate-500">{count}</div>
                 </div>
               );
             })}
