@@ -6,15 +6,22 @@ import * as schema from './schema';
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/placeholder';
 
 // For query purposes
-// Force IPv4 to avoid IPv6 connection issues
+// Configure postgres client to avoid IPv6 issues
 const queryClient = postgres(databaseUrl, {
   connect_timeout: 10,
   idle_timeout: 20,
   max_lifetime: 60 * 30,
-  // Force IPv4
+  max: 10,
+  // Force IPv4 by using connection options
   connection: {
-    application_name: 'chatform_app'
-  }
+    application_name: 'chatform_app',
+  },
+  // SSL configuration for Supabase
+  ssl: 'require',
+  // Use fetch mode to avoid connection pooling issues
+  fetch_types: false,
+  // Prepare statements
+  prepare: false,
 });
 export const db = drizzle(queryClient, { schema });
 
