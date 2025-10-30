@@ -1,8 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Check, Sparkles } from "lucide-react"
-import Link from "next/link"
+import { Check, Sparkles, ArrowRight } from "lucide-react"
 
 export function Pricing() {
   const plans = [
@@ -71,91 +69,105 @@ export function Pricing() {
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-neutral-50">
+    <section id="pricing" className="py-24 md:py-32 bg-slate-50">
       <div className="container mx-auto px-6 lg:px-8">
         {/* Header */}
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-neutral-900 mb-4">
-            Pricing simple y transparente
+        <div className="max-w-3xl mx-auto text-center mb-20">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
+            Pricing simple y{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              transparente
+            </span>
           </h2>
-          <p className="text-lg md:text-xl text-neutral-600">
+          <p className="text-xl text-slate-600">
             Comienza gratis. Crece cuando estés listo. Sin sorpresas.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative bg-white rounded-2xl p-8 border-2 transition-all duration-200 ${
+              className={`relative bg-white rounded-3xl p-8 transition-all duration-300 ${
                 plan.highlighted
-                  ? "border-primary-500 shadow-large scale-105"
-                  : "border-neutral-200 hover:border-primary-200 hover:shadow-soft"
+                  ? "border-2 border-blue-500 shadow-2xl scale-105 md:scale-110"
+                  : "border border-slate-200 hover:border-slate-300 hover:shadow-xl"
               }`}
             >
               {/* Badge */}
               {plan.badge && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary-500 text-white text-sm font-semibold">
-                    <Sparkles className="w-4 h-4" />
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-[10px] font-normal shadow-lg uppercase tracking-wide">
+                    <Sparkles className="w-3 h-3" />
                     {plan.badge}
                   </div>
                 </div>
               )}
 
               {/* Header */}
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-neutral-900 mb-2">
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">
                   {plan.name}
                 </h3>
-                <p className="text-neutral-600 text-sm mb-4">
+                <p className="text-slate-600 text-sm mb-6">
                   {plan.description}
                 </p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-bold text-neutral-900">
+                  <span className="text-5xl font-bold text-slate-900">
                     {plan.price}
                   </span>
-                  <span className="text-neutral-600">
+                  <span className="text-slate-600 text-lg">
                     {plan.period}
                   </span>
                 </div>
               </div>
 
               {/* CTA Button */}
-              <Button
-                size="lg"
-                variant={plan.highlighted ? "primary" : "secondary"}
-                asChild
-                className="w-full mb-8"
-              >
-                <Link href="/signup">
+              {plan.highlighted ? (
+                <div className="relative group mb-8">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
+                  <a
+                    href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
+                    className="relative w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all"
+                  >
+                    {plan.cta}
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </div>
+              ) : (
+                <a
+                  href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 text-slate-900 rounded-xl font-semibold hover:bg-slate-200 transition-all mb-8"
+                >
                   {plan.cta}
-                </Link>
-              </Button>
+                </a>
+              )}
 
               {/* Features */}
               <div className="space-y-4">
                 <div className="space-y-3">
                   {plan.features.map((feature, i) => (
                     <div key={i} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-neutral-700 text-sm">
+                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-3 h-3 text-green-600" />
+                      </div>
+                      <span className="text-slate-700 text-sm">
                         {feature}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                {/* Limitations (only for Free plan) */}
+                {/* Limitations */}
                 {plan.limitations.length > 0 && (
-                  <div className="pt-4 mt-4 border-t border-neutral-200 space-y-3">
+                  <div className="pt-4 mt-4 border-t border-slate-200 space-y-3">
                     {plan.limitations.map((limitation, i) => (
                       <div key={i} className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-neutral-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                        <span className="text-neutral-500 text-sm">
+                        <span className="text-slate-500 text-sm">
                           {limitation}
                         </span>
                       </div>
@@ -168,44 +180,47 @@ export function Pricing() {
         </div>
 
         {/* Enterprise CTA */}
-        <div className="mt-16 text-center">
-          <div className="inline-block bg-white rounded-2xl p-8 border border-neutral-200 max-w-2xl">
-            <h3 className="text-2xl font-bold text-neutral-900 mb-2">
+        <div className="mt-20 text-center">
+          <div className="inline-block bg-white rounded-3xl p-10 border border-slate-200 max-w-2xl shadow-lg">
+            <h3 className="text-3xl font-bold text-slate-900 mb-3">
               Enterprise
             </h3>
             <div className="flex items-baseline gap-1 justify-center mb-4">
-              <span className="text-4xl font-bold text-neutral-900">$299</span>
-              <span className="text-neutral-600">/mes</span>
+              <span className="text-5xl font-bold text-slate-900">$299</span>
+              <span className="text-slate-600 text-lg">/mes</span>
             </div>
-            <p className="text-neutral-600 mb-4">
+            <p className="text-slate-600 mb-6 leading-relaxed">
               Para empresas con alto volumen. Incluye respuestas ilimitadas, 2,000 envíos automáticos/mes,
               webhooks ilimitados, white-label completo, BYOA (tu propio WhatsApp), SLA 99.9% y account manager dedicado.
             </p>
-            <Button variant="secondary" size="lg" asChild>
-              <Link href="/contact">
-                Hablar con ventas
-              </Link>
-            </Button>
+            <a
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-100 text-slate-900 rounded-xl font-semibold hover:bg-slate-200 transition-all"
+            >
+              Hablar con ventas
+              <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
         </div>
 
         {/* Add-ons Info */}
-        <div className="mt-12 text-center max-w-3xl mx-auto">
-          <p className="text-neutral-600 text-sm mb-3">
-            <span className="font-semibold text-neutral-900">¿Necesitas más envíos automáticos?</span> Todos los planes pueden comprar créditos adicionales: +100 envíos por $10, +500 por $40, +1,000 por $70
+        <div className="mt-16 text-center max-w-3xl mx-auto">
+          <p className="text-slate-600 text-base">
+            <span className="font-semibold text-slate-900">¿Necesitas más envíos automáticos?</span> Todos los planes pueden comprar créditos adicionales: +100 envíos por $10, +500 por $40, +1,000 por $70
           </p>
         </div>
 
         {/* FAQ Quick Links */}
         <div className="mt-8 text-center">
-          <p className="text-neutral-600 text-sm mb-2">
+          <p className="text-slate-600 mb-2">
             ¿Tienes preguntas sobre el pricing?
           </p>
           <a
             href="#faq"
-            className="text-primary-600 font-semibold hover:text-primary-700 transition-colors text-sm"
+            className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors group"
           >
             Ver FAQ
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </a>
         </div>
       </div>
