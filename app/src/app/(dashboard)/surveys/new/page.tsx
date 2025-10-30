@@ -1,5 +1,5 @@
-import { SurveyEditor } from "@/components/surveys/survey-editor";
+import { FormBuilderV2 } from "@/components/surveys/form-builder-v2";
 
 export default function NewSurveyPage() {
-  return <SurveyEditor mode="create" />;
+  return <FormBuilderV2 mode="create" />;
 }

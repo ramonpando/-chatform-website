@@ -1,0 +1,690 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Sparkles, Save, Loader2 } from "lucide-react";
+import { nanoid } from "nanoid";
+
+// Types
+export type QuestionType = "email" | "multiple_choice" | "rating" | "open_text" | "yes_no";
+
+export interface Question {
+  id: string;
+  type: QuestionType;
+  text: string;
+  options?: string[];
+  required: boolean;
+  validateEmail?: boolean;
+  order: number;
+}
+
+interface FormBuilderV2Props {
+  surveyId?: string;
+  initialTitle?: string;
+  initialDescription?: string;
+  initialWelcomeMessage?: string;
+  initialThankYouMessage?: string;
+  initialQuestions?: Question[];
+  mode: "create" | "edit";
+}
+
+export function FormBuilderV2({
+  surveyId,
+  initialTitle = "",
+  initialDescription = "",
+  initialWelcomeMessage = "¡Hola! Gracias por tu tiempo. Tus respuestas nos ayudan a mejorar.",
+  initialThankYouMessage = "¡Gracias por completar la encuesta! Tu opinión es muy valiosa para nosotros.",
+  initialQuestions = [],
+  mode,
+}: FormBuilderV2Props) {
+  const router = useRouter();
+
+  // State
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
+  const [welcomeMessage, setWelcomeMessage] = useState(initialWelcomeMessage);
+  const [thankYouMessage, setThankYouMessage] = useState(initialThankYouMessage);
+  const [questions, setQuestions] = useState<Question[]>(initialQuestions);
+  const [selectedItem, setSelectedItem] = useState<"welcome" | "thankyou" | string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Handlers
+  const addQuestion = (type: QuestionType) => {
+    const newQuestion: Question = {
+      id: nanoid(),
+      type,
+      text: "",
+      options: type === "multiple_choice" ? ["Opción 1", "Opción 2"] : undefined,
+      required: true,
+      validateEmail: type === "email" ? true : undefined,
+      order: questions.length,
+    };
+    setQuestions([...questions, newQuestion]);
+    setSelectedItem(newQuestion.id);
+  };
+
+  const updateQuestion = (id: string, updates: Partial<Question>) => {
+    setQuestions(questions.map((q) => (q.id === id ? { ...q, ...updates } : q)));
+  };
+
+  const deleteQuestion = (id: string) => {
+    setQuestions(questions.filter((q) => q.id !== id));
+    if (selectedItem === id) {
+      setSelectedItem(null);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!title.trim()) {
+      alert("Por favor ingresa un título para la encuesta");
+      return;
+    }
+
+    if (questions.length === 0) {
+      alert("Agrega al menos una pregunta");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const url = mode === "create" ? "/api/surveys" : `/api/surveys/${surveyId}`;
+      const method = mode === "create" ? "POST" : "PUT";
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          status: "active",
+          questions: questions.map((q, i) => ({ ...q, order: i })),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Error al guardar");
+      }
+
+      const data = await response.json();
+
+      if (mode === "create") {
+        router.push(`/surveys/${data.survey.id}/edit`);
+      } else {
+        router.push("/surveys");
+      }
+    } catch (error: any) {
+      alert(error.message || "Error al guardar la encuesta");
+      console.error(error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex h-screen flex-col bg-slate-50">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Título de la encuesta"
+              className="text-lg font-semibold text-slate-900 bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push("/surveys")}
+            className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-5 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 font-medium text-sm"
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {mode === "create" ? "Publicar" : "Guardar"}
+          </button>
+        </div>
+      </header>
+
+      {/* 3-Column Layout */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left: Structure Panel */}
+        <StructurePanel
+          questions={questions}
+          selectedItem={selectedItem}
+          onSelectItem={setSelectedItem}
+          onAddQuestion={addQuestion}
+          onDeleteQuestion={deleteQuestion}
+        />
+
+        {/* Center: Preview Panel */}
+        <PreviewPanel
+          title={title}
+          welcomeMessage={welcomeMessage}
+          questions={questions}
+          thankYouMessage={thankYouMessage}
+        />
+
+        {/* Right: Properties Panel */}
+        <PropertiesPanel
+          selectedItem={selectedItem}
+          questions={questions}
+          welcomeMessage={welcomeMessage}
+          thankYouMessage={thankYouMessage}
+          onUpdateQuestion={updateQuestion}
+          onUpdateWelcomeMessage={setWelcomeMessage}
+          onUpdateThankYouMessage={setThankYouMessage}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Structure Panel Component (Left)
+function StructurePanel({
+  questions,
+  selectedItem,
+  onSelectItem,
+  onAddQuestion,
+  onDeleteQuestion,
+}: {
+  questions: Question[];
+  selectedItem: string | null;
+  onSelectItem: (id: string | null) => void;
+  onAddQuestion: (type: QuestionType) => void;
+  onDeleteQuestion: (id: string) => void;
+}) {
+  const [showAddMenu, setShowAddMenu] = useState(false);
+
+  return (
+    <div className="w-[270px] border-r border-slate-200 bg-white flex flex-col">
+      {/* AI Quick Action */}
+      <div className="p-4 border-b border-slate-200">
+        <button className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity font-medium text-sm">
+          <Sparkles className="w-4 h-4" />
+          Generar con IA
+        </button>
+      </div>
+
+      {/* Survey Flow */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* Welcome Section */}
+        <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+          Inicio
+        </div>
+        <button
+          onClick={() => onSelectItem("welcome")}
+          className={`w-full text-left p-3 rounded-lg border mb-4 transition-all ${
+            selectedItem === "welcome"
+              ? "border-blue-500 bg-blue-50"
+              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          <div className="font-medium text-sm text-slate-900">Mensaje de Bienvenida</div>
+          <div className="text-xs text-slate-500 mt-0.5">Saludo inicial</div>
+        </button>
+
+        {/* Questions */}
+        <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+          Preguntas ({questions.length})
+        </div>
+        <div className="space-y-2 mb-4">
+          {questions.map((question, index) => (
+            <QuestionCard
+              key={question.id}
+              question={question}
+              index={index}
+              isSelected={selectedItem === question.id}
+              onSelect={() => onSelectItem(question.id)}
+              onDelete={() => onDeleteQuestion(question.id)}
+            />
+          ))}
+        </div>
+
+        {/* Add Question Button */}
+        <div className="relative">
+          <button
+            onClick={() => setShowAddMenu(!showAddMenu)}
+            className="w-full py-2.5 px-3 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-2 font-medium"
+          >
+            <Sparkles className="w-4 h-4" />
+            Agregar Pregunta
+          </button>
+
+          {/* Dropdown Menu */}
+          {showAddMenu && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-lg z-10 overflow-hidden">
+              <button
+                onClick={() => {
+                  onAddQuestion("email");
+                  setShowAddMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors"
+              >
+                <div className="font-medium text-sm text-slate-900">Email</div>
+                <div className="text-xs text-slate-500">Con validación automática</div>
+              </button>
+              <button
+                onClick={() => {
+                  onAddQuestion("multiple_choice");
+                  setShowAddMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-t border-slate-100"
+              >
+                <div className="font-medium text-sm text-slate-900">Opción Múltiple</div>
+                <div className="text-xs text-slate-500">Usuario elige una opción</div>
+              </button>
+              <button
+                onClick={() => {
+                  onAddQuestion("rating");
+                  setShowAddMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-t border-slate-100"
+              >
+                <div className="font-medium text-sm text-slate-900">Calificación</div>
+                <div className="text-xs text-slate-500">Escala del 1 al 10</div>
+              </button>
+              <button
+                onClick={() => {
+                  onAddQuestion("yes_no");
+                  setShowAddMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-t border-slate-100"
+              >
+                <div className="font-medium text-sm text-slate-900">Sí/No</div>
+                <div className="text-xs text-slate-500">Respuesta binaria</div>
+              </button>
+              <button
+                onClick={() => {
+                  onAddQuestion("open_text");
+                  setShowAddMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-t border-slate-100"
+              >
+                <div className="font-medium text-sm text-slate-900">Texto Abierto</div>
+                <div className="text-xs text-slate-500">Respuesta libre</div>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Thank You Section */}
+        <div className="text-xs font-semibold text-slate-500 mt-6 mb-2 uppercase tracking-wide">
+          Final
+        </div>
+        <button
+          onClick={() => onSelectItem("thankyou")}
+          className={`w-full text-left p-3 rounded-lg border transition-all ${
+            selectedItem === "thankyou"
+              ? "border-blue-500 bg-blue-50"
+              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          <div className="font-medium text-sm text-slate-900">Mensaje de Despedida</div>
+          <div className="text-xs text-slate-500 mt-0.5">Cierre de la encuesta</div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Question Card Component
+function QuestionCard({
+  question,
+  index,
+  isSelected,
+  onSelect,
+  onDelete,
+}: {
+  question: Question;
+  index: number;
+  isSelected: boolean;
+  onSelect: () => void;
+  onDelete: () => void;
+}) {
+  const typeLabels: Record<QuestionType, string> = {
+    email: "Email",
+    multiple_choice: "Opción Múltiple",
+    rating: "Calificación",
+    open_text: "Texto",
+    yes_no: "Sí/No",
+  };
+
+  return (
+    <div
+      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+        isSelected
+          ? "border-blue-500 bg-blue-50"
+          : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+      }`}
+      onClick={onSelect}
+    >
+      <div className="flex items-start justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500">{index + 1}</span>
+          <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-medium">
+            {typeLabels[question.type]}
+          </span>
+        </div>
+      </div>
+      <div className="text-sm text-slate-900 font-medium truncate">
+        {question.text || "Nueva pregunta"}
+      </div>
+    </div>
+  );
+}
+
+// Preview Panel Component (Center) - Static for now
+function PreviewPanel({
+  title,
+  welcomeMessage,
+  questions,
+  thankYouMessage,
+}: {
+  title: string;
+  welcomeMessage: string;
+  questions: Question[];
+  thankYouMessage: string;
+}) {
+  return (
+    <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
+        <h3 className="font-semibold text-slate-900">Vista Previa</h3>
+        <div className="text-xs text-slate-500">WhatsApp Simulator</div>
+      </div>
+
+      {/* Preview Area */}
+      <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
+        <div className="w-[375px] h-[667px] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+          {/* WhatsApp Header */}
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
+              💬
+            </div>
+            <div>
+              <div className="font-medium text-sm">{title || "ChatForm"}</div>
+              <div className="text-xs opacity-80">En línea</div>
+            </div>
+          </div>
+
+          {/* Chat Area */}
+          <div className="flex-1 overflow-y-auto p-4 bg-[#ECE5DD] space-y-3">
+            {/* Welcome Message */}
+            {welcomeMessage && (
+              <div className="flex justify-start">
+                <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                  <p className="text-sm text-slate-900">{welcomeMessage}</p>
+                  <span className="text-xs text-slate-500 mt-1">
+                    {new Date().toLocaleTimeString("es-ES", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Questions Preview */}
+            {questions.map((question, index) => (
+              <div key={question.id} className="flex justify-start">
+                <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                  <p className="text-sm text-slate-900 font-medium">
+                    {index + 1}. {question.text || "Sin texto"}
+                  </p>
+                  {question.type === "multiple_choice" && question.options && (
+                    <div className="mt-2 space-y-1">
+                      {question.options.map((opt, i) => (
+                        <div
+                          key={i}
+                          className="text-xs px-2 py-1 bg-slate-100 rounded text-slate-700"
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <span className="text-xs text-slate-500 mt-1 block">
+                    {new Date().toLocaleTimeString("es-ES", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* Thank You Message */}
+            {thankYouMessage && questions.length > 0 && (
+              <div className="flex justify-start">
+                <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                  <p className="text-sm text-slate-900">{thankYouMessage}</p>
+                  <span className="text-xs text-slate-500 mt-1">
+                    {new Date().toLocaleTimeString("es-ES", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input Bar */}
+          <div className="border-t bg-white px-4 py-3">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Escribe tu respuesta..."
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled
+              />
+              <button className="w-10 h-10 rounded-full bg-[#075E54] text-white flex items-center justify-center">
+                ▶
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Properties Panel Component (Right)
+function PropertiesPanel({
+  selectedItem,
+  questions,
+  welcomeMessage,
+  thankYouMessage,
+  onUpdateQuestion,
+  onUpdateWelcomeMessage,
+  onUpdateThankYouMessage,
+}: {
+  selectedItem: string | null;
+  questions: Question[];
+  welcomeMessage: string;
+  thankYouMessage: string;
+  onUpdateQuestion: (id: string, updates: Partial<Question>) => void;
+  onUpdateWelcomeMessage: (message: string) => void;
+  onUpdateThankYouMessage: (message: string) => void;
+}) {
+  const selectedQuestion = questions.find((q) => q.id === selectedItem);
+
+  if (!selectedItem) {
+    return (
+      <div className="w-[340px] border-l border-slate-200 bg-white">
+        <div className="p-6 text-center">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-slate-400" />
+          </div>
+          <p className="text-sm text-slate-600">
+            Selecciona un elemento para editar sus propiedades
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedItem === "welcome") {
+    return (
+      <div className="w-[340px] border-l border-slate-200 bg-white overflow-y-auto">
+        <div className="p-6">
+          <h3 className="font-semibold text-slate-900 mb-4">Mensaje de Bienvenida</h3>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Mensaje</label>
+            <textarea
+              value={welcomeMessage}
+              onChange={(e) => onUpdateWelcomeMessage(e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              placeholder="Escribe tu mensaje de bienvenida..."
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              Este mensaje se mostrará al inicio de la encuesta
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedItem === "thankyou") {
+    return (
+      <div className="w-[340px] border-l border-slate-200 bg-white overflow-y-auto">
+        <div className="p-6">
+          <h3 className="font-semibold text-slate-900 mb-4">Mensaje de Despedida</h3>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Mensaje</label>
+            <textarea
+              value={thankYouMessage}
+              onChange={(e) => onUpdateThankYouMessage(e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              placeholder="Escribe tu mensaje de despedida..."
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              Este mensaje se mostrará al completar la encuesta
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedQuestion) return null;
+
+  return (
+    <div className="w-[340px] border-l border-slate-200 bg-white overflow-y-auto">
+      <div className="p-6 space-y-6">
+        {/* Question Type */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Tipo de Pregunta</label>
+          <select
+            value={selectedQuestion.type}
+            onChange={(e) =>
+              onUpdateQuestion(selectedQuestion.id, { type: e.target.value as QuestionType })
+            }
+            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          >
+            <option value="email">Email</option>
+            <option value="multiple_choice">Opción Múltiple</option>
+            <option value="rating">Calificación</option>
+            <option value="yes_no">Sí/No</option>
+            <option value="open_text">Texto Abierto</option>
+          </select>
+        </div>
+
+        {/* Question Text */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Pregunta</label>
+          <textarea
+            value={selectedQuestion.text}
+            onChange={(e) => onUpdateQuestion(selectedQuestion.id, { text: e.target.value })}
+            rows={3}
+            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            placeholder="¿Qué quieres preguntar?"
+          />
+        </div>
+
+        {/* Options for Multiple Choice */}
+        {selectedQuestion.type === "multiple_choice" && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Opciones</label>
+            <div className="space-y-2">
+              {selectedQuestion.options?.map((opt, i) => (
+                <input
+                  key={i}
+                  type="text"
+                  value={opt}
+                  onChange={(e) => {
+                    const newOptions = [...(selectedQuestion.options || [])];
+                    newOptions[i] = e.target.value;
+                    onUpdateQuestion(selectedQuestion.id, { options: newOptions });
+                  }}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
+                />
+              ))}
+              <button
+                onClick={() => {
+                  const newOptions = [
+                    ...(selectedQuestion.options || []),
+                    `Opción ${(selectedQuestion.options?.length || 0) + 1}`,
+                  ];
+                  onUpdateQuestion(selectedQuestion.id, { options: newOptions });
+                }}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                + Agregar opción
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Settings */}
+        <div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectedQuestion.required}
+              onChange={(e) =>
+                onUpdateQuestion(selectedQuestion.id, { required: e.target.checked })
+              }
+              className="w-4 h-4 text-blue-600 rounded"
+            />
+            <span className="text-sm text-slate-700">Campo requerido</span>
+          </label>
+        </div>
+
+        {selectedQuestion.type === "email" && (
+          <div>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={selectedQuestion.validateEmail}
+                onChange={(e) =>
+                  onUpdateQuestion(selectedQuestion.id, { validateEmail: e.target.checked })
+                }
+                className="w-4 h-4 text-blue-600 rounded"
+              />
+              <span className="text-sm text-slate-700">Validar formato de email</span>
+            </label>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

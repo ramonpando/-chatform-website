@@ -33,15 +33,14 @@ export function Sidebar() {
     <div className="flex h-screen w-64 flex-col bg-white border-r border-slate-200">
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-slate-200">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center">
           <Image
-            src="/chatform-icon.svg"
+            src="/logo-black.svg"
             alt="ChatForm"
-            width={32}
+            width={120}
             height={20}
-            className="w-8 h-auto"
+            className="h-5 w-auto"
           />
-          <h1 className="text-xl font-bold text-slate-900">ChatForm</h1>
         </Link>
       </div>
 

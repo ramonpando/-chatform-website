@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
-import { FileText, MessageSquare, TrendingUp, Users } from "lucide-react";
+import Link from "next/link";
+import { FileText, MessageSquare, TrendingUp, ArrowRight, Sparkles, CheckCircle } from "lucide-react";
 
 type ChangeType = "positive" | "negative" | "neutral";
 
@@ -40,129 +41,143 @@ export default async function DashboardPage() {
       change: "+0%",
       changeType: "neutral",
     },
-    {
-      name: "Encuestas Totales",
-      value: "0",
-      icon: Users,
-      change: "+0%",
-      changeType: "neutral",
-    },
   ];
 
   return (
-    <div>
+    <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Bienvenido, {session.user.name}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">
+          Hola, {session.user.name} 👋
         </h1>
-        <p className="mt-2 text-gray-600">
-          Aquí está un resumen de tus encuestas
+        <p className="mt-2 text-slate-600">
+          Aquí está el resumen de tus encuestas
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-6 sm:grid-cols-3">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <div
               key={stat.name}
-              className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm"
+              className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-600">
                     {stat.name}
                   </p>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">
+                  <p className="mt-2 text-3xl font-bold text-slate-900">
                     {stat.value}
                   </p>
                 </div>
-                <div className="rounded-full bg-blue-50 p-3">
-                  <Icon className="h-6 w-6 text-blue-600" />
+                <div className="rounded-lg bg-blue-50 p-2.5">
+                  <Icon className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 pt-4 border-t border-slate-100">
                 <span
                   className={`text-sm font-medium ${
                     stat.changeType === "positive"
                       ? "text-green-600"
                       : stat.changeType === "negative"
                       ? "text-red-600"
-                      : "text-gray-500"
+                      : "text-slate-500"
                   }`}
                 >
                   {stat.change}
                 </span>
-                <span className="text-sm text-gray-500"> vs mes anterior</span>
+                <span className="text-sm text-slate-500"> vs último mes</span>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Empty State */}
-      <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
-          <FileText className="h-8 w-8 text-blue-600" />
+      {/* Empty State - AI Highlight */}
+      <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
+          <Sparkles className="h-10 w-10 text-blue-600" />
         </div>
-        <h3 className="mt-4 text-lg font-semibold text-gray-900">
-          No tienes encuestas todavía
+        <h3 className="mt-6 text-2xl font-bold text-slate-900">
+          Crea tu primera encuesta con IA
         </h3>
-        <p className="mt-2 text-gray-600">
-          Comienza creando tu primera encuesta en WhatsApp
+        <p className="mt-3 text-slate-600 max-w-md mx-auto">
+          Describe lo que quieres preguntar y la IA genera la encuesta completa en segundos
         </p>
-        <div className="mt-6">
-          <a
-            href="/surveys/new"
-            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-          >
-            Crear Primera Encuesta
-          </a>
+        <div className="mt-8">
+          <div className="relative inline-block group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-md opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
+            <Link
+              href="/surveys/new"
+              className="relative inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-md font-semibold hover:bg-slate-800 transition-all"
+            >
+              <Sparkles className="w-4 h-4" />
+              Crear con IA
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Quick Benefits */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <CheckCircle className="w-4 h-4 text-green-500" />
+            <span>Gratis 25 respuestas</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <CheckCircle className="w-4 h-4 text-green-500" />
+            <span>Lista en 2 minutos</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <CheckCircle className="w-4 h-4 text-green-500" />
+            <span>Sin tarjeta</span>
+          </div>
         </div>
       </div>
 
-      {/* Quick Start Guide */}
-      <div className="mt-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Guía Rápida
+      {/* Quick Start Guide - AI Version */}
+      <div className="bg-white rounded-xl border border-slate-200 p-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-6">
+          Cómo funciona ChatForm
         </h3>
-        <ol className="space-y-3">
-          <li className="flex items-start gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+        <div className="space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white flex-shrink-0">
               1
-            </span>
+            </div>
             <div>
-              <p className="font-medium text-gray-900">Crea tu encuesta</p>
-              <p className="text-sm text-gray-600">
-                Agrega preguntas de opción múltiple, rating o texto abierto
+              <p className="font-semibold text-slate-900">Describe tu encuesta</p>
+              <p className="text-sm text-slate-600 mt-1">
+                "Quiero medir satisfacción post-compra" → La IA genera 5 preguntas optimizadas
               </p>
             </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white flex-shrink-0">
               2
-            </span>
+            </div>
             <div>
-              <p className="font-medium text-gray-900">Comparte el link</p>
-              <p className="text-sm text-gray-600">
-                Obtén un link corto o QR code para compartir
+              <p className="font-semibold text-slate-900">Comparte por WhatsApp</p>
+              <p className="text-sm text-slate-600 mt-1">
+                Obtén link corto o QR code. Tus clientes responden conversando
               </p>
             </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white flex-shrink-0">
               3
-            </span>
+            </div>
             <div>
-              <p className="font-medium text-gray-900">Recibe respuestas</p>
-              <p className="text-sm text-gray-600">
-                Tus clientes responden directamente por WhatsApp
+              <p className="font-semibold text-slate-900">Análisis automático</p>
+              <p className="text-sm text-slate-600 mt-1">
+                IA analiza respuestas, calcula NPS y genera insights accionables
               </p>
             </div>
-          </li>
-        </ol>
+          </div>
+        </div>
       </div>
     </div>
   );

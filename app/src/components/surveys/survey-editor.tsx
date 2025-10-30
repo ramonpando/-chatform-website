@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, GripVertical, Eye, Save, Loader2 } from "lucide-react";
+import { Plus, Trash2, GripVertical, Eye, Save, Loader2, Sparkles } from "lucide-react";
 import { nanoid } from "nanoid";
 
 type QuestionType = "multiple_choice" | "rating" | "open_text";
@@ -193,10 +193,10 @@ export function SurveyEditor({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-slate-900">
             {mode === "create" ? "Nueva Encuesta" : "Editar Encuesta"}
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-slate-600">
             {mode === "create"
               ? "Crea una encuesta conversacional para WhatsApp"
               : "Actualiza tu encuesta"}
@@ -208,7 +208,7 @@ export function SurveyEditor({
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors disabled:opacity-50 flex items-center gap-2 font-semibold border border-red-200"
             >
               {deleting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -221,7 +221,7 @@ export function SurveyEditor({
 
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+            className="px-4 py-2 text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors flex items-center gap-2 font-semibold"
           >
             <Eye className="w-4 h-4" />
             {showPreview ? "Editar" : "Vista Previa"}
@@ -230,7 +230,7 @@ export function SurveyEditor({
           <button
             onClick={() => handleSave("draft")}
             disabled={saving}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors disabled:opacity-50 font-semibold"
           >
             Guardar Borrador
           </button>
@@ -238,7 +238,7 @@ export function SurveyEditor({
           <button
             onClick={() => handleSave("active")}
             disabled={saving}
-            className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-5 py-2.5 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 font-medium"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -259,9 +259,9 @@ export function SurveyEditor({
       ) : (
         <>
           {/* Survey Info */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5 shadow-sm">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Título de la encuesta *
               </label>
               <input
@@ -269,12 +269,12 @@ export function SurveyEditor({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ej: Encuesta de Satisfacción Post-Compra"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Descripción (opcional)
               </label>
               <textarea
@@ -282,19 +282,19 @@ export function SurveyEditor({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe brevemente el propósito de esta encuesta..."
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
             </div>
 
             {mode === "edit" && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Estado
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as typeof status)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
                   <option value="draft">Borrador</option>
                   <option value="active">Activa</option>
@@ -322,41 +322,41 @@ export function SurveyEditor({
           </div>
 
           {/* Add Question Buttons */}
-          <div className="bg-white rounded-lg border-2 border-dashed border-gray-300 p-6">
-            <p className="text-sm font-medium text-gray-700 mb-4">
+          <div className="bg-white rounded-xl border-2 border-dashed border-slate-200 p-6">
+            <p className="text-sm font-medium text-slate-700 mb-4">
               Agregar pregunta:
             </p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-4">
               <button
                 onClick={() => addQuestion("multiple_choice")}
-                className="p-4 text-left border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                className="p-5 text-left border border-slate-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all"
               >
-                <div className="font-medium text-gray-900 mb-1">
+                <div className="font-semibold text-slate-900 mb-1.5">
                   Opción Múltiple
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-slate-500">
                   El usuario elige una opción
                 </div>
               </button>
 
               <button
                 onClick={() => addQuestion("rating")}
-                className="p-4 text-left border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                className="p-5 text-left border border-slate-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all"
               >
-                <div className="font-medium text-gray-900 mb-1">
+                <div className="font-semibold text-slate-900 mb-1.5">
                   Calificación
                 </div>
-                <div className="text-sm text-gray-500">Escala del 1 al 10</div>
+                <div className="text-sm text-slate-500">Escala del 1 al 10</div>
               </button>
 
               <button
                 onClick={() => addQuestion("open_text")}
-                className="p-4 text-left border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                className="p-5 text-left border border-slate-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all"
               >
-                <div className="font-medium text-gray-900 mb-1">
+                <div className="font-semibold text-slate-900 mb-1.5">
                   Texto Abierto
                 </div>
-                <div className="text-sm text-gray-500">Respuesta libre</div>
+                <div className="text-sm text-slate-500">Respuesta libre</div>
               </button>
             </div>
           </div>
@@ -390,11 +390,11 @@ function QuestionEditor({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
       <div className="flex items-start gap-4">
         {/* Drag Handle */}
         <div className="pt-2 cursor-move">
-          <GripVertical className="w-5 h-5 text-gray-400" />
+          <GripVertical className="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" />
         </div>
 
         {/* Question Content */}
@@ -402,17 +402,17 @@ function QuestionEditor({
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-500">
+              <span className="text-sm font-semibold text-slate-600">
                 Pregunta {index + 1}
               </span>
-              <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+              <span className="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-700 rounded-md border border-slate-200">
                 {typeLabels[question.type]}
               </span>
             </div>
 
             <button
               onClick={() => deleteQuestion(question.id)}
-              className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -427,14 +427,14 @@ function QuestionEditor({
                 updateQuestion(question.id, { text: e.target.value })
               }
               placeholder="Escribe tu pregunta aquí..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
 
           {/* Type-specific content */}
           {question.type === "multiple_choice" && question.options && (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-semibold text-slate-700">
                 Opciones:
               </label>
               {question.options.map((option, i) => (
@@ -445,12 +445,12 @@ function QuestionEditor({
                     onChange={(e) =>
                       updateOption(question.id, i, e.target.value)
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                   {question.options && question.options.length > 2 && (
                     <button
                       onClick={() => deleteOption(question.id, i)}
-                      className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -459,7 +459,7 @@ function QuestionEditor({
               ))}
               <button
                 onClick={() => addOption(question.id)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                className="text-sm text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 mt-2"
               >
                 <Plus className="w-4 h-4" />
                 Agregar opción
@@ -468,13 +468,13 @@ function QuestionEditor({
           )}
 
           {question.type === "rating" && (
-            <div className="text-sm text-gray-500">
+            <div className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-600">
               El usuario responderá con un número del 1 al 10
             </div>
           )}
 
           {question.type === "open_text" && (
-            <div className="text-sm text-gray-500">
+            <div className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-600">
               El usuario puede escribir cualquier texto como respuesta
             </div>
           )}
@@ -494,24 +494,34 @@ function SurveyPreview({
   questions: Question[];
 }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
+    <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-8 shadow-sm">
       <div className="max-w-md mx-auto">
-        <div className="mb-6 pb-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="mb-8 pb-6 border-b border-slate-200">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+              </svg>
+            </div>
+            <span className="text-sm font-medium text-slate-600">Vista Previa WhatsApp</span>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">
             {title || "Sin título"}
           </h2>
-          {description && <p className="text-gray-600">{description}</p>}
+          {description && <p className="text-slate-600">{description}</p>}
         </div>
 
         <div className="space-y-6">
           {questions.length === 0 ? (
-            <p className="text-center text-gray-500">
-              Agrega preguntas para ver la vista previa
-            </p>
+            <div className="text-center py-8">
+              <p className="text-slate-500">
+                Agrega preguntas para ver la vista previa
+              </p>
+            </div>
           ) : (
             questions.map((question, index) => (
               <div key={question.id} className="space-y-3">
-                <div className="font-medium text-gray-900">
+                <div className="font-semibold text-slate-900">
                   {index + 1}. {question.text || "Sin texto"}
                 </div>
 
@@ -520,7 +530,7 @@ function SurveyPreview({
                     {question.options.map((option, i) => (
                       <div
                         key={i}
-                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700"
+                        className="px-4 py-2.5 border-2 border-slate-200 rounded-md text-slate-700 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer"
                       >
                         {option}
                       </div>
@@ -533,7 +543,7 @@ function SurveyPreview({
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                       <div
                         key={num}
-                        className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg text-gray-700"
+                        className="w-10 h-10 flex items-center justify-center border-2 border-slate-200 rounded-md text-slate-700 font-semibold hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer"
                       >
                         {num}
                       </div>
@@ -542,7 +552,7 @@ function SurveyPreview({
                 )}
 
                 {question.type === "open_text" && (
-                  <div className="px-4 py-3 border border-gray-300 rounded-lg text-gray-400">
+                  <div className="px-4 py-3 border-2 border-slate-200 rounded-md text-slate-400 bg-white">
                     El usuario escribirá su respuesta aquí...
                   </div>
                 )}
