@@ -57,10 +57,10 @@ export function Navigation() {
               Iniciar sesión
             </a>
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-md opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
               <a
                 href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
-                className="relative inline-flex items-center gap-2 px-5 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-all"
+                className="relative inline-flex items-center gap-2 px-5 py-2 bg-slate-900 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-all"
               >
                 Comenzar gratis
               </a>

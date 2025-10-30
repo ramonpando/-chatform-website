@@ -126,10 +126,10 @@ export function Pricing() {
               {/* CTA Button */}
               {plan.highlighted ? (
                 <div className="relative group mb-8">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-md opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
                   <a
                     href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
-                    className="relative w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg font-semibold hover:bg-slate-800 transition-all"
+                    className="relative w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-md font-semibold hover:bg-slate-800 transition-all"
                   >
                     {plan.cta}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -138,7 +138,7 @@ export function Pricing() {
               ) : (
                 <a
                   href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/signup`}
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 text-slate-900 rounded-lg font-semibold hover:bg-slate-200 transition-all mb-8"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 text-slate-900 rounded-md font-semibold hover:bg-slate-200 transition-all mb-8"
                 >
                   {plan.cta}
                 </a>
@@ -195,7 +195,7 @@ export function Pricing() {
             </p>
             <a
               href="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-100 text-slate-900 rounded-lg font-semibold hover:bg-slate-200 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-100 text-slate-900 rounded-md font-semibold hover:bg-slate-200 transition-all"
             >
               Hablar con ventas
               <ArrowRight className="w-4 h-4" />
