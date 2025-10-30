@@ -2,8 +2,25 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Save, Loader2 } from "lucide-react";
+import { Sparkles, Save, Loader2, GripVertical } from "lucide-react";
 import { nanoid } from "nanoid";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Types
 export type QuestionType = "email" | "multiple_choice" | "rating" | "open_text" | "yes_no";
@@ -73,6 +90,26 @@ export function FormBuilderV2({
       setSelectedItem(null);
     }
   };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setQuestions((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -163,13 +200,19 @@ export function FormBuilderV2({
       {/* 3-Column Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Structure Panel */}
-        <StructurePanel
-          questions={questions}
-          selectedItem={selectedItem}
-          onSelectItem={setSelectedItem}
-          onAddQuestion={addQuestion}
-          onDeleteQuestion={deleteQuestion}
-        />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <StructurePanel
+            questions={questions}
+            selectedItem={selectedItem}
+            onSelectItem={setSelectedItem}
+            onAddQuestion={addQuestion}
+            onDeleteQuestion={deleteQuestion}
+          />
+        </DndContext>
 
         {/* Center: Preview Panel */}
         <PreviewPanel
@@ -242,18 +285,23 @@ function StructurePanel({
         <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
           Preguntas ({questions.length})
         </div>
-        <div className="space-y-2 mb-4">
-          {questions.map((question, index) => (
-            <QuestionCard
-              key={question.id}
-              question={question}
-              index={index}
-              isSelected={selectedItem === question.id}
-              onSelect={() => onSelectItem(question.id)}
-              onDelete={() => onDeleteQuestion(question.id)}
-            />
-          ))}
-        </div>
+        <SortableContext
+          items={questions.map((q) => q.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-2 mb-4">
+            {questions.map((question, index) => (
+              <SortableQuestionCard
+                key={question.id}
+                question={question}
+                index={index}
+                isSelected={selectedItem === question.id}
+                onSelect={() => onSelectItem(question.id)}
+                onDelete={() => onDeleteQuestion(question.id)}
+              />
+            ))}
+          </div>
+        </SortableContext>
 
         {/* Add Question Button */}
         <div className="relative">
@@ -342,8 +390,8 @@ function StructurePanel({
   );
 }
 
-// Question Card Component
-function QuestionCard({
+// Sortable Question Card Component
+function SortableQuestionCard({
   question,
   index,
   isSelected,
@@ -356,6 +404,21 @@ function QuestionCard({
   onSelect: () => void;
   onDelete: () => void;
 }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: question.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   const typeLabels: Record<QuestionType, string> = {
     email: "Email",
     multiple_choice: "Opción Múltiple",
@@ -366,23 +429,36 @@ function QuestionCard({
 
   return (
     <div
-      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+      ref={setNodeRef}
+      style={style}
+      className={`p-3 rounded-lg border transition-all ${
         isSelected
           ? "border-blue-500 bg-blue-50"
           : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
       }`}
-      onClick={onSelect}
     >
-      <div className="flex items-start justify-between mb-1">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500">{index + 1}</span>
-          <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-medium">
-            {typeLabels[question.type]}
-          </span>
+      <div className="flex items-start gap-2">
+        {/* Drag Handle */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 mt-0.5"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+
+        {/* Content */}
+        <div className="flex-1 cursor-pointer" onClick={onSelect}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-semibold text-slate-500">{index + 1}</span>
+            <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-medium">
+              {typeLabels[question.type]}
+            </span>
+          </div>
+          <div className="text-sm text-slate-900 font-medium truncate">
+            {question.text || "Nueva pregunta"}
+          </div>
         </div>
-      </div>
-      <div className="text-sm text-slate-900 font-medium truncate">
-        {question.text || "Nueva pregunta"}
       </div>
     </div>
   );
