@@ -44,6 +44,7 @@ interface FormBuilderV2Props {
   initialQuestions?: Question[];
   initialStatus?: "draft" | "active" | "paused" | "archived";
   mode: "create" | "edit";
+  customizationButton?: React.ReactNode;
 }
 
 export function FormBuilderV2({
@@ -55,6 +56,7 @@ export function FormBuilderV2({
   initialQuestions = [],
   initialStatus = "draft",
   mode,
+  customizationButton,
 }: FormBuilderV2Props) {
   const router = useRouter();
 
@@ -228,6 +230,8 @@ export function FormBuilderV2({
         </div>
 
         <div className="flex items-center gap-3">
+          {customizationButton}
+
           {mode === "edit" ? (
             <select
               value={status}
@@ -557,7 +561,7 @@ function PreviewPanel({
 
       {/* Preview Area */}
       <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
-        <div className="w-[375px] h-[667px] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+        <div className="w-[320px] max-h-[520px] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
           {/* WhatsApp Header */}
           <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">

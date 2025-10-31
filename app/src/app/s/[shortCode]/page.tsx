@@ -42,6 +42,14 @@ export default async function PublicSurveyPageRoute({
   // Calculate estimated time
   const estimatedTime = Math.max(1, Math.ceil(survey.questions.length * 0.5));
 
+  // Map questions to proper format
+  const formattedQuestions = survey.questions.map((q) => ({
+    id: q.id,
+    questionText: q.questionText,
+    questionType: q.questionType,
+    options: typeof q.options === 'string' ? q.options : (q.options as string | null),
+  }));
+
   return (
     <PublicSurveyPage
       survey={{
@@ -52,7 +60,7 @@ export default async function PublicSurveyPageRoute({
         accentColor: survey.accentColor,
         logoUrl: survey.logoUrl,
         responseCount: survey.responseCount,
-        questions: survey.questions,
+        questions: formattedQuestions,
       }}
       waLink={waLink}
       estimatedTime={estimatedTime}

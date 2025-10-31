@@ -52,21 +52,18 @@ export function FormBuilderWithCustomization(props: FormBuilderWithCustomization
 
   return (
     <>
-      {/* Custom Header Overlay */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-end">
-        <button
-          onClick={() => setShowCustomization(true)}
-          className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors flex items-center gap-2"
-        >
-          <Palette className="w-4 h-4" />
-          Personalizar
-        </button>
-      </div>
-
-      {/* Add padding to account for fixed header */}
-      <div className="pt-16">
-        <FormBuilderV2 {...props} />
-      </div>
+      <FormBuilderV2
+        {...props}
+        customizationButton={
+          <button
+            onClick={() => setShowCustomization(true)}
+            className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors flex items-center gap-2"
+          >
+            <Palette className="w-4 h-4" />
+            Personalizar
+          </button>
+        }
+      />
 
       {/* Customization Modal */}
       <CustomizationModal
