@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import { surveys } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
-import { FormBuilderV2, Question as BuilderQuestion, QuestionType } from "@/components/surveys/form-builder-v2";
+import { FormBuilderWithCustomization } from "@/components/surveys/form-builder-with-customization";
+import { Question as BuilderQuestion, QuestionType } from "@/components/surveys/form-builder-v2";
 
 export default async function EditSurveyPage({
   params,
@@ -79,7 +80,7 @@ export default async function EditSurveyPage({
   });
 
   return (
-    <FormBuilderV2
+    <FormBuilderWithCustomization
       mode="edit"
       surveyId={survey.id}
       initialTitle={survey.title}

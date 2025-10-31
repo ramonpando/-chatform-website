@@ -1,5 +1,5 @@
-import { FormBuilderV2 } from "@/components/surveys/form-builder-v2";
+import { FormBuilderWithCustomization } from "@/components/surveys/form-builder-with-customization";
 
 export default function NewSurveyPage() {
-  return <FormBuilderV2 mode="create" />;
+  return <FormBuilderWithCustomization mode="create" />;
 }
