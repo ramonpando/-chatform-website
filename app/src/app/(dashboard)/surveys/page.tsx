@@ -221,7 +221,7 @@ function SurveyCard({ survey }: { survey: any }) {
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <QrCode className="w-3.5 h-3.5" />
             <code className="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono">
-              chatform.io/{survey.shortCode}
+              app.chatform.mx/s/{survey.shortCode}
             </code>
           </div>
         </div>
