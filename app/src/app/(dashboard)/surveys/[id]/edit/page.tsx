@@ -88,6 +88,9 @@ export default async function EditSurveyPage({
       initialThankYouMessage={survey.thankYouMessage || ""}
       initialQuestions={builderQuestions}
       initialStatus={survey.status as any}
+      initialBrandColor={survey.brandColor || "#2563eb"}
+      initialAccentColor={survey.accentColor || "#06b6d4"}
+      initialLogoUrl={survey.logoUrl || ""}
     />
   );
 }
