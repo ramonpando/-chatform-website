@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { responses, surveySessions, surveys } from "@/lib/db/schema";
+import { surveySessions, surveys } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { hashApiKey, verifyApiKey } from "@/lib/security/api-keys";
-import { ReadableStream } from "stream/web";
+import { verifyApiKey } from "@/lib/security/api-keys";
 
 type Params = Promise<{ id: string }>;
 
@@ -147,14 +146,7 @@ export async function GET(
 
     const csv = toCsv(rows);
 
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(new TextEncoder().encode(csv));
-        controller.close();
-      },
-    });
-
-    return new NextResponse(stream, {
+    return new NextResponse(csv, {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",

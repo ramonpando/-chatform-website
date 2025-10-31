@@ -15,9 +15,11 @@ async function getTenantInfo(userId: string) {
   });
 }
 
-function mapUserWithTenant(row: DbUser, tenantData?: { tenant: typeof tenants.$inferSelect }) {
-  if (!row) return null;
-
+function mapUserWithTenant(row: DbUser, tenantData?: { tenant: typeof tenants.$inferSelect }): AdapterUser & {
+  tenantId?: string;
+  tenantSlug?: string;
+  tenantPlan?: string;
+} {
   const tenant = tenantData?.tenant;
 
   return {
@@ -29,10 +31,6 @@ function mapUserWithTenant(row: DbUser, tenantData?: { tenant: typeof tenants.$i
     tenantId: tenant?.id,
     tenantSlug: tenant?.slug,
     tenantPlan: tenant?.plan,
-  } satisfies AdapterUser & {
-    tenantId?: string;
-    tenantSlug?: string;
-    tenantPlan?: string;
   };
 }
 
@@ -178,7 +176,9 @@ export function createTenantAwareAdapter(): Adapter {
         .where(eq(users.id, data.id))
         .returning();
 
-      if (!updated) return null;
+      if (!updated) {
+        throw new Error("Usuario no encontrado");
+      }
 
       const tenantData = await getTenantInfo(updated.id);
       return mapUserWithTenant(updated, tenantData);
@@ -212,19 +212,19 @@ export function createTenantAwareAdapter(): Adapter {
     },
 
     async getSessionAndUser() {
-      return null;
+      return null as any;
     },
 
     async createSession() {
-      return null;
+      throw new Error("Sessions not supported with JWT strategy");
     },
 
     async updateSession() {
-      return null;
+      throw new Error("Sessions not supported with JWT strategy");
     },
 
     async deleteSession() {
-      return null;
+      throw new Error("Sessions not supported with JWT strategy");
     },
 
     async createVerificationToken() {
