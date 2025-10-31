@@ -143,7 +143,7 @@ export default async function BillingPage() {
           <div className="space-y-4">
             <UsageBar
               label="Respuestas este mes"
-              used={tenant.responsesUsed || 0}
+              used={tenant.responsesUsedThisMonth || 0}
               limit={tenant.responsesLimit || currentPlanData.limits.responses}
             />
             <UsageBar
@@ -153,10 +153,8 @@ export default async function BillingPage() {
             />
             <UsageBar
               label="Envíos automáticos"
-              used={tenant.whatsappSendsUsed || 0}
-              limit={
-                tenant.whatsappSendsLimit || currentPlanData.limits.sends
-              }
+              used={tenant.sendCreditsUsed || 0}
+              limit={tenant.sendCreditsLimit || currentPlanData.limits.sends}
             />
           </div>
         </div>
