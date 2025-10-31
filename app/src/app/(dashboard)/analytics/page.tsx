@@ -37,7 +37,7 @@ export default async function AnalyticsPage() {
     where: and(
       eq(surveySessions.tenantId, session.user.tenantId),
       eq(surveySessions.status, "completed"),
-      gte(surveySessions.completedAt, thirtyDaysAgo)
+      sql`${surveySessions.completedAt} >= ${thirtyDaysAgo.toISOString()}`
     ),
     with: {
       survey: true,
@@ -100,8 +100,8 @@ export default async function AnalyticsPage() {
     where: and(
       eq(surveySessions.tenantId, session.user.tenantId),
       eq(surveySessions.status, "completed"),
-      gte(surveySessions.completedAt, sixtyDaysAgo),
-      sql`${surveySessions.completedAt} < ${thirtyDaysAgo}`
+      sql`${surveySessions.completedAt} >= ${sixtyDaysAgo.toISOString()}`,
+      sql`${surveySessions.completedAt} < ${thirtyDaysAgo.toISOString()}`
     ),
   });
 
