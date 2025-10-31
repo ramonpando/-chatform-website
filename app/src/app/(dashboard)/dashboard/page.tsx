@@ -1,6 +1,9 @@
 import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { db } from "@/lib/db";
+import { surveys, surveySessions } from "@/lib/db/schema";
+import { eq, and, gte, sql } from "drizzle-orm";
 import { FileText, MessageSquare, TrendingUp, ArrowRight, Sparkles, CheckCircle } from "lucide-react";
 
 type ChangeType = "positive" | "negative" | "neutral";
@@ -8,11 +11,37 @@ type ChangeType = "positive" | "negative" | "neutral";
 export default async function DashboardPage() {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user?.tenantId) {
     redirect("/login");
   }
 
-  // TODO: Fetch real stats from DB
+  // Fetch real stats from DB
+  const tenantSurveys = await db.query.surveys.findMany({
+    where: eq(surveys.tenantId, session.user.tenantId),
+  });
+
+  const activeSurveys = tenantSurveys.filter((s) => s.status === "active").length;
+
+  // Get responses this month
+  const firstDayOfMonth = new Date();
+  firstDayOfMonth.setDate(1);
+  firstDayOfMonth.setHours(0, 0, 0, 0);
+
+  const responsesThisMonth = await db.query.surveySessions.findMany({
+    where: and(
+      eq(surveySessions.tenantId, session.user.tenantId),
+      eq(surveySessions.status, "completed"),
+      gte(surveySessions.completedAt, firstDayOfMonth)
+    ),
+  });
+
+  const totalResponsesThisMonth = responsesThisMonth.length;
+
+  // Calculate completion rate
+  const totalViews = tenantSurveys.reduce((sum, s) => sum + (s.viewCount || 0), 0);
+  const totalResponses = tenantSurveys.reduce((sum, s) => sum + (s.responseCount || 0), 0);
+  const completionRate = totalViews > 0 ? Math.round((totalResponses / totalViews) * 100) : 0;
+
   const stats: Array<{
     name: string;
     value: string;
@@ -22,24 +51,24 @@ export default async function DashboardPage() {
   }> = [
     {
       name: "Encuestas Activas",
-      value: "0",
+      value: activeSurveys.toString(),
       icon: FileText,
-      change: "+0%",
+      change: `${tenantSurveys.length} total`,
       changeType: "neutral",
     },
     {
       name: "Respuestas este mes",
-      value: "0",
+      value: totalResponsesThisMonth.toString(),
       icon: MessageSquare,
-      change: "+0%",
-      changeType: "neutral",
+      change: "en el mes actual",
+      changeType: totalResponsesThisMonth > 0 ? "positive" : "neutral",
     },
     {
       name: "Tasa de Completado",
-      value: "0%",
+      value: `${completionRate}%`,
       icon: TrendingUp,
-      change: "+0%",
-      changeType: "neutral",
+      change: `${totalResponses} de ${totalViews} vistas`,
+      changeType: completionRate >= 50 ? "positive" : completionRate > 0 ? "neutral" : "neutral",
     },
   ];
 
