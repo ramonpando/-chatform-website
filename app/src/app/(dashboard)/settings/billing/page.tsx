@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { tenants } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { tenants, surveys } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 import { Check, Sparkles, Zap, Crown } from "lucide-react";
 import Link from "next/link";
 
@@ -21,6 +21,15 @@ export default async function BillingPage() {
   if (!tenant) {
     redirect("/login");
   }
+
+  // Count active surveys
+  const activeSurveys = await db.query.surveys.findMany({
+    where: and(
+      eq(surveys.tenantId, session.user.tenantId),
+      eq(surveys.status, 'active')
+    ),
+  });
+  const activeSurveysCount = activeSurveys.length;
 
   const currentPlan = (tenant.plan || "free").toLowerCase();
 
@@ -148,7 +157,7 @@ export default async function BillingPage() {
             />
             <UsageBar
               label="Encuestas activas"
-              used={0} // TODO: Get from DB count
+              used={activeSurveysCount}
               limit={tenant.surveysLimit || currentPlanData.limits.surveys}
             />
             <UsageBar
