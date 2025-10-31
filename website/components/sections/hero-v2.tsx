@@ -24,20 +24,37 @@ export function HeroV2() {
 
               {/* Hero Title */}
               <h1 className="text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1]">
-                Crea encuestas con{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  IA
-                </span>
-                {" "}y envíalas por WhatsApp
+                Inicia conversaciones y aprende de tus usuarios, así mejoras tu negocio.
               </h1>
 
               {/* Subtitle */}
               <p className="text-xl text-slate-600 leading-relaxed max-w-xl">
-                Describe tu encuesta, la <span className="font-semibold text-slate-900">IA la crea por ti</span>.
-                Envía por WhatsApp y obtén{" "}
-                <span className="font-semibold text-slate-900">análisis automático</span>.
-                10x más respuestas que email.
+                ChatForm transforma tus formularios en conversaciones automáticas por WhatsApp.
+                Captura feedback en tiempo real, detecta fricción y activa respuestas sin fricción
+                para que cada interacción impulse tu producto.
               </p>
+
+              {/* Micro Bullets */}
+              <div className="space-y-3 text-slate-600">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-blue-600 mt-1" />
+                  <span className="text-sm">
+                    2–3× más respuestas que un formulario web.
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-blue-600 mt-1" />
+                  <span className="text-sm">
+                    Alertas de emoción y recomendaciones en segundos.
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-blue-600 mt-1" />
+                  <span className="text-sm">
+                    Integración en menos de 1 hora vía link, QR, CSV o webhook.
+                  </span>
+                </div>
+              </div>
 
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -156,7 +173,7 @@ export function HeroV2() {
                   <div className="text-[10px] font-normal text-slate-400 uppercase tracking-wide">Tasa respuesta</div>
                 </div>
                 <div className="text-3xl font-bold text-slate-900">73%</div>
-                <div className="text-[10px] text-green-600 mt-1 font-normal">↑ 5x más que email</div>
+                <div className="text-[10px] text-green-600 mt-1 font-normal">↑ 2–3× vs formulario web</div>
               </div>
 
               {/* Floating AI Card - Bottom Left */}

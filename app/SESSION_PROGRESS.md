@@ -1,8 +1,24 @@
 # ChatForm - Progreso de la Sesión Actual
 
 **Fecha:** 30 Oct 2025
-**Duración:** ~1 hora
+**Duración:** ~1 hora (mañana)
 **Estado:** Dashboard funcional ✅
+
+---
+
+## ✅ Actualización más reciente (tarde)
+
+**Cambios clave:**
+- Webhook de WhatsApp reutiliza sesiones activas y evita duplicadas (`app/src/app/api/webhooks/whatsapp/route.ts`).
+- Endurecimos `POST /api/v1/surveys/:id/trigger` con verificación real de API keys, rate limiting y fallbacks controlados (`app/src/app/api/v1/surveys/[id]/trigger/route.ts`).
+- Nuevo endpoint `GET /api/v1/surveys/:id/responses/export` que entrega CSV con respuestas reales (`app/src/app/api/v1/surveys/[id]/responses/export/route.ts`).
+- Nota en README para auditar endpoints cuando el sistema esté completo.
+
+**Pendientes arrastrados al siguiente día:**
+- Ejecutar migración (`npm run db:push`) una vez configurada `DATABASE_URL` y poblar `apiKeyHash/apiKeyPrefix` para tenants.
+- Conectar el botón “Exportar CSV” del dashboard al nuevo endpoint.
+- Generar/rotar API keys para los tenants y definir cómo se entregan.
+- Iniciar desarrollo del generador con IA (feature crítica restante).
 
 ---
 

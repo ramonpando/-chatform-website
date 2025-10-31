@@ -6,6 +6,7 @@ import { users, tenants, tenantUsers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
+import { createTenantAwareAdapter } from "@/lib/auth/adapter";
 
 // Extend NextAuth types
 declare module "next-auth" {
@@ -28,6 +29,7 @@ declare module "next-auth" {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true, // Required for production with proxies
   session: { strategy: "jwt" },
+  adapter: createTenantAwareAdapter(),
   pages: {
     signIn: "/login",
     signOut: "/login",
@@ -91,28 +93,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      // Si es OAuth y es la primera vez, crear tenant
-      if (account?.provider === "google" && user.email) {
-        const existingUser = await db.query.users.findFirst({
-          where: eq(users.email, user.email),
-        });
-
-        if (!existingUser) {
-          // Crear tenant para nuevo usuario OAuth
-          const slug = nanoid(10);
-          const [tenant] = await db.insert(tenants).values({
-            name: user.name || user.email.split('@')[0],
-            slug,
-            plan: 'free',
-          }).returning();
-
-          // La relación user-tenant se creará automáticamente por el adapter
-          user.tenantId = tenant.id;
-          user.tenantSlug = tenant.slug;
-          user.tenantPlan = tenant.plan;
-        }
+    async signIn({ user }) {
+      if (!user?.id) {
+        return false;
       }
+
+      const tenantUser = await db.query.tenantUsers.findFirst({
+        where: eq(tenantUsers.userId, user.id),
+        with: {
+          tenant: true,
+        },
+      });
+
+      if (tenantUser?.tenant) {
+        user.tenantId = tenantUser.tenant.id;
+        user.tenantSlug = tenantUser.tenant.slug;
+        user.tenantPlan = tenantUser.tenant.plan;
+        return true;
+      }
+
+      const slug = nanoid(10);
+      const [tenant] = await db.insert(tenants).values({
+        name: user.name || user.email?.split("@")[0] || "Workspace",
+        slug,
+        plan: "free",
+      }).returning();
+
+      await db.insert(tenantUsers).values({
+        tenantId: tenant.id,
+        userId: user.id,
+        role: "owner",
+      });
+
+      user.tenantId = tenant.id;
+      user.tenantSlug = tenant.slug;
+      user.tenantPlan = tenant.plan;
 
       return true;
     },

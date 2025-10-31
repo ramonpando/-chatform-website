@@ -747,3 +747,17 @@ A: https://chatform.mx/api/webhooks/whatsapp
 
 **Fecha:** 30 Oct 2025
 **Próxima sesión:** AI Features + Testing + Deploy
+
+---
+
+## 🔭 Exploración futura: ChatFlow con RAG
+
+- Idea: complementar ChatForm con un módulo de atención continua ("ChatFlow") para leads y customer support.
+- Alcance inicial: chat widget embebible con ingestión de conocimiento por tenant (FAQs, contratos, CRM) y respuestas vía RAG.
+- Retos técnicos:
+  - Arquitectura multi-tenant para vector stores + pipelines de ingesta/actualización.
+  - Seguridad/compliance (PII, aislamiento de datos, auditoría).
+  - Orquestación conversacional y tooling (integraciones con CRM/tickets, prompts diferenciados por caso de uso).
+  - Control de costos (tokens + storage) y estrategia de pricing acorde.
+- Impacto: sube el valor percibido, habilita planes más caros y justifica escalar el equipo (LLM engineer, QA conversacional, SRE para pipelines).
+- Recomendación: elaborar roadmap y estimaciones antes de arrancar, definir entregables por fase y recursos necesarios.

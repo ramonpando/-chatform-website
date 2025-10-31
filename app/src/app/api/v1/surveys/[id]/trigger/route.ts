@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { surveys, surveySessions, tenants } from "@/lib/db/schema";
+import { hashApiKey, verifyApiKey } from "@/lib/security/api-keys";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -15,6 +16,40 @@ const triggerSchema = z.object({
   deliveryMethod: z.enum(["automatic", "link"]).optional().default("automatic"),
   metadata: z.record(z.string(), z.any()).optional(),
 });
+
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 60;
+
+type RateRecord = {
+  windowStart: number;
+  count: number;
+};
+
+const rateTracker = new Map<string, RateRecord>();
+
+function enforceRateLimit(apiKeyHash: string) {
+  const now = Date.now();
+  const record = rateTracker.get(apiKeyHash);
+
+  if (!record || now - record.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateTracker.set(apiKeyHash, { windowStart: now, count: 1 });
+    return;
+  }
+
+  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+    throw new Error("rate_limit_exceeded");
+  }
+
+  record.count += 1;
+}
+
+function hasTwilioCredentials() {
+  return Boolean(
+    process.env.TWILIO_ACCOUNT_SID &&
+    process.env.TWILIO_AUTH_TOKEN &&
+    process.env.TWILIO_WHATSAPP_NUMBER
+  );
+}
 
 export async function POST(
   req: Request,
@@ -32,17 +67,16 @@ export async function POST(
       );
     }
 
-    const apiKey = authHeader.replace("Bearer ", "");
+    const apiKey = authHeader.replace("Bearer ", "").trim();
 
-    // TODO: Implement proper API key validation
-    // For now, we'll check if it matches a simple pattern
-    // In production, validate against api_keys table
-    if (!apiKey.startsWith("sk_live_") && !apiKey.startsWith("sk_test_")) {
+    if (!apiKey) {
       return NextResponse.json(
         { error: "unauthorized", message: "Invalid API key" },
         { status: 401 }
       );
     }
+
+    const providedKeyHash = hashApiKey(apiKey);
 
     // Parse and validate request body
     const body = await req.json();
@@ -86,37 +120,86 @@ export async function POST(
       );
     }
 
+    const tenant = survey.tenant;
+
+    if (!tenant.apiKeyHash) {
+      return NextResponse.json(
+        { error: "unauthorized", message: "API access not enabled for this account" },
+        { status: 401 }
+      );
+    }
+
+    if (tenant.apiKeyPrefix && !apiKey.startsWith(tenant.apiKeyPrefix)) {
+      return NextResponse.json(
+        { error: "unauthorized", message: "API key does not belong to this tenant" },
+        { status: 401 }
+      );
+    }
+
+    if (!verifyApiKey(apiKey, tenant.apiKeyHash)) {
+      return NextResponse.json(
+        { error: "unauthorized", message: "Invalid API key" },
+        { status: 401 }
+      );
+    }
+
+    try {
+      enforceRateLimit(providedKeyHash);
+    } catch (error) {
+      if ((error as Error).message === "rate_limit_exceeded") {
+        return NextResponse.json(
+          { error: "rate_limited", message: "Too many requests. Try again shortly." },
+          { status: 429 }
+        );
+      }
+
+      throw error;
+    }
+
     // Check if delivery method is automatic
     if (deliveryMethod === "automatic") {
       // Check if tenant has send credits available
-      const tenant = survey.tenant;
-
       if (tenant.sendCreditsUsed >= tenant.sendCreditsLimit) {
         // No credits, fallback to link generation
-        return generateLinkResponse(survey, recipient, variables);
+        return generateLinkResponse(survey, recipient, variables, {
+          reason: "no_credits",
+        });
       }
 
-      // Send via WhatsApp (Twilio)
-      const result = await sendWhatsAppSurvey(survey, recipient, metadata);
+      if (!hasTwilioCredentials()) {
+        return generateLinkResponse(survey, recipient, variables, {
+          reason: "missing_twilio_credentials",
+        });
+      }
 
-      // Increment credits used
-      await db
-        .update(tenants)
-        .set({
-          sendCreditsUsed: tenant.sendCreditsUsed + 1,
-        })
-        .where(eq(tenants.id, tenant.id));
+      try {
+        // Send via WhatsApp (Twilio)
+        const result = await sendWhatsAppSurvey(survey, recipient, metadata);
 
-      return NextResponse.json({
-        status: "sent",
-        deliveryMethod: "automatic",
-        messageId: result.messageId,
-        recipient: recipient.phone,
-        creditsUsed: 1,
-        creditsRemaining: tenant.sendCreditsLimit - tenant.sendCreditsUsed - 1,
-        sessionId: result.sessionId,
-        estimatedDeliveryTime: new Date(Date.now() + 60000).toISOString(), // +1 min
-      });
+        // Increment credits used
+        await db
+          .update(tenants)
+          .set({
+            sendCreditsUsed: tenant.sendCreditsUsed + 1,
+          })
+          .where(eq(tenants.id, tenant.id));
+
+        return NextResponse.json({
+          status: "sent",
+          deliveryMethod: "automatic",
+          messageId: result.messageId,
+          recipient: recipient.phone,
+          creditsUsed: 1,
+          creditsRemaining: tenant.sendCreditsLimit - tenant.sendCreditsUsed - 1,
+          sessionId: result.sessionId,
+          estimatedDeliveryTime: new Date(Date.now() + 60000).toISOString(), // +1 min
+        });
+      } catch (error) {
+        console.error("Failed to deliver survey automatically:", error);
+        return generateLinkResponse(survey, recipient, variables, {
+          reason: "automatic_delivery_failed",
+        });
+      }
     } else {
       // Generate personalized link
       return generateLinkResponse(survey, recipient, variables);
@@ -176,22 +259,36 @@ async function sendWhatsAppSurvey(
     body: params.toString(),
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("Twilio API error:", error);
-    throw new Error("Failed to send WhatsApp message");
+  try {
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Twilio API error:", error);
+      throw new Error("Failed to send WhatsApp message");
+    }
+
+    const result = await response.json();
+
+    return {
+      messageId: result.sid,
+      sessionId: session.id,
+    };
+  } catch (error) {
+    await db
+      .delete(surveySessions)
+      .where(eq(surveySessions.id, session.id));
+    throw error;
   }
-
-  const result = await response.json();
-
-  return {
-    messageId: result.sid,
-    sessionId: session.id,
-  };
 }
 
 // Generate personalized link response
-function generateLinkResponse(survey: any, recipient: any, variables: any) {
+function generateLinkResponse(
+  survey: any,
+  recipient: any,
+  variables: any,
+  options?: {
+    reason?: "no_credits" | "missing_twilio_credentials" | "automatic_delivery_failed" | "manual";
+  }
+) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const publicUrl = `${baseUrl}/s/${survey.shortCode}`;
 
@@ -216,14 +313,24 @@ function generateLinkResponse(survey: any, recipient: any, variables: any) {
     : `Completa esta encuesta: ${personalizedLink}`;
   const waLink = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMessage)}`;
 
+  const reason = options?.reason ?? "manual";
+
+  const messageMap: Record<string, string> = {
+    no_credits: "No hay créditos disponibles, se generó un link de invitación.",
+    missing_twilio_credentials: "Faltan credenciales de WhatsApp, se generó un link de invitación.",
+    automatic_delivery_failed: "No se pudo enviar automáticamente, se generó un link de invitación.",
+    manual: "Link de invitación generado exitosamente.",
+  };
+
   return NextResponse.json({
     status: "link_generated",
     deliveryMethod: "link",
     personalizedLink,
     waLink,
     qrCodeUrl: `${baseUrl}/api/v1/surveys/${survey.id}/qr`,
-    creditsRemaining: survey.tenant.sendCreditsLimit - survey.tenant.sendCreditsUsed,
-    message: "No credits available, link generated instead",
+    creditsRemaining: Math.max(0, survey.tenant.sendCreditsLimit - survey.tenant.sendCreditsUsed),
+    message: messageMap[reason] ?? messageMap.manual,
+    reason,
   });
 }
 

@@ -5,20 +5,50 @@ import { surveys, questions } from "@/lib/db/schema";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
+const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email"] as const;
+
 const questionSchema = z.object({
   id: z.string(),
-  type: z.enum(["multiple_choice", "rating", "open_text"]),
+  type: z.enum(QUESTION_TYPES),
   text: z.string().min(1, "El texto de la pregunta es requerido"),
   options: z.array(z.string()).optional(),
   order: z.number(),
+  required: z.boolean().optional(),
+  validateEmail: z.boolean().optional(),
 });
 
 const createSurveySchema = z.object({
   title: z.string().min(1, "El título es requerido"),
   description: z.string().optional(),
   status: z.enum(["draft", "active"]),
+  welcomeMessage: z.string().optional(),
+  thankYouMessage: z.string().optional(),
   questions: z.array(questionSchema).min(1, "Agrega al menos una pregunta"),
 });
+
+function serializeQuestionOptions(question: z.infer<typeof questionSchema>) {
+  if (question.type === "multiple_choice") {
+    const choices = (question.options && question.options.length > 0)
+      ? question.options
+      : ["Opción 1", "Opción 2"];
+    return JSON.stringify(choices);
+  }
+
+  if (question.type === "yes_no") {
+    const choices = question.options && question.options.length === 2
+      ? question.options
+      : ["Sí", "No"];
+    return JSON.stringify(choices);
+  }
+
+  if (question.type === "email") {
+    return JSON.stringify({
+      validateEmail: question.validateEmail !== undefined ? question.validateEmail : true,
+    });
+  }
+
+  return null;
+}
 
 export async function POST(req: Request) {
   try {
@@ -38,7 +68,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const { title, description, status, questions: questionsData } = validation.data;
+    const {
+      title,
+      description,
+      status,
+      welcomeMessage,
+      thankYouMessage,
+      questions: questionsData,
+    } = validation.data;
 
     // Check survey limit
     const existingSurveys = await db.query.surveys.findMany({
@@ -68,6 +105,8 @@ export async function POST(req: Request) {
           tenantId: session.user.tenantId,
           title,
           description: description || null,
+          welcomeMessage: welcomeMessage || null,
+          thankYouMessage: thankYouMessage || null,
           status,
           shortCode,
         })
@@ -82,8 +121,9 @@ export async function POST(req: Request) {
               surveyId: survey.id,
               questionType: q.type,
               questionText: q.text,
-              options: q.options ? JSON.stringify(q.options) : null,
+              options: serializeQuestionOptions(q),
               orderIndex: q.order,
+              required: q.required ?? true,
             })
             .returning()
         )

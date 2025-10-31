@@ -42,6 +42,7 @@ interface FormBuilderV2Props {
   initialWelcomeMessage?: string;
   initialThankYouMessage?: string;
   initialQuestions?: Question[];
+  initialStatus?: "draft" | "active" | "paused" | "archived";
   mode: "create" | "edit";
 }
 
@@ -52,6 +53,7 @@ export function FormBuilderV2({
   initialWelcomeMessage = "¡Hola! Gracias por tu tiempo. Tus respuestas nos ayudan a mejorar.",
   initialThankYouMessage = "¡Gracias por completar la encuesta! Tu opinión es muy valiosa para nosotros.",
   initialQuestions = [],
+  initialStatus = "draft",
   mode,
 }: FormBuilderV2Props) {
   const router = useRouter();
@@ -64,14 +66,24 @@ export function FormBuilderV2({
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [selectedItem, setSelectedItem] = useState<"welcome" | "thankyou" | string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<"draft" | "active" | "paused" | "archived">(
+    mode === "create" ? "active" : initialStatus
+  );
 
   // Handlers
   const addQuestion = (type: QuestionType) => {
+    const defaultOptions =
+      type === "multiple_choice"
+        ? ["Opción 1", "Opción 2"]
+        : type === "yes_no"
+        ? ["Sí", "No"]
+        : undefined;
+
     const newQuestion: Question = {
       id: nanoid(),
       type,
       text: "",
-      options: type === "multiple_choice" ? ["Opción 1", "Opción 2"] : undefined,
+      options: defaultOptions,
       required: true,
       validateEmail: type === "email" ? true : undefined,
       order: questions.length,
@@ -85,7 +97,11 @@ export function FormBuilderV2({
   };
 
   const deleteQuestion = (id: string) => {
-    setQuestions(questions.filter((q) => q.id !== id));
+    setQuestions((prev) =>
+      prev
+        .filter((q) => q.id !== id)
+        .map((q, index) => ({ ...q, order: index }))
+    );
     if (selectedItem === id) {
       setSelectedItem(null);
     }
@@ -99,7 +115,8 @@ export function FormBuilderV2({
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
 
-        return arrayMove(items, oldIndex, newIndex);
+        const reordered = arrayMove(items, oldIndex, newIndex);
+        return reordered.map((item, index) => ({ ...item, order: index }));
       });
     }
   };
@@ -128,14 +145,49 @@ export function FormBuilderV2({
       const url = mode === "create" ? "/api/surveys" : `/api/surveys/${surveyId}`;
       const method = mode === "create" ? "POST" : "PUT";
 
+      const normalizedQuestions = questions.map((question, index) => {
+        const base: Partial<Question> & {
+          id: string;
+          type: QuestionType;
+          text: string;
+          order: number;
+          required: boolean;
+        } = {
+          id: question.id,
+          type: question.type,
+          text: question.text,
+          order: index,
+          required: question.required,
+        };
+
+        if (question.type === "multiple_choice") {
+          base.options =
+            question.options && question.options.length > 0
+              ? question.options
+              : ["Opción 1", "Opción 2"];
+        } else if (question.type === "yes_no") {
+          base.options =
+            question.options && question.options.length === 2
+              ? question.options
+              : ["Sí", "No"];
+        } else if (question.type === "email") {
+          base.validateEmail =
+            question.validateEmail !== undefined ? question.validateEmail : true;
+        }
+
+        return base;
+      });
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           description,
-          status: "active",
-          questions: questions.map((q, i) => ({ ...q, order: i })),
+          welcomeMessage,
+          thankYouMessage,
+          status,
+          questions: normalizedQuestions,
         }),
       });
 
@@ -176,6 +228,25 @@ export function FormBuilderV2({
         </div>
 
         <div className="flex items-center gap-3">
+          {mode === "edit" ? (
+            <select
+              value={status}
+              onChange={(e) =>
+                setStatus(e.target.value as "draft" | "active" | "paused" | "archived")
+              }
+              className="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-700"
+            >
+              <option value="draft">Borrador</option>
+              <option value="active">Activa</option>
+              <option value="paused">Pausada</option>
+              <option value="archived">Archivada</option>
+            </select>
+          ) : (
+            <span className="px-3 py-2 text-xs font-semibold uppercase rounded-md bg-green-50 text-green-600 border border-green-200">
+              Publicada
+            </span>
+          )}
+
           <button
             onClick={() => router.push("/surveys")}
             className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900"
@@ -522,7 +593,7 @@ function PreviewPanel({
                   <p className="text-sm text-slate-900 font-medium">
                     {index + 1}. {question.text || "Sin texto"}
                   </p>
-                  {question.type === "multiple_choice" && question.options && (
+                  {question.type !== "email" && question.type !== "open_text" && question.type !== "rating" && question.options && (
                     <div className="mt-2 space-y-1">
                       {question.options.map((opt, i) => (
                         <div
@@ -533,6 +604,11 @@ function PreviewPanel({
                         </div>
                       ))}
                     </div>
+                  )}
+                  {question.type === "email" && (
+                    <p className="mt-2 text-xs text-slate-500">
+                      El usuario deberá responder con su correo electrónico.
+                    </p>
                   )}
                   <span className="text-xs text-slate-500 mt-1 block">
                     {new Date().toLocaleTimeString("es-ES", {
@@ -671,9 +747,29 @@ function PropertiesPanel({
           <label className="block text-sm font-medium text-slate-700 mb-2">Tipo de Pregunta</label>
           <select
             value={selectedQuestion.type}
-            onChange={(e) =>
-              onUpdateQuestion(selectedQuestion.id, { type: e.target.value as QuestionType })
-            }
+            onChange={(e) => {
+              const newType = e.target.value as QuestionType;
+              const updates: Partial<Question> = { type: newType };
+
+              if (newType === "multiple_choice") {
+                updates.options =
+                  selectedQuestion.options && selectedQuestion.options.length > 0
+                    ? selectedQuestion.options
+                    : ["Opción 1", "Opción 2"];
+                updates.validateEmail = undefined;
+              } else if (newType === "yes_no") {
+                updates.options = ["Sí", "No"];
+                updates.validateEmail = undefined;
+              } else if (newType === "email") {
+                updates.options = undefined;
+                updates.validateEmail = selectedQuestion.validateEmail ?? true;
+              } else {
+                updates.options = undefined;
+                updates.validateEmail = undefined;
+              }
+
+              onUpdateQuestion(selectedQuestion.id, updates);
+            }}
             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
           >
             <option value="email">Email</option>
@@ -697,7 +793,7 @@ function PropertiesPanel({
         </div>
 
         {/* Options for Multiple Choice */}
-        {selectedQuestion.type === "multiple_choice" && (
+        {(selectedQuestion.type === "multiple_choice" || selectedQuestion.type === "yes_no") && (
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Opciones</label>
             <div className="space-y-2">
@@ -714,18 +810,20 @@ function PropertiesPanel({
                   className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm text-slate-900 placeholder:text-slate-400"
                 />
               ))}
-              <button
-                onClick={() => {
-                  const newOptions = [
-                    ...(selectedQuestion.options || []),
-                    `Opción ${(selectedQuestion.options?.length || 0) + 1}`,
-                  ];
-                  onUpdateQuestion(selectedQuestion.id, { options: newOptions });
-                }}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              >
-                + Agregar opción
-              </button>
+              {selectedQuestion.type === "multiple_choice" && (
+                <button
+                  onClick={() => {
+                    const newOptions = [
+                      ...(selectedQuestion.options || []),
+                      `Opción ${(selectedQuestion.options?.length || 0) + 1}`,
+                    ];
+                    onUpdateQuestion(selectedQuestion.id, { options: newOptions });
+                  }}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  + Agregar opción
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -750,7 +848,7 @@ function PropertiesPanel({
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={selectedQuestion.validateEmail}
+                checked={selectedQuestion.validateEmail ?? true}
                 onChange={(e) =>
                   onUpdateQuestion(selectedQuestion.id, { validateEmail: e.target.checked })
                 }

@@ -13,6 +13,10 @@ export const tenants = pgTable('tenants', {
   stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }),
   subscriptionStatus: varchar('subscription_status', { length: 50 }), // active, canceled, past_due
 
+  // API Access
+  apiKeyHash: varchar('api_key_hash', { length: 128 }),
+  apiKeyPrefix: varchar('api_key_prefix', { length: 32 }),
+
   // Limits (según plan)
   responsesLimit: integer('responses_limit').notNull().default(50),
   responsesUsedThisMonth: integer('responses_used_this_month').notNull().default(0),
@@ -25,6 +29,7 @@ export const tenants = pgTable('tenants', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 }, (table) => [
   index('tenants_slug_idx').on(table.slug),
+  index('tenants_api_key_prefix_idx').on(table.apiKeyPrefix),
 ]);
 
 // Users

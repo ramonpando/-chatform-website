@@ -2,15 +2,19 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { surveys, questions } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { z } from "zod";
+
+const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email"] as const;
 
 const questionSchema = z.object({
   id: z.string().optional(), // Optional porque puede ser nueva pregunta
-  type: z.enum(["multiple_choice", "rating", "open_text"]),
+  type: z.enum(QUESTION_TYPES),
   text: z.string().min(1, "El texto de la pregunta es requerido"),
   options: z.array(z.string()).optional(),
   order: z.number(),
+  required: z.boolean().optional(),
+  validateEmail: z.boolean().optional(),
   isNew: z.boolean().optional(),
   isDeleted: z.boolean().optional(),
 });
@@ -19,8 +23,34 @@ const updateSurveySchema = z.object({
   title: z.string().min(1, "El título es requerido"),
   description: z.string().optional(),
   status: z.enum(["draft", "active", "paused", "archived"]),
+  welcomeMessage: z.string().optional(),
+  thankYouMessage: z.string().optional(),
   questions: z.array(questionSchema).min(1, "Agrega al menos una pregunta"),
 });
+
+function serializeQuestionOptions(question: z.infer<typeof questionSchema>) {
+  if (question.type === "multiple_choice") {
+    const choices = (question.options && question.options.length > 0)
+      ? question.options
+      : ["Opción 1", "Opción 2"];
+    return JSON.stringify(choices);
+  }
+
+  if (question.type === "yes_no") {
+    const choices = question.options && question.options.length === 2
+      ? question.options
+      : ["Sí", "No"];
+    return JSON.stringify(choices);
+  }
+
+  if (question.type === "email") {
+    return JSON.stringify({
+      validateEmail: question.validateEmail !== undefined ? question.validateEmail : true,
+    });
+  }
+
+  return null;
+}
 
 // GET - Obtener una encuesta específica
 export async function GET(
@@ -86,8 +116,14 @@ export async function PUT(
       );
     }
 
-    const { title, description, status, questions: questionsData } =
-      validation.data;
+    const {
+      title,
+      description,
+      status,
+      welcomeMessage,
+      thankYouMessage,
+      questions: questionsData,
+    } = validation.data;
 
     // Verify survey belongs to user's tenant
     const existingSurvey = await db.query.surveys.findFirst({
@@ -112,67 +148,81 @@ export async function PUT(
         .set({
           title,
           description: description || null,
+          welcomeMessage: welcomeMessage || null,
+          thankYouMessage: thankYouMessage || null,
           status,
           updatedAt: new Date(),
         })
         .where(eq(surveys.id, id))
         .returning();
 
-      // Handle questions
-      // 1. Delete questions marked as deleted
-      const deletedQuestionIds = questionsData
-        .filter((q) => q.isDeleted && q.id)
-        .map((q) => q.id as string);
+      const existingQuestions = await tx.query.questions.findMany({
+        where: eq(questions.surveyId, id),
+      });
 
-      if (deletedQuestionIds.length > 0) {
+      const existingMap = new Map(existingQuestions.map((q) => [q.id, q]));
+      const activeQuestions = questionsData.filter((q) => !q.isDeleted);
+      const activeIds = new Set(
+        activeQuestions
+          .map((q) => q.id)
+          .filter((value): value is string => Boolean(value))
+      );
+
+      const questionsToDelete = existingQuestions
+        .filter((question) => !activeIds.has(question.id))
+        .map((question) => question.id);
+
+      if (questionsToDelete.length > 0) {
         await tx
           .delete(questions)
           .where(
             and(
               eq(questions.surveyId, id),
-              // @ts-ignore - Drizzle typing issue
-              eq(questions.id, deletedQuestionIds[0])
+              inArray(questions.id, questionsToDelete)
             )
           );
       }
 
-      // 2. Update existing questions and create new ones
-      const updatedQuestions = await Promise.all(
-        questionsData
-          .filter((q) => !q.isDeleted)
-          .map(async (q) => {
-            if (q.id && !q.isNew) {
-              // Update existing question
-              const [updated] = await tx
-                .update(questions)
-                .set({
-                  questionType: q.type,
-                  questionText: q.text,
-                  options: q.options ? JSON.stringify(q.options) : null,
-                  orderIndex: q.order,
-                  updatedAt: new Date(),
-                })
-                .where(eq(questions.id, q.id))
-                .returning();
-              return updated;
-            } else {
-              // Create new question
-              const [created] = await tx
-                .insert(questions)
-                .values({
-                  surveyId: id,
-                  questionType: q.type,
-                  questionText: q.text,
-                  options: q.options ? JSON.stringify(q.options) : null,
-                  orderIndex: q.order,
-                })
-                .returning();
-              return created;
-            }
-          })
-      );
+      const upsertedQuestions: typeof existingQuestions = [];
 
-      return { survey: updatedSurvey, questions: updatedQuestions };
+      for (const question of activeQuestions) {
+        const payload = {
+          questionType: question.type,
+          questionText: question.text,
+          options: serializeQuestionOptions(question),
+          orderIndex: question.order,
+          required: question.required ?? true,
+          updatedAt: new Date(),
+        };
+
+        if (question.id && existingMap.has(question.id)) {
+          const [updated] = await tx
+            .update(questions)
+            .set(payload)
+            .where(eq(questions.id, question.id))
+            .returning();
+          if (updated) {
+            upsertedQuestions.push(updated);
+          }
+        } else {
+          const [created] = await tx
+            .insert(questions)
+            .values({
+              surveyId: id,
+              questionType: question.type,
+              questionText: question.text,
+              options: payload.options,
+              orderIndex: question.order,
+              required: payload.required,
+            })
+            .returning();
+          if (created) {
+            upsertedQuestions.push(created);
+          }
+        }
+      }
+
+      return { survey: updatedSurvey, questions: upsertedQuestions };
     });
 
     return NextResponse.json({

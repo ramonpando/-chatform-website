@@ -123,6 +123,7 @@ Ver [DEPLOYMENT.md](DEPLOYMENT.md) y [DOKPLOY-SETUP.md](DOKPLOY-SETUP.md) para i
 - Stripe payments
 - Analytics dashboard
 - Team management
+- Auditoría de endpoints API cuando el sistema esté 100% funcional (alinear implementación y documentación)
 
 ## Licencia
 
