@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Save, Loader2, GripVertical } from "lucide-react";
 import { nanoid } from "nanoid";
@@ -539,7 +539,7 @@ function SortableQuestionCard({
   );
 }
 
-// Preview Panel Component (Center) - Static for now
+// Preview Panel Component (Center) - Interactive Simulator
 function PreviewPanel({
   title,
   welcomeMessage,
@@ -551,12 +551,81 @@ function PreviewPanel({
   questions: Question[];
   thankYouMessage: string;
 }) {
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1); // -1 = not started
+  const [userResponses, setUserResponses] = useState<Record<string, string>>({});
+  const [showTyping, setShowTyping] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages appear
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [currentQuestionIndex, userResponses, showTyping]);
+
+  const startSimulation = () => {
+    setIsSimulating(true);
+    setCurrentQuestionIndex(0);
+    setUserResponses({});
+    setInputValue("");
+  };
+
+  const resetSimulation = () => {
+    setIsSimulating(false);
+    setCurrentQuestionIndex(-1);
+    setUserResponses({});
+    setInputValue("");
+  };
+
+  const handleResponse = (answer: string) => {
+    if (currentQuestionIndex >= questions.length) return;
+
+    const currentQuestion = questions[currentQuestionIndex];
+    setUserResponses((prev) => ({ ...prev, [currentQuestion.id]: answer }));
+    setInputValue("");
+
+    // Show typing indicator
+    setShowTyping(true);
+    setTimeout(() => {
+      setShowTyping(false);
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+      } else {
+        // Show thank you message
+        setCurrentQuestionIndex(questions.length);
+      }
+    }, 800);
+  };
+
+  const currentQuestion = currentQuestionIndex >= 0 && currentQuestionIndex < questions.length
+    ? questions[currentQuestionIndex]
+    : null;
+
+  const isCompleted = currentQuestionIndex === questions.length;
+
   return (
     <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
         <h3 className="font-semibold text-slate-900">Vista Previa</h3>
-        <div className="text-xs text-slate-500">WhatsApp Simulator</div>
+        <div className="flex items-center gap-2">
+          {isSimulating && (
+            <span className="text-xs text-slate-500">
+              {isCompleted ? "Completado" : `${currentQuestionIndex + 1}/${questions.length}`}
+            </span>
+          )}
+          <button
+            onClick={isSimulating ? resetSimulation : startSimulation}
+            className={`text-xs font-medium px-3 py-1.5 rounded-md transition-colors ${
+              isSimulating
+                ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+            disabled={questions.length === 0}
+          >
+            {isSimulating ? "🔄 Reiniciar" : "▶️ Simular"}
+          </button>
+        </div>
       </div>
 
       {/* Preview Area */}
@@ -575,84 +644,206 @@ function PreviewPanel({
 
           {/* Chat Area */}
           <div className="flex-1 overflow-y-auto p-4 bg-[#ECE5DD] space-y-3">
-            {/* Welcome Message */}
-            {welcomeMessage && (
-              <div className="flex justify-start">
-                <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
-                  <p className="text-sm text-slate-900">{welcomeMessage}</p>
-                  <span className="text-xs text-slate-500 mt-1">
-                    {new Date().toLocaleTimeString("es-ES", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Questions Preview */}
-            {questions.map((question, index) => (
-              <div key={question.id} className="flex justify-start">
-                <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
-                  <p className="text-sm text-slate-900 font-medium">
-                    {index + 1}. {question.text || "Sin texto"}
-                  </p>
-                  {question.type !== "email" && question.type !== "open_text" && question.type !== "rating" && question.options && (
-                    <div className="mt-2 space-y-1">
-                      {question.options.map((opt, i) => (
-                        <div
-                          key={i}
-                          className="text-xs px-2 py-1 bg-slate-100 rounded text-slate-700"
-                        >
-                          {opt}
-                        </div>
-                      ))}
+            {!isSimulating ? (
+              /* Static Preview Mode */
+              <>
+                {welcomeMessage && (
+                  <div className="flex justify-start">
+                    <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                      <p className="text-sm text-slate-900">{welcomeMessage}</p>
+                      <span className="text-xs text-slate-500 mt-1 block">14:06</span>
                     </div>
-                  )}
-                  {question.type === "email" && (
-                    <p className="mt-2 text-xs text-slate-500">
-                      El usuario deberá responder con su correo electrónico.
-                    </p>
-                  )}
-                  <span className="text-xs text-slate-500 mt-1 block">
-                    {new Date().toLocaleTimeString("es-ES", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-            ))}
+                  </div>
+                )}
+                {questions.map((question, index) => (
+                  <div key={question.id} className="flex justify-start">
+                    <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                      <p className="text-sm text-slate-900 font-medium">
+                        {index + 1}. {question.text || "Sin texto"}
+                      </p>
+                      {question.type !== "email" && question.type !== "open_text" && question.type !== "rating" && question.options && (
+                        <div className="mt-2 space-y-1">
+                          {question.options.map((opt, i) => (
+                            <div key={i} className="text-xs px-2 py-1 bg-slate-100 rounded text-slate-700">
+                              {opt}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {question.type === "email" && (
+                        <p className="mt-2 text-xs text-slate-500">
+                          El usuario deberá responder con su correo electrónico.
+                        </p>
+                      )}
+                      <span className="text-xs text-slate-500 mt-1 block">14:06</span>
+                    </div>
+                  </div>
+                ))}
+                {thankYouMessage && questions.length > 0 && (
+                  <div className="flex justify-start">
+                    <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                      <p className="text-sm text-slate-900">{thankYouMessage}</p>
+                      <span className="text-xs text-slate-500 mt-1 block">14:06</span>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Interactive Simulation Mode */
+              <>
+                {/* Welcome Message */}
+                {welcomeMessage && (
+                  <div className="flex justify-start">
+                    <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                      <p className="text-sm text-slate-900">{welcomeMessage}</p>
+                      <span className="text-xs text-slate-500 mt-1 block">
+                        {new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
-            {/* Thank You Message */}
-            {thankYouMessage && questions.length > 0 && (
-              <div className="flex justify-start">
-                <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
-                  <p className="text-sm text-slate-900">{thankYouMessage}</p>
-                  <span className="text-xs text-slate-500 mt-1">
-                    {new Date().toLocaleTimeString("es-ES", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
+                {/* Show questions up to current index */}
+                {questions.slice(0, currentQuestionIndex + 1).map((question, index) => (
+                  <React.Fragment key={question.id}>
+                    {/* Bot question */}
+                    <div className="flex justify-start">
+                      <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                        <p className="text-sm text-slate-900 font-medium">
+                          {index + 1}. {question.text || "Sin texto"}
+                        </p>
+                        {question.type !== "email" && question.type !== "open_text" && question.type !== "rating" && question.options && (
+                          <div className="mt-2 space-y-1">
+                            {question.options.map((opt, i) => (
+                              <div key={i} className="text-xs px-2 py-1 bg-slate-100 rounded text-slate-700">
+                                {opt}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <span className="text-xs text-slate-500 mt-1 block">
+                          {new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* User response */}
+                    {userResponses[question.id] && (
+                      <div className="flex justify-end">
+                        <div className="bg-[#DCF8C6] rounded-lg rounded-tr-none shadow px-4 py-3 max-w-[80%]">
+                          <p className="text-sm text-slate-900">{userResponses[question.id]}</p>
+                          <span className="text-xs text-slate-500 mt-1 block">
+                            {new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
+
+                {/* Typing indicator */}
+                {showTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-2">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Thank you message */}
+                {isCompleted && thankYouMessage && (
+                  <div className="flex justify-start">
+                    <div className="bg-white rounded-lg rounded-tl-none shadow px-4 py-3 max-w-[80%]">
+                      <p className="text-sm text-slate-900">{thankYouMessage}</p>
+                      <span className="text-xs text-slate-500 mt-1 block">
+                        {new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={chatEndRef} />
+              </>
             )}
           </div>
 
-          {/* Input Bar */}
+          {/* Input Bar - Interactive */}
           <div className="border-t bg-white px-4 py-3">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Escribe tu respuesta..."
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled
-              />
-              <button className="w-10 h-10 rounded-full bg-[#075E54] text-white flex items-center justify-center">
-                ▶
-              </button>
-            </div>
+            {!isSimulating || isCompleted ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Click 'Simular' para probar"
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm focus:outline-none"
+                  disabled
+                />
+                <button className="w-10 h-10 rounded-full bg-slate-300 text-white flex items-center justify-center">
+                  ▶
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Multiple Choice or Yes/No - Show buttons */}
+                {currentQuestion && (currentQuestion.type === "multiple_choice" || currentQuestion.type === "yes_no") && currentQuestion.options && (
+                  <div className="space-y-2">
+                    {currentQuestion.options.map((option, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleResponse(option)}
+                        className="w-full px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 transition-colors"
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Rating - Show number buttons */}
+                {currentQuestion && currentQuestion.type === "rating" && (
+                  <div className="grid grid-cols-5 gap-2">
+                    {[...Array(10)].map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleResponse(`${i + 1}`)}
+                        className="px-3 py-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-lg text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors"
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Email or Open Text - Show input */}
+                {currentQuestion && (currentQuestion.type === "email" || currentQuestion.type === "open_text") && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type={currentQuestion.type === "email" ? "email" : "text"}
+                      placeholder={currentQuestion.type === "email" ? "tu@email.com" : "Escribe tu respuesta..."}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && inputValue.trim()) {
+                          handleResponse(inputValue.trim());
+                        }
+                      }}
+                      className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => inputValue.trim() && handleResponse(inputValue.trim())}
+                      disabled={!inputValue.trim()}
+                      className="w-10 h-10 rounded-full bg-[#075E54] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      ▶
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
