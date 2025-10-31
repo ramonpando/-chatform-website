@@ -78,6 +78,12 @@ export const surveys = pgTable('surveys', {
   status: varchar('status', { length: 50 }).notNull().default('draft'), // draft, active, paused, archived
   shortCode: varchar('short_code', { length: 20 }).notNull().unique(),
 
+  // Customization (branding)
+  brandColor: varchar('brand_color', { length: 7 }).default('#2563eb'), // Primary color (hex)
+  accentColor: varchar('accent_color', { length: 7 }).default('#06b6d4'), // Accent color (hex)
+  logoUrl: text('logo_url'), // URL to custom logo
+  customStyles: jsonb('custom_styles'), // Additional custom styles
+
   // Stats
   viewCount: integer('view_count').notNull().default(0),
   responseCount: integer('response_count').notNull().default(0),
