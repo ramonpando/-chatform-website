@@ -378,7 +378,7 @@ function StructurePanel({
         <div className="relative">
           <button
             onClick={() => setShowAddMenu(!showAddMenu)}
-            className="w-full py-2.5 px-3 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-2 font-medium"
+            className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2 font-semibold shadow-sm hover:shadow-md"
           >
             <Sparkles className="w-4 h-4" />
             Agregar Pregunta
