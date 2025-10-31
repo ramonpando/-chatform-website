@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { surveys } from "@/lib/db/schema";
+import { surveys, tenants } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -20,7 +20,7 @@ export default async function SurveysPage() {
 
   // Get tenant to check limits
   const tenant = await db.query.tenants.findFirst({
-    where: eq(surveys.tenantId, session.user.tenantId),
+    where: eq(tenants.id, session.user.tenantId),
   });
 
   const canCreateMore = userSurveys.length < (tenant?.surveysLimit || 1);
