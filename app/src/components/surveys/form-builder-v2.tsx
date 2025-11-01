@@ -24,7 +24,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 // Types
-export type QuestionType = "email" | "multiple_choice" | "rating" | "open_text" | "yes_no";
+export type QuestionType = "email" | "phone" | "short_text" | "number" | "multiple_choice" | "rating" | "open_text" | "yes_no";
 
 export interface Question {
   id: string;
@@ -559,6 +559,33 @@ function StructurePanel({
                         </button>
                         <button
                           onClick={() => {
+                            onAddQuestion("phone");
+                            setShowAddMenu(false);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-t border-slate-100 text-sm text-slate-700"
+                        >
+                          Teléfono
+                        </button>
+                        <button
+                          onClick={() => {
+                            onAddQuestion("short_text");
+                            setShowAddMenu(false);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-t border-slate-100 text-sm text-slate-700"
+                        >
+                          Texto corto
+                        </button>
+                        <button
+                          onClick={() => {
+                            onAddQuestion("number");
+                            setShowAddMenu(false);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-t border-slate-100 text-sm text-slate-700"
+                        >
+                          Número
+                        </button>
+                        <button
+                          onClick={() => {
                             onAddQuestion("multiple_choice");
                             setShowAddMenu(false);
                           }}
@@ -764,19 +791,28 @@ function PreviewPanel({
     if (currentQuestionIndex >= questions.length) return;
 
     const currentQuestion = questions[currentQuestionIndex];
+
+    // Save the response
     setUserResponses((prev) => ({ ...prev, [currentQuestion.id]: answer }));
     setInputValue("");
 
     // Show typing indicator
     setShowTyping(true);
+
+    // Move to next question after delay
     setTimeout(() => {
       setShowTyping(false);
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex((prev) => prev + 1);
-      } else {
-        // Show thank you message
-        setCurrentQuestionIndex(questions.length);
-      }
+
+      // Use functional update to avoid closure issues
+      setCurrentQuestionIndex((prevIndex) => {
+        if (prevIndex < questions.length - 1) {
+          // Move to next question
+          return prevIndex + 1;
+        } else {
+          // Survey completed - show thank you
+          return questions.length;
+        }
+      });
     }, 800);
   };
 
@@ -844,7 +880,7 @@ function PreviewPanel({
                       <p className="text-[15px] text-slate-900 font-medium leading-relaxed">
                         {index + 1}. {question.text || "Sin texto"}
                       </p>
-                      {question.type !== "email" && question.type !== "open_text" && question.type !== "rating" && question.options && (
+                      {question.type !== "email" && question.type !== "phone" && question.type !== "short_text" && question.type !== "number" && question.type !== "open_text" && question.type !== "rating" && question.options && (
                         <div className="mt-2 space-y-1.5">
                           {question.options.map((opt, i) => (
                             <div key={i} className="text-sm px-3 py-2 bg-slate-100 rounded text-slate-700">
@@ -856,6 +892,21 @@ function PreviewPanel({
                       {question.type === "email" && (
                         <p className="mt-2 text-xs text-slate-500">
                           El usuario deberá responder con su correo electrónico.
+                        </p>
+                      )}
+                      {question.type === "phone" && (
+                        <p className="mt-2 text-xs text-slate-500">
+                          El usuario deberá responder con su número de teléfono.
+                        </p>
+                      )}
+                      {question.type === "short_text" && (
+                        <p className="mt-2 text-xs text-slate-500">
+                          El usuario deberá responder con un texto corto (máx. 100 caracteres).
+                        </p>
+                      )}
+                      {question.type === "number" && (
+                        <p className="mt-2 text-xs text-slate-500">
+                          El usuario deberá responder con un número.
                         </p>
                       )}
                       <span className="text-xs text-slate-500 mt-1 block">14:06</span>
@@ -895,7 +946,7 @@ function PreviewPanel({
                         <p className="text-sm text-slate-900 font-medium">
                           {index + 1}. {question.text || "Sin texto"}
                         </p>
-                        {question.type !== "email" && question.type !== "open_text" && question.type !== "rating" && question.options && (
+                        {question.type !== "email" && question.type !== "phone" && question.type !== "short_text" && question.type !== "number" && question.type !== "open_text" && question.type !== "rating" && question.options && (
                           <div className="mt-2 space-y-1">
                             {question.options.map((opt, i) => (
                               <div key={i} className="text-xs px-2 py-1 bg-slate-100 rounded text-slate-700">
@@ -903,6 +954,21 @@ function PreviewPanel({
                               </div>
                             ))}
                           </div>
+                        )}
+                        {question.type === "phone" && (
+                          <p className="mt-2 text-xs text-slate-500">
+                            El usuario deberá responder con su número de teléfono.
+                          </p>
+                        )}
+                        {question.type === "short_text" && (
+                          <p className="mt-2 text-xs text-slate-500">
+                            El usuario deberá responder con un texto corto (máx. 100 caracteres).
+                          </p>
+                        )}
+                        {question.type === "number" && (
+                          <p className="mt-2 text-xs text-slate-500">
+                            El usuario deberá responder con un número.
+                          </p>
                         )}
                         <span className="text-xs text-slate-500 mt-1 block">
                           {new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
@@ -971,7 +1037,7 @@ function PreviewPanel({
             ) : (
               <>
                 {/* Multiple Choice or Yes/No - Show buttons */}
-                {currentQuestion && (currentQuestion.type === "multiple_choice" || currentQuestion.type === "yes_no") && currentQuestion.options && (
+                {currentQuestion && !showTyping && (currentQuestion.type === "multiple_choice" || currentQuestion.type === "yes_no") && currentQuestion.options && (
                   <div className="space-y-2">
                     {currentQuestion.options.map((option, i) => (
                       <button
@@ -986,7 +1052,7 @@ function PreviewPanel({
                 )}
 
                 {/* Rating - Show number buttons */}
-                {currentQuestion && currentQuestion.type === "rating" && (
+                {currentQuestion && !showTyping && currentQuestion.type === "rating" && (
                   <div className="grid grid-cols-5 gap-2">
                     {[...Array(10)].map((_, i) => (
                       <button
@@ -1000,12 +1066,18 @@ function PreviewPanel({
                   </div>
                 )}
 
-                {/* Email or Open Text - Show input */}
-                {currentQuestion && (currentQuestion.type === "email" || currentQuestion.type === "open_text") && (
+                {/* Email, Phone, Short Text, Number or Open Text - Show input */}
+                {currentQuestion && !showTyping && (currentQuestion.type === "email" || currentQuestion.type === "phone" || currentQuestion.type === "short_text" || currentQuestion.type === "number" || currentQuestion.type === "open_text") && (
                   <div className="flex items-center gap-2">
                     <input
-                      type={currentQuestion.type === "email" ? "email" : "text"}
-                      placeholder={currentQuestion.type === "email" ? "tu@email.com" : "Escribe tu respuesta..."}
+                      type={currentQuestion.type === "email" ? "email" : currentQuestion.type === "number" ? "number" : currentQuestion.type === "phone" ? "tel" : "text"}
+                      placeholder={
+                        currentQuestion.type === "email" ? "tu@email.com" :
+                        currentQuestion.type === "phone" ? "+52 55 1234 5678" :
+                        currentQuestion.type === "short_text" ? "Texto corto (máx. 100 caracteres)" :
+                        currentQuestion.type === "number" ? "123" :
+                        "Escribe tu respuesta..."
+                      }
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={(e) => {

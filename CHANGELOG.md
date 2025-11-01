@@ -2,6 +2,167 @@
 
 ## [Unreleased] - 2025-11-01
 
+### Fixed - WhatsApp Simulator Interactive Mode (2025-11-01)
+
+**Bug corregido:** El simulador interactivo no permitía al usuario responder después de la segunda pregunta
+
+**Problema:**
+- Después de responder la primera pregunta, el input/botones desaparecían
+- El usuario quedaba bloqueado y no podía continuar la simulación
+- Causado por condiciones incorrectas en el renderizado del input
+
+**Solución implementada:**
+- ✅ Fixed `handleResponse` para usar valor directo de `currentQuestionIndex` en lugar de callback
+- ✅ Agregada condición `!showTyping` para evitar mostrar inputs durante typing indicator
+- ✅ Mejorado el flujo de estados: respuesta → typing → siguiente pregunta → mostrar input
+
+**Archivos modificados:**
+- `/src/components/surveys/form-builder-v2.tsx`:
+  - Líneas 790-814: Función `handleResponse()` con lógica de avance corregida
+  - Líneas 1037, 1052, 1067: Agregada condición `!showTyping` en renderizado de inputs
+
+**Resultado:**
+- El simulador ahora funciona correctamente para encuestas de cualquier longitud
+- UX fluida: usuario puede responder todas las preguntas sin interrupciones
+
+---
+
+### Added - Meta Direct Pricing Implementation (2025-11-01)
+
+**Feature implementado:** Sistema completo de pricing con Meta WhatsApp Business API Direct
+
+**Nuevo Modelo de Pricing:**
+- ✅ **FREE**: $0/mes - 0 respuestas WhatsApp, sin AI
+- ✅ **STARTER**: $39/mes - 200 respuestas WhatsApp, sin AI
+- ✅ **PRO**: $99/mes - 1,000 respuestas WhatsApp, AI ilimitado
+- ✅ **BUSINESS**: $199/mes - 3,000 respuestas WhatsApp, AI ilimitado
+
+**Costos de Infraestructura:**
+- WhatsApp (Meta Direct): $0.04 por respuesta completa
+- AI (OpenAI GPT-4o-mini): $0.001 por generación, $0.003 por análisis
+- Overage pricing: $0.25/$0.15/$0.10 por respuesta adicional (Starter/Pro/Business)
+
+**Márgenes:**
+- Gross margin: 74% (vs 41% con Twilio)
+- Net profit: $4,188/mes con 100 usuarios (solo founder)
+
+**Archivos creados:**
+- `/src/lib/constants/pricing.ts` - Configuración centralizada de pricing
+- `/src/lib/plan-limits.ts` - Middleware de validación de límites
+- `/src/components/ui/progress.tsx` - Componente de barra de progreso
+- `/src/components/dashboard/usage-indicator.tsx` - Indicador de uso de plan
+- `/src/app/pricing/page.tsx` - Página pública de pricing
+
+**Archivos modificados:**
+- `/src/app/(dashboard)/dashboard/page.tsx` - Integración de UsageIndicator
+- `/src/app/(dashboard)/settings/billing/page.tsx` - Actualización con nuevo pricing
+
+**Funcionalidades:**
+- ✅ Plan limits middleware con funciones de validación
+- ✅ Usage indicators en dashboard (respuestas WhatsApp, encuestas)
+- ✅ Alertas cuando se acerca al límite (>80%)
+- ✅ CTAs para upgrade cuando excede límites
+- ✅ Página pública de pricing con FAQ
+- ✅ Billing page actualizada con 4 planes
+
+**Documentación:**
+- `/WHATSAPP_STRATEGY.md` - Estrategia completa de integración
+- `/COMPETITIVE_ANALYSIS_PRICING.md` - Análisis competitivo
+- `/WHATSAPP_FIRST_PRICING_ANALYSIS.md` - Análisis financiero detallado
+
+**Próximos pasos:**
+- [ ] Integrar Stripe para billing
+- [ ] Conectar Meta Business API
+- [ ] Implementar reset mensual de contadores (cron)
+
+---
+
+### Added - Mobile Strategy: Desktop-Only Form Builder (2025-11-01)
+
+**Problema:** Form Builder V2 con 3 columnas (Sidebar 280px + Editor + Preview 360px ≈ 1000px) es imposible de usar en móviles (375px screen).
+
+**Decisión:** Bloquear solo Form Builder en móvil, mantener todo lo demás responsive (80% del tráfico es móvil).
+
+**Solución implementada:**
+- ✅ Componente `MobileBlockMessage` con diseño amigable
+- ✅ Detección automática: screen width < 1024px OR user agent móvil
+- ✅ Bloqueado: /surveys/new y /surveys/[id]/edit
+- ✅ Responsive y funcional en móvil:
+  - Login/Signup
+  - Dashboard (/surveys)
+  - Analytics/Results (/surveys/[id]/results)
+  - Share page (/surveys/[id]/share)
+  - Exportar CSV
+
+**Mensaje al usuario móvil:**
+- "Pantalla muy pequeña"
+- Explica que crear/editar requiere desktop
+- Lista lo que SÍ puede hacer desde móvil:
+  - ✓ Ver resultados y analíticas
+  - ✓ Compartir encuestas
+  - ✓ Exportar datos a CSV
+- Botón "Volver a Mis Encuestas"
+
+**Archivos implementados:**
+- `/src/components/mobile-block-message.tsx` - Componente de bloqueo
+- `/src/components/surveys/form-builder-with-customization.tsx` - Integración del blocker
+
+**Breakpoint:** `lg:block` (1024px+) para Form Builder
+
+**Ventajas:**
+- Mantiene conversiones (signup desde móvil funciona)
+- Permite ver analytics y compartir (casos de uso móviles principales)
+- Evita frustración de UI inutilizable
+- Sigue el estándar de Typeform, Tally, Google Forms
+
+---
+
+### Added - Nuevos Tipos de Pregunta (2025-11-01)
+
+**Feature implementado:** Tres nuevos tipos de pregunta compatibles con WhatsApp
+
+**Tipos agregados:**
+- ✅ **Teléfono (phone)**: Input tipo `tel` con placeholder "+52 55 1234 5678"
+- ✅ **Texto Corto (short_text)**: Input tipo `text` con límite visual de 100 caracteres
+- ✅ **Número (number)**: Input tipo `number` con placeholder "123"
+
+**Funcionalidad:**
+- ✅ Integración completa en Form Builder V2
+- ✅ Dropdown menu actualizado con opciones en español
+- ✅ WhatsApp Simulator (modo estático e interactivo)
+- ✅ Placeholders específicos por tipo
+- ✅ Helper text descriptivo en preview
+- ✅ Input types HTML correctos (tel, number, text)
+
+**Archivos modificados:**
+- `/src/components/surveys/form-builder-v2.tsx`:
+  - Línea 27: TypeScript type definition actualizado
+  - Líneas 551-595: Tres nuevos botones en dropdown menu
+  - Líneas 874-902: Static preview con helper text
+  - Líneas 940-963: Interactive simulation con helper text
+  - Líneas 1061-1071: Input con placeholders específicos
+
+**WhatsApp Webhook Support (2025-11-01):**
+- ✅ Validación completa para 5 nuevos tipos de pregunta
+- ✅ **Email validation**: regex pattern + lowercase normalization
+- ✅ **Phone validation**: acepta formato internacional (+52), min 10 dígitos, limpia espacios/guiones
+- ✅ **Short text validation**: máximo 100 caracteres
+- ✅ **Number validation**: parseFloat con validación isNaN
+- ✅ **Yes/No validation**: acepta "Sí", "Si", "Yes", "No", "1", "2" (case insensitive)
+- ✅ Helper text específico en mensajes de WhatsApp por cada tipo
+- ✅ Mensajes de error en español con ejemplos claros
+- ✅ Response storage actualizado: email/phone → answerText, yes_no → answerOption, number → answerRating
+
+**Archivos modificados:**
+- `/src/app/api/webhooks/whatsapp/route.ts`:
+  - Líneas 342-441: Función `validateAnswer()` con 5 nuevas validaciones
+  - Líneas 288-298: Función `formatQuestion()` con helper text para nuevos tipos
+  - Líneas 223-231: Response storage con mapeo correcto de tipos
+
+**Pendiente:**
+- [ ] Actualizar AI Generator API para soportar nuevos tipos
+- [ ] Conectar Twilio para testing real (siguiente paso)
+
 ### Added - UX/UI Improvements & Analytics Fix
 
 #### 🎨 Mejoras de Experiencia de Usuario
