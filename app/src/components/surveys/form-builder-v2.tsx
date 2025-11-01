@@ -764,7 +764,6 @@ function PreviewPanel({
                 ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 : "bg-blue-500 text-white hover:bg-blue-600"
             }`}
-            disabled={questions.length === 0}
           >
             {isSimulating ? "🔄 Reiniciar" : "▶️ Simular"}
           </button>
@@ -773,7 +772,7 @@ function PreviewPanel({
 
       {/* Preview Area */}
       <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
-        <div className="w-[320px] max-h-[520px] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+        <div className="w-[375px] h-[667px] bg-white rounded-[3rem] shadow-2xl border-[14px] border-slate-800 overflow-hidden flex flex-col">
           {/* WhatsApp Header */}
           <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
