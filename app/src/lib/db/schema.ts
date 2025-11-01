@@ -221,6 +221,7 @@ export const surveysRelations = relations(surveys, ({ one, many }) => ({
   questions: many(questions),
   sessions: many(surveySessions),
   shortLinks: many(shortLinks),
+  views: many(surveyViews),
 }));
 
 export const questionsRelations = relations(questions, ({ one, many }) => ({
@@ -301,5 +302,35 @@ export const aiGenerationsRelations = relations(aiGenerations, ({ one }) => ({
   user: one(users, {
     fields: [aiGenerations.userId],
     references: [users.id],
+  }),
+}));
+
+// Survey Views - Tracking de vistas únicas
+export const surveyViews = pgTable('survey_views', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  surveyId: uuid('survey_id').notNull().references(() => surveys.id, { onDelete: 'cascade' }),
+
+  // Identificadores para deduplicación
+  ipAddress: varchar('ip_address', { length: 45 }), // IPv4 o IPv6
+  userAgent: text('user_agent'),
+  fingerprint: varchar('fingerprint', { length: 64 }), // Hash del user agent + otros datos
+
+  // Metadata
+  referrer: text('referrer'),
+  isBot: boolean('is_bot').notNull().default(false),
+
+  // Timestamps
+  viewedAt: timestamp('viewed_at').notNull().defaultNow(),
+}, (table) => [
+  index('survey_views_survey_idx').on(table.surveyId),
+  index('survey_views_survey_ip_idx').on(table.surveyId, table.ipAddress),
+  index('survey_views_fingerprint_idx').on(table.fingerprint),
+  index('survey_views_viewed_at_idx').on(table.viewedAt),
+]);
+
+export const surveyViewsRelations = relations(surveyViews, ({ one }) => ({
+  survey: one(surveys, {
+    fields: [surveyViews.surveyId],
+    references: [surveys.id],
   }),
 }));

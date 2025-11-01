@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
-import { surveys } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { surveys, surveyViews } from "@/lib/db/schema";
+import { eq, and, gte, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { PublicSurveyPage } from "@/components/surveys/public-survey-page";
+import { getVisitorInfo } from "@/lib/utils/tracking";
 
 export default async function PublicSurveyPageRoute({
   params,
@@ -26,12 +27,46 @@ export default async function PublicSurveyPageRoute({
     notFound();
   }
 
-  // Increment view count (fire and forget)
-  db.update(surveys)
-    .set({ viewCount: survey.viewCount + 1 })
-    .where(eq(surveys.id, survey.id))
-    .then(() => {})
-    .catch(() => {});
+  // Track view with deduplication (fire and forget)
+  (async () => {
+    try {
+      const visitor = await getVisitorInfo();
+
+      // Solo trackear si no es un bot
+      if (!visitor.isBot) {
+        // Verificar si ya existe una vista de esta IP/fingerprint en las últimas 24 horas
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        const existingView = await db.query.surveyViews.findFirst({
+          where: and(
+            eq(surveyViews.surveyId, survey.id),
+            eq(surveyViews.fingerprint, visitor.fingerprint),
+            gte(surveyViews.viewedAt, twentyFourHoursAgo)
+          ),
+        });
+
+        // Solo registrar si no existe una vista reciente
+        if (!existingView) {
+          // Insertar vista
+          await db.insert(surveyViews).values({
+            surveyId: survey.id,
+            ipAddress: visitor.ip,
+            userAgent: visitor.userAgent,
+            fingerprint: visitor.fingerprint,
+            referrer: visitor.referrer,
+            isBot: false,
+          });
+
+          // Actualizar contador
+          await db.update(surveys)
+            .set({ viewCount: sql`${surveys.viewCount} + 1` })
+            .where(eq(surveys.id, survey.id));
+        }
+      }
+    } catch (error) {
+      console.error('Error tracking view:', error);
+    }
+  })();
 
   // Generate WhatsApp link
   const whatsappNumber = process.env.TWILIO_WHATSAPP_NUMBER || "whatsapp:+14155238886";

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Save, Loader2, GripVertical } from "lucide-react";
+import { Sparkles, Save, Loader2, GripVertical, AlertTriangle, Check } from "lucide-react";
 import { nanoid } from "nanoid";
 import { AIGeneratorModal } from "./ai-generator-modal";
 import {
@@ -71,10 +71,12 @@ export function FormBuilderV2({
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [selectedItem, setSelectedItem] = useState<"welcome" | "thankyou" | string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [status, setStatus] = useState<"draft" | "active" | "paused" | "archived">(
     mode === "create" ? "active" : initialStatus
   );
   const [showAIModal, setShowAIModal] = useState(false);
+  const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
   // Handlers
   const addQuestion = (type: QuestionType) => {
@@ -102,15 +104,26 @@ export function FormBuilderV2({
     setQuestions(questions.map((q) => (q.id === id ? { ...q, ...updates } : q)));
   };
 
-  const deleteQuestion = (id: string) => {
-    setQuestions((prev) =>
-      prev
-        .filter((q) => q.id !== id)
-        .map((q, index) => ({ ...q, order: index }))
-    );
-    if (selectedItem === id) {
-      setSelectedItem(null);
+  const handleDeleteClick = (id: string) => {
+    setQuestionToDelete(id);
+  };
+
+  const confirmDelete = () => {
+    if (questionToDelete) {
+      setQuestions((prev) =>
+        prev
+          .filter((q) => q.id !== questionToDelete)
+          .map((q, index) => ({ ...q, order: index }))
+      );
+      if (selectedItem === questionToDelete) {
+        setSelectedItem(null);
+      }
+      setQuestionToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setQuestionToDelete(null);
   };
 
   const handleAIGenerate = (generatedSurvey: any) => {
@@ -236,6 +249,10 @@ export function FormBuilderV2({
 
       const data = await response.json();
 
+      // Show success indicator
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+
       if (mode === "create") {
         router.push(`/surveys/${data.survey.id}/edit`);
       } else {
@@ -254,7 +271,7 @@ export function FormBuilderV2({
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div>
+          <div className="flex items-center gap-3">
             <input
               type="text"
               value={title}
@@ -262,6 +279,19 @@ export function FormBuilderV2({
               placeholder="Título de la encuesta"
               className="text-lg font-semibold text-slate-900 bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-slate-400"
             />
+            {/* Save Status Indicator */}
+            {saving && (
+              <span className="flex items-center gap-1.5 text-xs text-slate-600">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Guardando...
+              </span>
+            )}
+            {saveSuccess && (
+              <span className="flex items-center gap-1.5 text-xs text-green-600 animate-fade-in">
+                <Check className="w-3.5 h-3.5" />
+                Guardado
+              </span>
+            )}
           </div>
         </div>
 
@@ -293,8 +323,8 @@ export function FormBuilderV2({
               <option value="archived">Archivada</option>
             </select>
           ) : (
-            <span className="px-3 py-2 text-xs font-semibold uppercase rounded-md bg-green-50 text-green-600 border border-green-200">
-              Publicada
+            <span className="px-3 py-2 text-xs font-semibold uppercase rounded-md bg-blue-50 text-blue-600 border border-blue-200">
+              Nueva Encuesta
             </span>
           )}
 
@@ -332,7 +362,8 @@ export function FormBuilderV2({
             selectedItem={selectedItem}
             onSelectItem={setSelectedItem}
             onAddQuestion={addQuestion}
-            onDeleteQuestion={deleteQuestion}
+            onDeleteQuestion={handleDeleteClick}
+            onOpenAIModal={() => setShowAIModal(true)}
           />
         </DndContext>
 
@@ -364,6 +395,39 @@ export function FormBuilderV2({
           userPlan={userPlan}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      {questionToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-50 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">Eliminar Pregunta</h2>
+            </div>
+
+            <p className="text-slate-700 mb-6">
+              ¿Estás seguro que deseas eliminar esta pregunta? Esta acción no se puede deshacer.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={cancelDelete}
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-900 font-medium hover:bg-slate-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -375,24 +439,31 @@ function StructurePanel({
   onSelectItem,
   onAddQuestion,
   onDeleteQuestion,
+  onOpenAIModal,
 }: {
   questions: Question[];
   selectedItem: string | null;
   onSelectItem: (id: string | null) => void;
   onAddQuestion: (type: QuestionType) => void;
   onDeleteQuestion: (id: string) => void;
+  onOpenAIModal?: () => void;
 }) {
   const [showAddMenu, setShowAddMenu] = useState(false);
 
   return (
     <div className="w-[270px] border-r border-slate-200 bg-white flex flex-col">
       {/* AI Quick Action */}
-      <div className="p-4 border-b border-slate-200">
-        <button className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity font-medium text-sm">
-          <Sparkles className="w-4 h-4" />
-          Generar con IA
-        </button>
-      </div>
+      {onOpenAIModal && (
+        <div className="p-4 border-b border-slate-200">
+          <button
+            onClick={onOpenAIModal}
+            className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity font-medium text-sm"
+          >
+            <Sparkles className="w-4 h-4" />
+            Generar con IA
+          </button>
+        </div>
+      )}
 
       {/* Survey Flow */}
       <div className="flex-1 overflow-y-auto p-4">
@@ -562,12 +633,17 @@ function SortableQuestionCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`p-3 rounded-lg border transition-all ${
+      className={`relative p-3 rounded-lg border transition-all ${
         isSelected
-          ? "border-blue-500 bg-blue-50"
+          ? "border-blue-500 bg-blue-50 shadow-sm"
           : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
       }`}
     >
+      {/* Selected Indicator Bar */}
+      {isSelected && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l-lg"></div>
+      )}
+
       <div className="flex items-start gap-2">
         {/* Drag Handle */}
         <button
@@ -581,12 +657,23 @@ function SortableQuestionCard({
         {/* Content */}
         <div className="flex-1 cursor-pointer" onClick={onSelect}>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-semibold text-slate-500">{index + 1}</span>
-            <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-medium">
+            <span className={`text-xs font-semibold ${isSelected ? "text-blue-600" : "text-slate-500"}`}>
+              {index + 1}
+            </span>
+            <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+              isSelected
+                ? "bg-blue-100 text-blue-700"
+                : "bg-slate-100 text-slate-700"
+            }`}>
               {typeLabels[question.type]}
             </span>
+            {question.required && (
+              <span className="text-xs text-red-500 font-bold">*</span>
+            )}
           </div>
-          <div className="text-sm text-slate-900 font-medium truncate">
+          <div className={`text-sm font-medium line-clamp-2 ${
+            isSelected ? "text-blue-900" : "text-slate-900"
+          }`}>
             {question.text || "Nueva pregunta"}
           </div>
         </div>

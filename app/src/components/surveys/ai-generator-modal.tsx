@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Sparkles, Loader2, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Sparkles, Loader2, X, AlertCircle, CheckCircle } from "lucide-react";
 
 interface GeneratedSurvey {
   title: string;
@@ -24,19 +24,48 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
   const [description, setDescription] = useState("");
   const [numQuestions, setNumQuestions] = useState(5);
   const [loading, setLoading] = useState(false);
+  const [loadingUsage, setLoadingUsage] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [generatedSurvey, setGeneratedSurvey] = useState<GeneratedSurvey | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [usage, setUsage] = useState<{
     used: number;
     limit: number;
     remaining: number;
   } | null>(null);
 
-  const handleGenerate = async () => {
+  // Fetch usage on mount
+  useEffect(() => {
+    if (userPlan !== "free") {
+      fetchUsage();
+    }
+  }, [userPlan]);
+
+  const fetchUsage = async () => {
+    try {
+      const res = await fetch("/api/ai/usage");
+      if (res.ok) {
+        const data = await res.json();
+        setUsage(data.usage);
+      }
+    } catch (err) {
+      console.error("Error fetching usage:", err);
+    } finally {
+      setLoadingUsage(false);
+    }
+  };
+
+  const handleGenerateClick = () => {
     if (!description.trim() || description.length < 10) {
       setError("Por favor describe tu encuesta con al menos 10 caracteres");
       return;
     }
+    setShowConfirmation(true);
+  };
 
+  const handleConfirmGenerate = async () => {
+    setShowConfirmation(false);
     setLoading(true);
     setError(null);
 
@@ -69,8 +98,8 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
 
       if (data.success && data.data) {
         setUsage(data.usage);
-        onGenerate(data.data);
-        onClose();
+        setGeneratedSurvey(data.data);
+        setShowPreview(true);
       }
     } catch (err: any) {
       console.error("AI Generation error:", err);
@@ -78,6 +107,18 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAcceptSurvey = () => {
+    if (generatedSurvey) {
+      onGenerate(generatedSurvey);
+      onClose();
+    }
+  };
+
+  const handleReject = () => {
+    setShowPreview(false);
+    setGeneratedSurvey(null);
   };
 
   // Upgrade prompt para usuarios Free
@@ -136,6 +177,120 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
     );
   }
 
+  // Confirmation Dialog
+  if (showConfirmation) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-amber-50 rounded-lg">
+              <AlertCircle className="w-6 h-6 text-amber-600" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900">Confirmar Generación</h2>
+          </div>
+
+          <p className="text-slate-700 mb-4">
+            Estás a punto de usar <span className="font-semibold">1 generación</span> de tu límite mensual.
+          </p>
+
+          {usage && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-900">
+                <span className="font-bold">{usage.remaining}</span> de {usage.limit} generaciones disponibles este mes
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowConfirmation(false)}
+              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-900 font-medium hover:bg-slate-50 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirmGenerate}
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors"
+            >
+              Generar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Preview Dialog
+  if (showPreview && generatedSurvey) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-green-50 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900">Encuesta Generada</h2>
+          </div>
+
+          <div className="space-y-4 mb-6">
+            <div>
+              <p className="text-sm font-medium text-slate-700 mb-1">Título</p>
+              <p className="text-slate-900 font-semibold">{generatedSurvey.title}</p>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-slate-700 mb-1">Mensaje de Bienvenida</p>
+              <p className="text-slate-900">{generatedSurvey.welcomeMessage}</p>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-slate-700 mb-2">Preguntas ({generatedSurvey.questions.length})</p>
+              <div className="space-y-3">
+                {generatedSurvey.questions.map((q, idx) => (
+                  <div key={idx} className="bg-slate-50 rounded-lg p-3">
+                    <p className="text-sm font-medium text-slate-900 mb-1">
+                      {idx + 1}. {q.text}
+                    </p>
+                    <p className="text-xs text-slate-600">
+                      Tipo: {q.type === "multiple_choice" ? "Opción múltiple" : q.type === "yes_no" ? "Sí/No" : q.type === "rating" ? "Calificación" : q.type === "email" ? "Email" : "Texto abierto"}
+                    </p>
+                    {q.options && q.options.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {q.options.map((opt, i) => (
+                          <li key={i} className="text-xs text-slate-700">• {opt}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-slate-700 mb-1">Mensaje de Agradecimiento</p>
+              <p className="text-slate-900">{generatedSurvey.thankYouMessage}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleReject}
+              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-900 font-medium hover:bg-slate-50 transition-colors"
+            >
+              Descartar
+            </button>
+            <button
+              onClick={handleAcceptSurvey}
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors"
+            >
+              Usar esta Encuesta
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Modal principal para usuarios con acceso
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -159,6 +314,19 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
         </div>
 
         <div className="space-y-4">
+          {/* Usage Info Upfront */}
+          {loadingUsage ? (
+            <div className="bg-slate-50 rounded-lg p-3 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+              <p className="text-sm text-slate-600">Cargando información...</p>
+            </div>
+          ) : usage ? (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-900">
+                🎯 Tienes <span className="font-bold">{usage.remaining}</span> de {usage.limit} generaciones disponibles este mes
+              </p>
+            </div>
+          ) : null}
           {/* Description Input */}
           <div>
             <label className="block text-sm font-medium text-slate-900 mb-2">
@@ -211,16 +379,6 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             </ul>
           </div>
 
-          {/* Usage Info */}
-          {usage && (
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-              <p className="text-sm text-blue-900">
-                🎯 Te quedan <span className="font-bold">{usage.remaining}</span>{" "}
-                de {usage.limit} generaciones este mes
-              </p>
-            </div>
-          )}
-
           {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -238,8 +396,8 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
               Cancelar
             </button>
             <button
-              onClick={handleGenerate}
-              disabled={loading || !description.trim() || description.length < 10}
+              onClick={handleGenerateClick}
+              disabled={loading || !description.trim() || description.length < 10 || loadingUsage}
               className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
