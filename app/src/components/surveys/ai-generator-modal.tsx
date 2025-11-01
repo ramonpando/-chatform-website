@@ -127,12 +127,7 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-xl max-w-md w-full p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-                <Sparkles className="w-6 h-6 text-purple-600" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-900">AI Generator</h2>
-            </div>
+            <h2 className="text-lg font-semibold text-slate-900">Generador AI</h2>
             <button
               onClick={onClose}
               className="p-1 hover:bg-slate-100 rounded-md transition-colors"
@@ -145,13 +140,13 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
               Feature Premium
             </h3>
-            <p className="text-slate-800 mb-4">
+            <p className="text-slate-700 mb-4">
               Crea encuestas perfectas en segundos con inteligencia artificial.
             </p>
 
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4 mb-6">
-              <p className="text-sm font-medium text-slate-800 mb-2">Incluido en:</p>
-              <ul className="text-sm text-slate-800 space-y-1">
+            <div className="bg-slate-100 rounded-lg p-4 mb-6">
+              <p className="text-sm font-medium text-slate-700 mb-2">Incluido en:</p>
+              <ul className="text-sm text-slate-700 space-y-1">
                 <li>• Starter: 30 generaciones/mes</li>
                 <li>• Pro: 100 generaciones/mes</li>
               </ul>
@@ -166,7 +161,7 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
               </button>
               <a
                 href="/settings/billing"
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors text-center"
+                className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors text-center"
               >
                 Ver Planes
               </a>
@@ -194,9 +189,9 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
           </p>
 
           {usage && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-900">
-                <span className="font-bold">{usage.remaining}</span> de {usage.limit} generaciones disponibles este mes
+            <div className="bg-slate-100 border border-slate-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-slate-700">
+                <span className="font-semibold">{usage.remaining}</span> de {usage.limit} generaciones disponibles
               </p>
             </div>
           )}
@@ -210,7 +205,7 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             </button>
             <button
               onClick={handleConfirmGenerate}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors"
+              className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
             >
               Generar
             </button>
@@ -281,9 +276,9 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             </button>
             <button
               onClick={handleAcceptSurvey}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors"
+              className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
             >
-              Usar esta Encuesta
+              Usar esta encuesta
             </button>
           </div>
         </div>
@@ -296,14 +291,9 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-lg w-full p-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-              <Sparkles className="w-6 h-6 text-purple-600" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Generar Encuesta con IA
-            </h2>
-          </div>
+          <h2 className="text-lg font-semibold text-slate-900">
+            Generar encuesta con IA
+          </h2>
           <button
             onClick={onClose}
             disabled={loading}
@@ -321,9 +311,9 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
               <p className="text-sm text-slate-600">Cargando información...</p>
             </div>
           ) : usage ? (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-900">
-                🎯 Tienes <span className="font-bold">{usage.remaining}</span> de {usage.limit} generaciones disponibles este mes
+            <div className="bg-slate-100 border border-slate-200 rounded-lg p-3">
+              <p className="text-sm text-slate-700">
+                Tienes <span className="font-semibold">{usage.remaining}</span> de {usage.limit} generaciones disponibles este mes
               </p>
             </div>
           ) : null}
@@ -398,7 +388,7 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             <button
               onClick={handleGenerateClick}
               disabled={loading || !description.trim() || description.length < 10 || loadingUsage}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
