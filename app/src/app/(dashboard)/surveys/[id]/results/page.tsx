@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { surveys, surveySessions } from "@/lib/db/schema";
+import { surveys, surveySessions, tenants } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   TrendingUp,
 } from "lucide-react";
+import { AIInsightsPanel } from "@/components/surveys/ai-insights-panel";
 
 export default async function SurveyResultsPage({
   params,
@@ -40,6 +41,13 @@ export default async function SurveyResultsPage({
   if (!survey) {
     notFound();
   }
+
+  // Get tenant plan
+  const tenant = await db.query.tenants.findFirst({
+    where: eq(tenants.id, session.user.tenantId),
+  });
+
+  const userPlan = tenant?.plan || "free";
 
   // Get sessions (responses) from DB
   const sessions = await db.query.surveySessions.findMany({
@@ -148,6 +156,11 @@ export default async function SurveyResultsPage({
           trendUp={true}
         />
       </div>
+
+      {/* AI Insights Panel - Solo si hay respuestas */}
+      {responseCount > 0 && (
+        <AIInsightsPanel surveyId={survey.id} userPlan={userPlan} />
+      )}
 
       {/* Questions Results */}
       {responseCount === 0 ? (
