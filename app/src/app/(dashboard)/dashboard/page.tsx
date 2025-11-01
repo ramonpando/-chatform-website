@@ -2,9 +2,11 @@ import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { surveys, surveySessions } from "@/lib/db/schema";
+import { surveys, surveySessions, tenants } from "@/lib/db/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
 import { FileText, MessageSquare, TrendingUp, ArrowRight, Sparkles, CheckCircle } from "lucide-react";
+import { UsageIndicator } from "@/components/dashboard/usage-indicator";
+import { type PlanType } from "@/lib/constants/pricing";
 
 type ChangeType = "positive" | "negative" | "neutral";
 
@@ -12,6 +14,15 @@ export default async function DashboardPage() {
   const session = await auth();
 
   if (!session?.user?.tenantId) {
+    redirect("/login");
+  }
+
+  // Fetch tenant data for plan limits
+  const tenant = await db.query.tenants.findFirst({
+    where: eq(tenants.id, session.user.tenantId),
+  });
+
+  if (!tenant) {
     redirect("/login");
   }
 
@@ -85,7 +96,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-4 sm:grid-cols-2">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -123,6 +134,15 @@ export default async function DashboardPage() {
             </div>
           );
         })}
+
+        {/* Usage Indicator Card */}
+        <div className="lg:col-span-1">
+          <UsageIndicator
+            plan={tenant.plan as PlanType}
+            responsesUsed={tenant.responsesUsedThisMonth}
+            surveysCount={tenantSurveys.length}
+          />
+        </div>
       </div>
 
       {/* Empty State - AI Highlight */}

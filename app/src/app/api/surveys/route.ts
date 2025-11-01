@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { surveys, questions } from "@/lib/db/schema";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { requirePermission } from "@/lib/auth/rbac";
 
 const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email"] as const;
 
@@ -55,6 +56,16 @@ export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    // Check permission to create surveys
+    try {
+      await requirePermission(session.user.id, session.user.tenantId, "survey:create");
+    } catch (error) {
+      return NextResponse.json(
+        { error: "No tienes permiso para crear encuestas" },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();

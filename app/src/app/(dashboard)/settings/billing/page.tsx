@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { tenants, surveys } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { Check, Sparkles, Zap, Crown } from "lucide-react";
+import { Check, Sparkles, Zap, Crown, Rocket } from "lucide-react";
 import Link from "next/link";
+import { PLAN_LIMITS } from "@/lib/constants/pricing";
 
 export default async function BillingPage() {
   const session = await auth();
@@ -33,77 +34,77 @@ export default async function BillingPage() {
 
   const currentPlan = (tenant.plan || "free").toLowerCase();
 
-  // Define plans
+  // Define plans with Meta Direct pricing
   const plans = [
     {
-      name: "Free",
-      price: "$0",
+      id: "free",
+      name: "FREE",
+      price: `$${PLAN_LIMITS.free.price}`,
       period: "siempre gratis",
       icon: Check,
       iconColor: "text-slate-600",
       bgColor: "bg-slate-50",
       borderColor: "border-slate-200",
-      features: [
-        "25 respuestas por mes",
-        "1 encuesta activa",
-        "Link y QR básico",
-        "Branding de ChatForm",
-      ],
+      features: PLAN_LIMITS.free.features,
       limits: {
-        responses: 25,
-        surveys: 1,
+        responses: PLAN_LIMITS.free.maxWhatsAppResponses,
+        surveys: PLAN_LIMITS.free.maxSurveys,
         sends: 0,
       },
     },
     {
-      name: "Starter",
-      price: "$29",
+      id: "starter",
+      name: "STARTER",
+      price: `$${PLAN_LIMITS.starter.price}`,
       period: "/mes",
       icon: Zap,
       iconColor: "text-blue-600",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200",
       popular: true,
-      features: [
-        "500 respuestas por mes",
-        "3 encuestas activas",
-        "AI Survey Generator",
-        "Exportar CSV",
-        "100 envíos automáticos",
-        "Sin branding",
-      ],
+      features: PLAN_LIMITS.starter.features,
       limits: {
-        responses: 500,
-        surveys: 3,
-        sends: 100,
+        responses: PLAN_LIMITS.starter.maxWhatsAppResponses,
+        surveys: PLAN_LIMITS.starter.maxSurveys,
+        sends: 0,
       },
     },
     {
-      name: "Pro",
-      price: "$79",
+      id: "pro",
+      name: "PRO",
+      price: `$${PLAN_LIMITS.pro.price}`,
       period: "/mes",
       icon: Crown,
       iconColor: "text-purple-600",
       bgColor: "bg-gradient-to-br from-purple-50 to-pink-50",
       borderColor: "border-purple-200",
-      features: [
-        "2,000 respuestas por mes",
-        "Encuestas ilimitadas",
-        "AI Analysis & Insights",
-        "500 envíos automáticos",
-        "API completa",
-        "Soporte prioritario",
-      ],
+      features: PLAN_LIMITS.pro.features,
       limits: {
-        responses: 2000,
-        surveys: 999,
-        sends: 500,
+        responses: PLAN_LIMITS.pro.maxWhatsAppResponses,
+        surveys: PLAN_LIMITS.pro.maxSurveys,
+        sends: 0,
+      },
+    },
+    {
+      id: "business",
+      name: "BUSINESS",
+      price: `$${PLAN_LIMITS.business.price}`,
+      period: "/mes",
+      icon: Rocket,
+      iconColor: "text-green-600",
+      bgColor: "bg-gradient-to-br from-green-50 to-emerald-50",
+      borderColor: "border-green-200",
+      features: PLAN_LIMITS.business.features,
+      limits: {
+        responses: PLAN_LIMITS.business.maxWhatsAppResponses,
+        surveys: PLAN_LIMITS.business.maxSurveys,
+        sends: 0,
       },
     },
   ];
 
   const currentPlanData = plans.find(
-    (p) => p.name.toLowerCase() === currentPlan
+    (p) => p.id === currentPlan
   ) || plans[0];
 
   return (
@@ -138,7 +139,7 @@ export default async function BillingPage() {
               </div>
             </div>
 
-            {currentPlan !== "pro" && (
+            {currentPlan !== "business" && (
               <Link
                 href="#planes"
                 className="px-5 py-2.5 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors font-semibold"
@@ -175,9 +176,9 @@ export default async function BillingPage() {
           Todos los Planes
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           {plans.map((plan) => {
-            const isCurrent = plan.name.toLowerCase() === currentPlan;
+            const isCurrent = plan.id === currentPlan;
             const PlanIcon = plan.icon;
 
             return (

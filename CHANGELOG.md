@@ -2,6 +2,68 @@
 
 ## [Unreleased] - 2025-11-01
 
+### Added - Role-Based Access Control (RBAC) System (2025-11-01)
+
+**Feature implementado:** Sistema completo de validación de permisos por rol de usuario
+
+**Roles definidos:**
+- ✅ **owner**: Acceso total (crear, editar, eliminar, billing, usuarios)
+- ✅ **admin**: Crear, editar, eliminar encuestas (no billing ni gestión de roles)
+- ✅ **member**: Crear encuestas y ver analytics (solo lectura en edición/eliminación)
+
+**Permisos implementados:**
+- `survey:create` - Todos los roles
+- `survey:read` - Todos los roles
+- `survey:update` - owner, admin
+- `survey:delete` - owner, admin
+- `tenant:billing` - owner
+- `user:invite` - owner, admin
+- `analytics:view` - Todos los roles
+- `analytics:export` - owner, admin
+- `ai:generate` - Todos los roles
+- `ai:analyze` - owner, admin
+
+**Archivos creados:**
+- `/app/src/lib/auth/rbac.ts` - Middleware RBAC con funciones de validación
+
+**Archivos modificados:**
+- `/app/src/app/api/surveys/route.ts` - Validación en POST (crear)
+- `/app/src/app/api/surveys/[id]/route.ts` - Validación en PUT (editar) y DELETE (eliminar)
+
+**Seguridad mejorada:**
+- Antes: Cualquier usuario autenticado podía realizar cualquier acción
+- Ahora: Validación estricta de permisos según rol del usuario en el tenant
+
+---
+
+### Fixed - Real Trend Analytics (2025-11-01)
+
+**Bug corregido:** Datos de tendencias falsos (hardcoded) en página de resultados
+
+**Problema:**
+- Trends como "+12% vs último mes" estaban hardcoded
+- No reflejaban datos reales de la base de datos
+- Pérdida de credibilidad para el usuario
+
+**Solución implementada:**
+- ✅ Cálculo real de trends comparando mes actual vs mes anterior
+- ✅ Query a BD para obtener respuestas del mes pasado
+- ✅ Función `calculateTrend()` que calcula porcentaje de cambio real
+- ✅ Indicador visual correcto (verde/rojo) según tendencia real
+
+**Archivos modificados:**
+- `/app/src/app/(dashboard)/surveys/[id]/results/page.tsx`:
+  - Líneas 4: Agregados imports `gte`, `lt` de drizzle-orm
+  - Líneas 92-124: Nueva lógica de cálculo de trends reales
+  - Líneas 167-194: Stats cards con trends dinámicos
+
+**Resultado:**
+- Métricas 100% reales basadas en datos de BD
+- Comparación precisa mes actual vs mes anterior
+- UX confiable para toma de decisiones
+
+---
+
 ### Fixed - WhatsApp Simulator Interactive Mode (2025-11-01)
 
 **Bug corregido:** El simulador interactivo no permitía al usuario responder después de la segunda pregunta

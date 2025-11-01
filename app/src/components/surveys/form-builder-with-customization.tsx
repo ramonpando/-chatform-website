@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Palette } from "lucide-react";
 import { FormBuilderV2, type Question } from "./form-builder-v2";
 import { CustomizationModal } from "./customization-modal";
+import { MobileBlockMessage } from "../mobile-block-message";
 
 interface FormBuilderWithCustomizationProps {
   surveyId?: string;
@@ -53,18 +54,24 @@ export function FormBuilderWithCustomization(props: FormBuilderWithCustomization
 
   return (
     <>
-      <FormBuilderV2
-        {...props}
-        customizationButton={
-          <button
-            onClick={() => setShowCustomization(true)}
-            className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors flex items-center gap-2"
-          >
-            <Palette className="w-4 h-4" />
-            Personalizar
-          </button>
-        }
-      />
+      {/* Mobile Block Message */}
+      <MobileBlockMessage variant={props.mode === "create" ? "create" : "edit"} />
+
+      {/* Form Builder (only shown on desktop) */}
+      <div className="hidden lg:block">
+        <FormBuilderV2
+          {...props}
+          customizationButton={
+            <button
+              onClick={() => setShowCustomization(true)}
+              className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors flex items-center gap-2"
+            >
+              <Palette className="w-4 h-4" />
+              Personalizar
+            </button>
+          }
+        />
+      </div>
 
       {/* Customization Modal */}
       <CustomizationModal

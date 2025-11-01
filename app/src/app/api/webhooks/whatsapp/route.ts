@@ -220,9 +220,15 @@ async function handleSurveyResponse(session: any, messageBody: string) {
     await db.insert(responses).values({
       sessionId: session.id,
       questionId: currentQuestion.id,
-      answerText: currentQuestion.questionType === "open_text" ? validation.value : null,
-      answerOption: currentQuestion.questionType === "multiple_choice" ? validation.value : null,
-      answerRating: currentQuestion.questionType === "rating" ? validation.value : null,
+      answerText: ["open_text", "short_text", "email", "phone"].includes(currentQuestion.questionType)
+        ? validation.value
+        : null,
+      answerOption: ["multiple_choice", "yes_no"].includes(currentQuestion.questionType)
+        ? validation.value
+        : null,
+      answerRating: ["rating", "number"].includes(currentQuestion.questionType)
+        ? validation.value
+        : null,
     });
 
     // Move to next question or complete
@@ -285,6 +291,16 @@ function formatQuestion(question: any, index: number, total: number): string {
     text += "\n\n_Responde con un número del 1 al 10_";
   } else if (question.questionType === "open_text") {
     text += "\n\n_Escribe tu respuesta_";
+  } else if (question.questionType === "short_text") {
+    text += "\n\n_Escribe tu respuesta (máximo 100 caracteres)_";
+  } else if (question.questionType === "email") {
+    text += "\n\n_Escribe tu email (ej: nombre@ejemplo.com)_";
+  } else if (question.questionType === "phone") {
+    text += "\n\n_Escribe tu número de teléfono (ej: +52 55 1234 5678)_";
+  } else if (question.questionType === "number") {
+    text += "\n\n_Escribe solo números (ej: 123)_";
+  } else if (question.questionType === "yes_no") {
+    text += "\n\n_Responde Sí o No (o 1 para Sí, 2 para No)_";
   }
 
   return text;
@@ -337,6 +353,107 @@ function validateAnswer(question: any, answer: string): { valid: boolean; value?
     }
 
     return { valid: true, value: trimmed };
+  }
+
+  if (question.questionType === "short_text") {
+    if (trimmed.length === 0) {
+      return {
+        valid: false,
+        error: "❌ Por favor escribe tu respuesta"
+      };
+    }
+
+    if (trimmed.length > 100) {
+      return {
+        valid: false,
+        error: "❌ Tu respuesta es muy larga. Máximo 100 caracteres."
+      };
+    }
+
+    return { valid: true, value: trimmed };
+  }
+
+  if (question.questionType === "email") {
+    // Basic email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (trimmed.length === 0) {
+      return {
+        valid: false,
+        error: "❌ Por favor escribe tu email"
+      };
+    }
+
+    if (!emailRegex.test(trimmed)) {
+      return {
+        valid: false,
+        error: "❌ Por favor escribe un email válido (ejemplo: nombre@ejemplo.com)"
+      };
+    }
+
+    return { valid: true, value: trimmed.toLowerCase() };
+  }
+
+  if (question.questionType === "phone") {
+    // Remove spaces, dashes, and parentheses for validation
+    const cleanedPhone = trimmed.replace(/[\s\-\(\)]/g, "");
+
+    // Accept international format: +52 or just digits (min 10 digits)
+    const phoneRegex = /^\+?[0-9]{10,15}$/;
+
+    if (trimmed.length === 0) {
+      return {
+        valid: false,
+        error: "❌ Por favor escribe tu número de teléfono"
+      };
+    }
+
+    if (!phoneRegex.test(cleanedPhone)) {
+      return {
+        valid: false,
+        error: "❌ Por favor escribe un número válido (ejemplo: +52 55 1234 5678)"
+      };
+    }
+
+    return { valid: true, value: cleanedPhone };
+  }
+
+  if (question.questionType === "number") {
+    const number = parseFloat(trimmed);
+
+    if (trimmed.length === 0) {
+      return {
+        valid: false,
+        error: "❌ Por favor escribe un número"
+      };
+    }
+
+    if (isNaN(number)) {
+      return {
+        valid: false,
+        error: "❌ Por favor escribe solo números (ejemplo: 123)"
+      };
+    }
+
+    return { valid: true, value: number };
+  }
+
+  if (question.questionType === "yes_no") {
+    const normalized = trimmed.toLowerCase();
+
+    // Accept: sí, si, yes, no, 1, 2
+    if (normalized === "sí" || normalized === "si" || normalized === "yes" || normalized === "1") {
+      return { valid: true, value: "Sí" };
+    }
+
+    if (normalized === "no" || normalized === "2") {
+      return { valid: true, value: "No" };
+    }
+
+    return {
+      valid: false,
+      error: "❌ Por favor responde Sí o No (o 1 para Sí, 2 para No)"
+    };
   }
 
   return { valid: false, error: "❌ Tipo de pregunta no soportado" };

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { surveys, questions } from "@/lib/db/schema";
 import { eq, and, inArray } from "drizzle-orm";
 import { z } from "zod";
+import { requirePermission } from "@/lib/auth/rbac";
 
 const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email"] as const;
 
@@ -103,6 +104,16 @@ export async function PUT(
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    // Check permission to update surveys
+    try {
+      await requirePermission(session.user.id, session.user.tenantId, "survey:update");
+    } catch (error) {
+      return NextResponse.json(
+        { error: "No tienes permiso para editar encuestas" },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();
@@ -249,6 +260,16 @@ export async function DELETE(
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    // Check permission to delete surveys
+    try {
+      await requirePermission(session.user.id, session.user.tenantId, "survey:delete");
+    } catch (error) {
+      return NextResponse.json(
+        { error: "No tienes permiso para eliminar encuestas" },
+        { status: 403 }
+      );
     }
 
     // Verify survey belongs to user's tenant

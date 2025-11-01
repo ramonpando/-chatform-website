@@ -24,7 +24,7 @@ export function HeroV2() {
 
               {/* Hero Title */}
               <h1 className="text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.1]">
-                Inicia conversaciones y aprende de tus usuarios, así mejoras tu negocio.
+                Inicia conversaciones y aprende de tus usuarios.
               </h1>
 
               {/* Subtitle */}

@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { surveys, surveySessions, tenants } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, gte, lt } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -89,6 +89,40 @@ export default async function SurveyResultsPage({
     return `${mins}m ${secs}s`;
   };
 
+  // Calculate trends comparing this month vs last month
+  const now = new Date();
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const endOfLastMonth = startOfThisMonth;
+
+  // Get last month's responses
+  const lastMonthSessions = await db.query.surveySessions.findMany({
+    where: and(
+      eq(surveySessions.surveyId, id),
+      eq(surveySessions.status, "completed"),
+      gte(surveySessions.completedAt, startOfLastMonth),
+      lt(surveySessions.completedAt, endOfLastMonth)
+    ),
+  });
+
+  // Get this month's responses
+  const thisMonthSessions = sessions.filter(
+    s => s.completedAt && new Date(s.completedAt) >= startOfThisMonth
+  );
+
+  // Calculate trend percentages
+  const calculateTrend = (current: number, previous: number) => {
+    if (previous === 0) {
+      return current > 0 ? "+100%" : "0%";
+    }
+    const change = ((current - previous) / previous) * 100;
+    const sign = change >= 0 ? "+" : "";
+    return `${sign}${Math.round(change)}%`;
+  };
+
+  const responseTrend = calculateTrend(thisMonthSessions.length, lastMonthSessions.length);
+  const responseTrendUp = thisMonthSessions.length >= lastMonthSessions.length;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -134,28 +168,28 @@ export default async function SurveyResultsPage({
           icon={<Users className="w-5 h-5" />}
           label="Respuestas"
           value={responseCount.toString()}
-          trend="+12% vs último mes"
-          trendUp={true}
+          trend={`${responseTrend} vs último mes`}
+          trendUp={responseTrendUp}
         />
         <StatCard
           icon={<Eye className="w-5 h-5" />}
           label="Vistas"
           value={viewCount.toString()}
-          trend="+8% vs último mes"
+          trend={`${thisMonthSessions.length} este mes`}
           trendUp={true}
         />
         <StatCard
           icon={<CheckCircle2 className="w-5 h-5" />}
           label="Tasa de completado"
           value={`${completionRate}%`}
-          trend="+5% vs último mes"
-          trendUp={true}
+          trend={viewCount > 0 ? `${responseCount} de ${viewCount} vistas` : "Sin vistas aún"}
+          trendUp={completionRate >= 50}
         />
         <StatCard
           icon={<TrendingUp className="w-5 h-5" />}
           label="Tiempo promedio"
           value={avgCompletionTime > 0 ? formatTime(avgCompletionTime) : "N/A"}
-          trend={avgCompletionTime > 0 ? "Tiempo de completado" : "Sin datos"}
+          trend={avgCompletionTime > 0 ? `${responseCount} respuestas` : "Sin datos"}
           trendUp={true}
         />
       </div>
