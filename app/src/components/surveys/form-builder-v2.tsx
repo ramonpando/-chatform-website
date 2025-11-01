@@ -469,11 +469,8 @@ function StructurePanel({
             onClick={() => toggleSection("inicio")}
             className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏠</span>
-              <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Inicio</span>
-            </div>
-            <span className="text-slate-400">{expandedSections.inicio ? "▼" : "▶"}</span>
+            <span className="text-sm font-semibold text-slate-700">Inicio</span>
+            <span className="text-slate-400 text-xs">{expandedSections.inicio ? "−" : "+"}</span>
           </button>
           {expandedSections.inicio && (
             <div className="px-4 pb-4">
@@ -499,35 +496,33 @@ function StructurePanel({
             className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <span className="text-lg">❓</span>
-              <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Preguntas</span>
-              <span className="px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">
+              <span className="text-sm font-semibold text-slate-700">Preguntas</span>
+              <span className="px-1.5 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 rounded">
                 {questions.length}
               </span>
             </div>
-            <span className="text-slate-400">{expandedSections.preguntas ? "▼" : "▶"}</span>
+            <span className="text-slate-400 text-xs">{expandedSections.preguntas ? "−" : "+"}</span>
           </button>
           {expandedSections.preguntas && (
             <div className="px-4 pb-4 space-y-3">
               {/* Empty State with AI */}
               {questions.length === 0 ? (
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-100">
-                  <p className="text-sm font-medium text-slate-900 mb-2">Aún no tienes preguntas</p>
-                  <p className="text-xs text-slate-600 mb-3">Comienza agregando preguntas manualmente o genera una encuesta completa con IA</p>
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                  <p className="text-sm font-medium text-slate-700 mb-3">Sin preguntas aún</p>
                   {onOpenAIModal && (
                     <button
                       onClick={onOpenAIModal}
-                      className="w-full py-2 px-3 bg-blue-600 text-white rounded-md flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors font-medium text-sm mb-2"
+                      className="w-full py-2 px-3 bg-slate-900 text-white rounded-md flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors font-medium text-sm mb-2"
                     >
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-3.5 h-3.5" />
                       Generar con IA
                     </button>
                   )}
                   <button
                     onClick={() => setShowAddMenu(true)}
-                    className="w-full py-2 px-3 border-2 border-blue-600 text-blue-600 rounded-md font-medium text-sm hover:bg-blue-50 transition-colors"
+                    className="w-full py-2 px-3 border border-slate-300 text-slate-700 rounded-md font-medium text-sm hover:bg-slate-100 transition-colors"
                   >
-                    + Agregar Manual
+                    Agregar manual
                   </button>
                 </div>
               ) : (
@@ -554,63 +549,58 @@ function StructurePanel({
                   <div className="relative pt-2">
                     <button
                       onClick={() => setShowAddMenu(!showAddMenu)}
-                      className="w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2 font-semibold shadow-sm"
+                      className="w-full py-2 px-3 bg-slate-900 text-white rounded-md text-sm hover:bg-slate-800 transition-colors font-medium"
                     >
-                      + Agregar Pregunta
+                      Agregar pregunta
                     </button>
 
                     {/* Dropdown Menu */}
                     {showAddMenu && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-md shadow-lg z-10 overflow-hidden">
                         <button
                           onClick={() => {
                             onAddQuestion("email");
                             setShowAddMenu(false);
                           }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors text-sm text-slate-700"
                         >
-                          <div className="font-medium text-sm text-slate-900">📧 Email</div>
-                          <div className="text-xs text-slate-500">Con validación automática</div>
+                          Email
                         </button>
                         <button
                           onClick={() => {
                             onAddQuestion("multiple_choice");
                             setShowAddMenu(false);
                           }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors border-t border-slate-100"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-t border-slate-100 text-sm text-slate-700"
                         >
-                          <div className="font-medium text-sm text-slate-900">🔘 Opción Múltiple</div>
-                          <div className="text-xs text-slate-500">Usuario elige una opción</div>
+                          Opción múltiple
                         </button>
                         <button
                           onClick={() => {
                             onAddQuestion("rating");
                             setShowAddMenu(false);
                           }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors border-t border-slate-100"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-t border-slate-100 text-sm text-slate-700"
                         >
-                          <div className="font-medium text-sm text-slate-900">⭐ Calificación</div>
-                          <div className="text-xs text-slate-500">Escala del 1 al 10</div>
+                          Calificación
                         </button>
                         <button
                           onClick={() => {
                             onAddQuestion("yes_no");
                             setShowAddMenu(false);
                           }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors border-t border-slate-100"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-t border-slate-100 text-sm text-slate-700"
                         >
-                          <div className="font-medium text-sm text-slate-900">✓ Sí/No</div>
-                          <div className="text-xs text-slate-500">Respuesta binaria</div>
+                          Sí/No
                         </button>
                         <button
                           onClick={() => {
                             onAddQuestion("open_text");
                             setShowAddMenu(false);
                           }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors border-t border-slate-100"
+                          className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-t border-slate-100 text-sm text-slate-700"
                         >
-                          <div className="font-medium text-sm text-slate-900">💬 Texto Abierto</div>
-                          <div className="text-xs text-slate-500">Respuesta libre</div>
+                          Texto abierto
                         </button>
                       </div>
                     )}
@@ -627,11 +617,8 @@ function StructurePanel({
             onClick={() => toggleSection("final")}
             className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🎉</span>
-              <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Final</span>
-            </div>
-            <span className="text-slate-400">{expandedSections.final ? "▼" : "▶"}</span>
+            <span className="text-sm font-semibold text-slate-700">Final</span>
+            <span className="text-slate-400 text-xs">{expandedSections.final ? "−" : "+"}</span>
           </button>
           {expandedSections.final && (
             <div className="px-4 pb-4">
@@ -811,40 +798,31 @@ function PreviewPanel({
   return (
     <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">📱</span>
-          <div>
-            <h3 className="font-bold text-slate-900">Vista Previa - WhatsApp</h3>
-            <p className="text-xs text-slate-600 mt-0.5">Simulación interactiva en tiempo real</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
+      <div className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-slate-700">Vista previa</h3>
+        <div className="flex items-center gap-2">
           {isSimulating && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-md">
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-              <span className="text-xs font-medium text-blue-900">
-                {isCompleted ? "✓ Completado" : `Pregunta ${currentQuestionIndex + 1}/${questions.length}`}
-              </span>
-            </div>
+            <span className="text-xs text-slate-600">
+              {isCompleted ? "Completado" : `${currentQuestionIndex + 1}/${questions.length}`}
+            </span>
           )}
           <button
             onClick={isSimulating ? resetSimulation : startSimulation}
             disabled={questions.length === 0 && !isSimulating}
-            className={`text-sm font-semibold px-4 py-2 rounded-md transition-colors shadow-sm ${
+            className={`text-xs font-medium px-3 py-1.5 rounded transition-colors ${
               isSimulating
-                ? "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300"
-                : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                : "bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             }`}
           >
-            {isSimulating ? "🔄 Reiniciar" : "▶️ Simular Conversación"}
+            {isSimulating ? "Reiniciar" : "Simular"}
           </button>
         </div>
       </div>
 
       {/* Preview Area */}
-      <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
-        <div className="w-[375px] h-[667px] bg-white rounded-[3rem] shadow-2xl border-[14px] border-slate-800 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto p-4 flex items-center justify-center">
+        <div className="w-[300px] h-[580px] bg-white rounded-2xl shadow-lg border-4 border-slate-300 overflow-hidden flex flex-col">
           {/* WhatsApp Header */}
           <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
@@ -1094,151 +1072,87 @@ function PropertiesPanel({
     return (
       <div className="w-[340px] border-l border-slate-200 bg-white overflow-y-auto">
         <div className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-              <span className="text-2xl">📋</span>
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900">Checklist</h3>
-              <p className="text-xs text-slate-600">Progreso de tu encuesta</p>
-            </div>
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-slate-900">Progreso</h3>
+            <p className="text-xs text-slate-500 mt-1">{[hasTitle, hasQuestions, hasThankYou].filter(Boolean).length} de 3 completados</p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {/* Título */}
-            <div className={`p-4 rounded-lg border-2 transition-all ${
+            <div className={`p-3 rounded-lg border transition-all ${
               hasTitle
-                ? "border-green-200 bg-green-50"
-                : "border-amber-200 bg-amber-50"
+                ? "border-slate-300 bg-slate-50"
+                : "border-slate-200 bg-white"
             }`}>
-              <div className="flex items-start gap-3">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                  hasTitle ? "bg-green-500" : "bg-amber-500"
+              <div className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
+                  hasTitle ? "bg-slate-900 text-white" : "bg-slate-200 text-slate-600"
                 }`}>
-                  {hasTitle ? (
-                    <span className="text-white text-sm">✓</span>
-                  ) : (
-                    <span className="text-white text-sm font-bold">1</span>
-                  )}
+                  {hasTitle ? "✓" : "1"}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-900">Título configurado</p>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    {hasTitle ? "Título de encuesta agregado" : "Agrega un título descriptivo"}
-                  </p>
-                </div>
+                <p className="text-sm text-slate-700">Título configurado</p>
               </div>
             </div>
 
             {/* Bienvenida */}
-            <div
-              className={`w-full p-4 rounded-lg border-2 transition-all ${
-                hasTitle
-                  ? "border-green-200 bg-green-50"
-                  : "border-slate-200 bg-slate-50"
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                  hasTitle ? "bg-green-500" : "bg-slate-300"
+            <div className={`p-3 rounded-lg border transition-all ${
+              hasTitle
+                ? "border-slate-300 bg-slate-50"
+                : "border-slate-200 bg-white"
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
+                  hasTitle ? "bg-slate-900 text-white" : "bg-slate-200 text-slate-600"
                 }`}>
-                  {hasTitle ? (
-                    <span className="text-white text-sm">✓</span>
-                  ) : (
-                    <span className="text-white text-sm font-bold">2</span>
-                  )}
+                  {hasTitle ? "✓" : "2"}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-900">Mensaje de bienvenida</p>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    {hasTitle ? "Saludo inicial configurado" : "Pendiente de configurar"}
-                  </p>
-                </div>
+                <p className="text-sm text-slate-700">Mensaje de bienvenida</p>
               </div>
             </div>
 
             {/* Preguntas */}
-            <div className={`p-4 rounded-lg border-2 transition-all ${
+            <div className={`p-3 rounded-lg border transition-all ${
               hasQuestions
-                ? "border-green-200 bg-green-50"
-                : "border-amber-200 bg-amber-50"
+                ? "border-slate-300 bg-slate-50"
+                : "border-slate-200 bg-white"
             }`}>
-              <div className="flex items-start gap-3">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                  hasQuestions ? "bg-green-500" : "bg-amber-500"
+              <div className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
+                  hasQuestions ? "bg-slate-900 text-white" : "bg-slate-200 text-slate-600"
                 }`}>
-                  {hasQuestions ? (
-                    <span className="text-white text-sm">✓</span>
-                  ) : (
-                    <span className="text-white text-sm font-bold">!</span>
-                  )}
+                  {hasQuestions ? "✓" : "3"}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-900">
-                    {hasQuestions ? `${questions.length} pregunta${questions.length !== 1 ? "s" : ""} agregada${questions.length !== 1 ? "s" : ""}` : "Agrega preguntas"}
-                  </p>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    {hasQuestions ? "Preguntas configuradas" : "Mínimo 1 pregunta requerida"}
-                  </p>
-                </div>
+                <p className="text-sm text-slate-700">
+                  {hasQuestions ? `${questions.length} pregunta${questions.length !== 1 ? "s" : ""}` : "Agregar preguntas"}
+                </p>
               </div>
             </div>
 
             {/* Despedida */}
-            <div
-              className={`w-full p-4 rounded-lg border-2 transition-all ${
-                hasThankYou
-                  ? "border-green-200 bg-green-50"
-                  : "border-slate-200 bg-slate-50"
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                  hasThankYou ? "bg-green-500" : "bg-slate-300"
+            <div className={`p-3 rounded-lg border transition-all ${
+              hasThankYou
+                ? "border-slate-300 bg-slate-50"
+                : "border-slate-200 bg-white"
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
+                  hasThankYou ? "bg-slate-900 text-white" : "bg-slate-200 text-slate-600"
                 }`}>
-                  {hasThankYou ? (
-                    <span className="text-white text-sm">✓</span>
-                  ) : (
-                    <span className="text-white text-sm font-bold">4</span>
-                  )}
+                  {hasThankYou ? "✓" : "4"}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-900">Mensaje de despedida</p>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    {hasThankYou ? "Cierre configurado" : "Pendiente de configurar"}
-                  </p>
-                </div>
+                <p className="text-sm text-slate-700">Mensaje de despedida</p>
               </div>
             </div>
           </div>
 
           {/* Progress Bar */}
           <div className="mt-6 pt-6 border-t border-slate-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-slate-700">Progreso</span>
-              <span className="text-xs font-bold text-blue-600">
-                {[hasTitle, hasQuestions, hasThankYou].filter(Boolean).length}/3
-              </span>
-            </div>
-            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-600 to-cyan-600 transition-all duration-500"
+                className="h-full bg-slate-900 transition-all duration-500"
                 style={{ width: `${([hasTitle, hasQuestions, hasThankYou].filter(Boolean).length / 3) * 100}%` }}
               />
             </div>
-            {canPublish && (
-              <p className="text-xs text-green-600 font-medium mt-3 flex items-center gap-1">
-                <span>✓</span>
-                ¡Lista para publicar!
-              </p>
-            )}
-          </div>
-
-          {/* Help Text */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-            <p className="text-xs text-blue-900 leading-relaxed">
-              💡 <span className="font-semibold">Tip:</span> Selecciona cualquier elemento del panel izquierdo para editar sus propiedades aquí.
-            </p>
           </div>
         </div>
       </div>
