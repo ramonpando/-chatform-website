@@ -36,6 +36,25 @@
 - ✅ Colores unificados: eliminación de gradientes por solidez visual
 - ✅ Fix TypeScript error: cambio de buttons a divs en checklist items
 
+**Form Builder V2 - Diseño Minimalista Tally-Style (2025-11-01):**
+- ✅ Header ultra compacto: py-4 → py-2.5 (más espacio vertical)
+- ✅ Input de título sin bordes, transparente, placeholder sutil
+- ✅ Eliminación total de emojis de badges y select options
+- ✅ Badges más pequeños y neutros (py-1 → py-0.5)
+- ✅ Save indicator inline con badges en una sola línea
+- ✅ Sidebar sin emojis: − y + en lugar de ▼ ▶
+- ✅ WhatsApp Simulator más grande: 300x580px → 360x640px
+- ✅ Tipografía mejorada en simulador:
+  - Mensajes: text-sm → text-[15px] con leading-relaxed
+  - Opciones: text-xs → text-sm con más padding (px-3 py-2)
+  - Max-width mensajes: 80% → 85%
+- ✅ AI Generator Modal simplificado:
+  - Headers sin gradientes ni iconos Sparkles
+  - Títulos: text-xl → text-lg
+  - Todos los botones: gradientes → bg-slate-900 sólido
+  - Panels informativos: blue/purple → slate-100
+  - Sin emojis en textos
+
 #### 📊 Sistema de Analytics Preciso
 
 **Problema resuelto:** Analytics mostraba 11 vistas cuando solo 2 personas habían abierto el link
