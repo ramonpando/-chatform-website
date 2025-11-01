@@ -778,7 +778,7 @@ function PreviewPanel({
                 <input
                   type="text"
                   placeholder="Click 'Simular' para probar"
-                  className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm focus:outline-none"
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none bg-slate-50"
                   disabled
                 />
                 <button className="w-10 h-10 rounded-full bg-slate-300 text-white flex items-center justify-center">
@@ -794,7 +794,7 @@ function PreviewPanel({
                       <button
                         key={i}
                         onClick={() => handleResponse(option)}
-                        className="w-full px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 transition-colors"
+                        className="w-full px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg text-sm font-medium text-slate-900 transition-colors shadow-sm"
                       >
                         {option}
                       </button>
@@ -809,7 +809,7 @@ function PreviewPanel({
                       <button
                         key={i}
                         onClick={() => handleResponse(`${i + 1}`)}
-                        className="px-3 py-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-lg text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors"
+                        className="px-3 py-2 bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 rounded-lg text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors shadow-sm"
                       >
                         {i + 1}
                       </button>
@@ -830,7 +830,7 @@ function PreviewPanel({
                           handleResponse(inputValue.trim());
                         }
                       }}
-                      className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       autoFocus
                     />
                     <button
