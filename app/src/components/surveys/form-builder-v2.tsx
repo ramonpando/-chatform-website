@@ -766,7 +766,6 @@ function PreviewPanel({
   const [userResponses, setUserResponses] = useState<Record<string, string>>({});
   const [showTyping, setShowTyping] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages appear
@@ -779,7 +778,6 @@ function PreviewPanel({
     setCurrentQuestionIndex(0);
     setUserResponses({});
     setInputValue("");
-    setIsProcessing(false);
   };
 
   const resetSimulation = () => {
@@ -787,18 +785,14 @@ function PreviewPanel({
     setCurrentQuestionIndex(-1);
     setUserResponses({});
     setInputValue("");
-    setIsProcessing(false);
   };
 
   const handleResponse = (answer: string) => {
-    // Prevent multiple calls while processing
-    if (isProcessing) return;
+    // Prevent multiple calls while showing typing indicator
+    if (showTyping) return;
     if (currentQuestionIndex >= questions.length) return;
 
     const currentQuestion = questions[currentQuestionIndex];
-
-    // Mark as processing
-    setIsProcessing(true);
 
     // Save the response
     setUserResponses((prev) => ({ ...prev, [currentQuestion.id]: answer }));
@@ -809,8 +803,6 @@ function PreviewPanel({
 
     // Move to next question after delay
     setTimeout(() => {
-      setShowTyping(false);
-
       // Use functional update to avoid closure issues
       setCurrentQuestionIndex((prevIndex) => {
         if (prevIndex < questions.length - 1) {
@@ -822,8 +814,8 @@ function PreviewPanel({
         }
       });
 
-      // Allow next response
-      setIsProcessing(false);
+      // Hide typing indicator - this will allow inputs to show
+      setShowTyping(false);
     }, 800);
   };
 
@@ -1048,7 +1040,7 @@ function PreviewPanel({
             ) : (
               <>
                 {/* Multiple Choice or Yes/No - Show buttons */}
-                {currentQuestion && !showTyping && !isProcessing && (currentQuestion.type === "multiple_choice" || currentQuestion.type === "yes_no") && currentQuestion.options && (
+                {currentQuestion && !showTyping && (currentQuestion.type === "multiple_choice" || currentQuestion.type === "yes_no") && currentQuestion.options && (
                   <div className="space-y-2">
                     {currentQuestion.options.map((option, i) => (
                       <button
@@ -1063,7 +1055,7 @@ function PreviewPanel({
                 )}
 
                 {/* Rating - Show number buttons */}
-                {currentQuestion && !showTyping && !isProcessing && currentQuestion.type === "rating" && (
+                {currentQuestion && !showTyping && currentQuestion.type === "rating" && (
                   <div className="grid grid-cols-5 gap-2">
                     {[...Array(10)].map((_, i) => (
                       <button
@@ -1078,7 +1070,7 @@ function PreviewPanel({
                 )}
 
                 {/* Email, Phone, Short Text, Number or Open Text - Show input */}
-                {currentQuestion && !showTyping && !isProcessing && (currentQuestion.type === "email" || currentQuestion.type === "phone" || currentQuestion.type === "short_text" || currentQuestion.type === "number" || currentQuestion.type === "open_text") && (
+                {currentQuestion && !showTyping && (currentQuestion.type === "email" || currentQuestion.type === "phone" || currentQuestion.type === "short_text" || currentQuestion.type === "number" || currentQuestion.type === "open_text") && (
                   <div className="flex items-center gap-2">
                     <input
                       type={currentQuestion.type === "email" ? "email" : currentQuestion.type === "number" ? "number" : currentQuestion.type === "phone" ? "tel" : "text"}
@@ -1092,7 +1084,7 @@ function PreviewPanel({
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && inputValue.trim() && !isProcessing) {
+                        if (e.key === "Enter" && inputValue.trim() && !showTyping) {
                           handleResponse(inputValue.trim());
                         }
                       }}
@@ -1100,8 +1092,8 @@ function PreviewPanel({
                       autoFocus
                     />
                     <button
-                      onClick={() => !isProcessing && inputValue.trim() && handleResponse(inputValue.trim())}
-                      disabled={!inputValue.trim() || isProcessing}
+                      onClick={() => !showTyping && inputValue.trim() && handleResponse(inputValue.trim())}
+                      disabled={!inputValue.trim() || showTyping}
                       className="w-10 h-10 rounded-full bg-[#075E54] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       ▶
