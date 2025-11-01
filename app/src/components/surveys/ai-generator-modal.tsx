@@ -104,13 +104,13 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
               Feature Premium
             </h3>
-            <p className="text-slate-600 mb-4">
+            <p className="text-slate-800 mb-4">
               Crea encuestas perfectas en segundos con inteligencia artificial.
             </p>
 
             <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4 mb-6">
-              <p className="text-sm font-medium text-slate-700 mb-2">Incluido en:</p>
-              <ul className="text-sm text-slate-600 space-y-1">
+              <p className="text-sm font-medium text-slate-800 mb-2">Incluido en:</p>
+              <ul className="text-sm text-slate-800 space-y-1">
                 <li>• Starter: 30 generaciones/mes</li>
                 <li>• Pro: 100 generaciones/mes</li>
               </ul>
@@ -119,13 +119,13 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-900 font-medium hover:bg-slate-50 transition-colors"
               >
                 Cerrar
               </button>
               <a
                 href="/settings/billing"
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors text-center"
               >
                 Ver Planes
               </a>
@@ -161,32 +161,32 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
         <div className="space-y-4">
           {/* Description Input */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Describe tu encuesta en una frase
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Ej: Satisfacción de clientes en restaurante"
-              className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+              className="w-full border border-slate-300 rounded-lg p-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
               rows={3}
               disabled={loading}
               maxLength={200}
             />
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-700 mt-1">
               {description.length}/200 caracteres
             </p>
           </div>
 
           {/* Number of Questions */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Número de preguntas
             </label>
             <select
               value={numQuestions}
               onChange={(e) => setNumQuestions(parseInt(e.target.value))}
-              className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={loading}
             >
               <option value={3}>3 preguntas</option>
@@ -200,10 +200,10 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
 
           {/* Examples */}
           <div className="bg-slate-50 rounded-lg p-3">
-            <p className="text-xs font-medium text-slate-600 mb-2">
+            <p className="text-xs font-medium text-slate-900 mb-2">
               💡 Ejemplos:
             </p>
-            <ul className="text-xs text-slate-600 space-y-1">
+            <ul className="text-xs text-slate-800 space-y-1">
               <li>• Feedback de curso online</li>
               <li>• NPS para app móvil</li>
               <li>• Evaluación de evento</li>
@@ -214,7 +214,7 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
           {/* Usage Info */}
           {usage && (
             <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-              <p className="text-sm text-blue-700">
+              <p className="text-sm text-blue-900">
                 🎯 Te quedan <span className="font-bold">{usage.remaining}</span>{" "}
                 de {usage.limit} generaciones este mes
               </p>
@@ -233,7 +233,7 @@ export function AIGeneratorModal({ onGenerate, onClose, userPlan = "free" }: Pro
             <button
               onClick={onClose}
               disabled={loading}
-              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-900 font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
