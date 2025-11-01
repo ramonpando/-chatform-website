@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Save, Loader2, GripVertical } from "lucide-react";
 import { nanoid } from "nanoid";
+import { AIGeneratorModal } from "./ai-generator-modal";
 import {
   DndContext,
   closestCenter,
@@ -45,6 +46,7 @@ interface FormBuilderV2Props {
   initialStatus?: "draft" | "active" | "paused" | "archived";
   mode: "create" | "edit";
   customizationButton?: React.ReactNode;
+  userPlan?: string;
 }
 
 export function FormBuilderV2({
@@ -57,6 +59,7 @@ export function FormBuilderV2({
   initialStatus = "draft",
   mode,
   customizationButton,
+  userPlan = "free",
 }: FormBuilderV2Props) {
   const router = useRouter();
 
@@ -71,6 +74,7 @@ export function FormBuilderV2({
   const [status, setStatus] = useState<"draft" | "active" | "paused" | "archived">(
     mode === "create" ? "active" : initialStatus
   );
+  const [showAIModal, setShowAIModal] = useState(false);
 
   // Handlers
   const addQuestion = (type: QuestionType) => {
@@ -106,6 +110,38 @@ export function FormBuilderV2({
     );
     if (selectedItem === id) {
       setSelectedItem(null);
+    }
+  };
+
+  const handleAIGenerate = (generatedSurvey: any) => {
+    // Aplicar título y mensajes
+    if (generatedSurvey.title) {
+      setTitle(generatedSurvey.title);
+    }
+    if (generatedSurvey.welcomeMessage) {
+      setWelcomeMessage(generatedSurvey.welcomeMessage);
+    }
+    if (generatedSurvey.thankYouMessage) {
+      setThankYouMessage(generatedSurvey.thankYouMessage);
+    }
+
+    // Convertir preguntas de AI al formato de Question
+    if (generatedSurvey.questions && Array.isArray(generatedSurvey.questions)) {
+      const newQuestions: Question[] = generatedSurvey.questions.map((q: any, index: number) => ({
+        id: nanoid(),
+        type: q.type as QuestionType,
+        text: q.text,
+        options: q.options,
+        required: true,
+        validateEmail: q.type === "email" ? true : undefined,
+        order: index,
+      }));
+
+      setQuestions(newQuestions);
+      // Seleccionar la primera pregunta
+      if (newQuestions.length > 0) {
+        setSelectedItem(newQuestions[0].id);
+      }
     }
   };
 
@@ -232,6 +268,17 @@ export function FormBuilderV2({
         <div className="flex items-center gap-3">
           {customizationButton}
 
+          {/* AI Generator Button - Solo en modo create y si no hay preguntas */}
+          {mode === "create" && questions.length === 0 && (
+            <button
+              onClick={() => setShowAIModal(true)}
+              className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-md hover:from-purple-600 hover:to-pink-600 transition-all flex items-center gap-2 shadow-sm"
+            >
+              <Sparkles className="w-4 h-4" />
+              Generar con IA
+            </button>
+          )}
+
           {mode === "edit" ? (
             <select
               value={status}
@@ -308,6 +355,15 @@ export function FormBuilderV2({
           onUpdateThankYouMessage={setThankYouMessage}
         />
       </div>
+
+      {/* AI Generator Modal */}
+      {showAIModal && (
+        <AIGeneratorModal
+          onGenerate={handleAIGenerate}
+          onClose={() => setShowAIModal(false)}
+          userPlan={userPlan}
+        />
+      )}
     </div>
   );
 }

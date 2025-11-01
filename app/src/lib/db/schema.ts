@@ -260,3 +260,46 @@ export const shortLinksRelations = relations(shortLinks, ({ one }) => ({
     references: [surveys.id],
   }),
 }));
+
+// AI Generations - Tracking de uso de features AI
+export const aiGenerations = pgTable('ai_generations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+
+  // Tipo de generación
+  generationType: varchar('generation_type', { length: 50 }).notNull(), // 'survey_generator' | 'ai_analysis'
+
+  // Data de la generación
+  prompt: text('prompt').notNull(),
+  response: jsonb('response').notNull(),
+
+  // Métricas
+  tokensUsedInput: integer('tokens_used_input').notNull(),
+  tokensUsedOutput: integer('tokens_used_output').notNull(),
+  costUsd: integer('cost_usd').notNull(), // Almacenar en microdólares (0.0003 USD = 300)
+  latencyMs: integer('latency_ms'),
+
+  // Metadata
+  model: varchar('model', { length: 50 }).notNull().default('gpt-4o-mini'),
+  success: boolean('success').notNull().default(true),
+  errorMessage: text('error_message'),
+
+  // Timestamps
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  index('ai_gen_tenant_date_idx').on(table.tenantId, table.createdAt),
+  index('ai_gen_tenant_type_idx').on(table.tenantId, table.generationType),
+  index('ai_gen_created_idx').on(table.createdAt),
+]);
+
+export const aiGenerationsRelations = relations(aiGenerations, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [aiGenerations.tenantId],
+    references: [tenants.id],
+  }),
+  user: one(users, {
+    fields: [aiGenerations.userId],
+    references: [users.id],
+  }),
+}));

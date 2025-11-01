@@ -18,6 +18,7 @@ interface FormBuilderWithCustomizationProps {
   initialAccentColor?: string;
   initialLogoUrl?: string;
   mode: "create" | "edit";
+  userPlan?: string;
 }
 
 export function FormBuilderWithCustomization(props: FormBuilderWithCustomizationProps) {
