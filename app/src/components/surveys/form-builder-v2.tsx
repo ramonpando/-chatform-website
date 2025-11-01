@@ -690,6 +690,9 @@ function SortableQuestionCard({
 
   const typeLabels: Record<QuestionType, string> = {
     email: "Email",
+    phone: "Teléfono",
+    short_text: "Texto Corto",
+    number: "Número",
     multiple_choice: "Opción Múltiple",
     rating: "Calificación",
     open_text: "Texto",
