@@ -10,41 +10,35 @@ export function Pricing() {
       period: "siempre",
       description: "Perfecto para probar ChatForm",
       features: [
-        "25 respuestas/mes",
-        "1 encuesta activa",
-        "AI Form Generator ✨",
-        "5 AI suggestions/mes",
-        "Links y QR ilimitados",
-        "WhatsApp preview",
-        "Analytics básico"
+        "1 encuesta",
+        "Sin respuestas WhatsApp",
+        "Analytics básicos",
+        "Public survey page"
       ],
       limitations: [
-        "Sin exportación CSV",
-        "Sin validación de email",
-        "Branding ChatForm"
+        "Sin WhatsApp",
+        "Sin AI features",
+        "Sin exportación CSV"
       ],
       cta: "Comenzar gratis",
       highlighted: false
     },
     {
       name: "Starter",
-      price: "$29",
+      price: "$39",
       period: "/mes",
       description: "Para pequeñas empresas",
       features: [
-        "500 respuestas/mes",
-        "5 encuestas activas",
-        "AI Form Generator ilimitado ✨",
-        "50 AI suggestions/mes",
-        "Links y QR ilimitados",
-        "Exportar a CSV",
-        "Validación de email",
-        "Sin branding ChatForm",
-        "Analytics avanzado"
+        "5 encuestas",
+        "200 respuestas WhatsApp/mes",
+        "Form Builder avanzado",
+        "Analytics y gráficos",
+        "CSV export",
+        "Email support"
       ],
       limitations: [
-        "Sin envíos automáticos",
-        "Sin webhooks"
+        "Sin AI features",
+        "Sin envíos automáticos"
       ],
       cta: "Comenzar ahora",
       highlighted: true,
@@ -52,23 +46,40 @@ export function Pricing() {
     },
     {
       name: "Pro",
-      price: "$79",
+      price: "$99",
       period: "/mes",
       description: "Para empresas en crecimiento",
       features: [
-        "2,500 respuestas/mes",
-        "Encuestas ilimitadas",
-        "AI Generator ilimitado ✨",
-        "AI Suggestions ilimitadas",
-        "AI Response Analysis (próximamente)",
-        "100 envíos automáticos/mes",
-        "Webhooks ilimitados",
-        "Conditional logic",
-        "Multi-usuario (3 miembros)",
-        "Soporte prioritario"
+        "20 encuestas",
+        "1,000 respuestas WhatsApp/mes",
+        "✓ AI Survey Generator",
+        "✓ AI Response Analyzer",
+        "Advanced analytics",
+        "CSV export",
+        "Priority support"
       ],
       limitations: [],
       cta: "Comenzar ahora",
+      highlighted: false
+    },
+    {
+      name: "Business",
+      price: "$299",
+      period: "/mes",
+      description: "Para empresas grandes",
+      features: [
+        "Encuestas ilimitadas",
+        "3,000 respuestas WhatsApp/mes",
+        "✓ AI Survey Generator",
+        "✓ AI Response Analyzer",
+        "Advanced analytics",
+        "CSV export",
+        "API access",
+        "Dedicated support",
+        "Custom integrations"
+      ],
+      limitations: [],
+      cta: "Contactar ventas",
       highlighted: false
     }
   ]
@@ -90,7 +101,7 @@ export function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}
