@@ -115,13 +115,16 @@ export default async function SurveyResultsPage({
           >
             Editar Encuesta
           </Link>
-          <button
-            disabled={responseCount === 0}
-            className="px-5 py-2 text-white bg-slate-900 rounded-md hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold shadow-sm hover:shadow-md"
+          <Link
+            href={responseCount === 0 ? "#" : `/api/surveys/${survey.id}/export`}
+            className={`px-5 py-2 text-white bg-slate-900 rounded-md hover:bg-slate-800 transition-all flex items-center gap-2 font-semibold shadow-sm hover:shadow-md ${
+              responseCount === 0 ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
+            }`}
+            aria-disabled={responseCount === 0}
           >
             <Download className="w-4 h-4" />
             Exportar CSV
-          </button>
+          </Link>
         </div>
       </div>
 
