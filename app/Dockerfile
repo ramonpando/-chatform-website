@@ -6,8 +6,8 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files and .npmrc for legacy peer deps
+COPY package.json package-lock.json* .npmrc* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
