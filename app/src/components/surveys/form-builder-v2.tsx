@@ -1131,12 +1131,11 @@ function PropertiesPanel({
             </div>
 
             {/* Bienvenida */}
-            <button
-              onClick={() => onUpdateWelcomeMessage && selectedItem !== "welcome"}
-              className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+            <div
+              className={`w-full p-4 rounded-lg border-2 transition-all ${
                 hasTitle
                   ? "border-green-200 bg-green-50"
-                  : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                  : "border-slate-200 bg-slate-50"
               }`}
             >
               <div className="flex items-start gap-3">
@@ -1152,11 +1151,11 @@ function PropertiesPanel({
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-slate-900">Mensaje de bienvenida</p>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    {hasTitle ? "Saludo inicial configurado" : "Click para configurar"}
+                    {hasTitle ? "Saludo inicial configurado" : "Pendiente de configurar"}
                   </p>
                 </div>
               </div>
-            </button>
+            </div>
 
             {/* Preguntas */}
             <div className={`p-4 rounded-lg border-2 transition-all ${
@@ -1186,12 +1185,11 @@ function PropertiesPanel({
             </div>
 
             {/* Despedida */}
-            <button
-              onClick={() => onUpdateThankYouMessage && selectedItem !== "thankyou"}
-              className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+            <div
+              className={`w-full p-4 rounded-lg border-2 transition-all ${
                 hasThankYou
                   ? "border-green-200 bg-green-50"
-                  : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                  : "border-slate-200 bg-slate-50"
               }`}
             >
               <div className="flex items-start gap-3">
@@ -1207,11 +1205,11 @@ function PropertiesPanel({
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-slate-900">Mensaje de despedida</p>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    {hasThankYou ? "Cierre configurado" : "Click para configurar"}
+                    {hasThankYou ? "Cierre configurado" : "Pendiente de configurar"}
                   </p>
                 </div>
               </div>
-            </button>
+            </div>
           </div>
 
           {/* Progress Bar */}
