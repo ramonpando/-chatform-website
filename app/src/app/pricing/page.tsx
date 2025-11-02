@@ -115,7 +115,7 @@ export default function PricingPage() {
               <Link
                 href={plan.ctaLink}
                 className={`block w-full text-center py-3 px-4 rounded-lg font-semibold transition-colors mb-6 ${
-                  plan.popular
+                  (plan as any).popular
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                     : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700'
                 }`}
