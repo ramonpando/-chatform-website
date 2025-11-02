@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, BarChart3, Settings, LogOut, Sparkles } from "lucide-react";
+import { LayoutDashboard, FileText, BarChart3, Settings, LogOut, Sparkles, Headphones } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -11,6 +11,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Encuestas", href: "/surveys", icon: FileText },
   { name: "Analíticas", href: "/analytics", icon: BarChart3 },
+  { name: "Soporte", href: "/support", icon: Headphones },
   { name: "Configuración", href: "/settings", icon: Settings },
 ];
 

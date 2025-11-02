@@ -334,3 +334,52 @@ export const surveyViewsRelations = relations(surveyViews, ({ one }) => ({
     references: [surveys.id],
   }),
 }));
+
+// Support Tickets
+export const supportTickets = pgTable('support_tickets', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+
+  // Ticket info
+  ticketNumber: varchar('ticket_number', { length: 20 }).notNull().unique(),
+  subject: varchar('subject', { length: 200 }).notNull(),
+  category: varchar('category', { length: 50 }).notNull(), // technical, billing, feature, account, api, other
+  priority: varchar('priority', { length: 20 }).notNull(), // low, normal, high
+  status: varchar('status', { length: 50 }).notNull().default('open'), // open, in_progress, resolved, closed
+  message: text('message').notNull(),
+
+  // User info (denormalized for easier access)
+  userEmail: varchar('user_email', { length: 255 }).notNull(),
+  userName: varchar('user_name', { length: 255 }),
+
+  // Resolution
+  resolvedAt: timestamp('resolved_at'),
+  resolvedBy: uuid('resolved_by').references(() => users.id, { onDelete: 'set null' }),
+  resolutionNotes: text('resolution_notes'),
+
+  // Timestamps
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => [
+  index('support_tickets_tenant_idx').on(table.tenantId),
+  index('support_tickets_user_idx').on(table.userId),
+  index('support_tickets_status_idx').on(table.status),
+  index('support_tickets_created_idx').on(table.createdAt),
+  index('support_tickets_number_idx').on(table.ticketNumber),
+]);
+
+export const supportTicketsRelations = relations(supportTickets, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [supportTickets.tenantId],
+    references: [tenants.id],
+  }),
+  user: one(users, {
+    fields: [supportTickets.userId],
+    references: [users.id],
+  }),
+  resolver: one(users, {
+    fields: [supportTickets.resolvedBy],
+    references: [users.id],
+  }),
+}));
