@@ -6,13 +6,16 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { isOwner } from "@/lib/auth/rbac";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-10-29.clover",
-});
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2025-10-29.clover",
+  });
+}
 
 export async function POST() {
   try {
     const session = await auth();
+    const stripe = getStripe();
 
     if (!session?.user?.id || !session?.user?.tenantId) {
       return NextResponse.json(
