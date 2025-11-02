@@ -79,13 +79,13 @@ export default function PricingPage() {
             <div
               key={plan.key}
               className={`relative rounded-2xl border-2 p-8 bg-white dark:bg-zinc-900 ${
-                plan.popular
+                (plan as any).popular
                   ? 'border-blue-600 shadow-xl shadow-blue-600/20'
                   : 'border-zinc-200 dark:border-zinc-800'
               }`}
             >
               {/* Popular Badge */}
-              {plan.popular && (
+              {(plan as any).popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full">
                   Más Popular
                 </div>
