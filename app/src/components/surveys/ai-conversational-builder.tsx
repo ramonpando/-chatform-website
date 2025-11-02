@@ -241,15 +241,15 @@ export function AIConversationalBuilder({
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   message.role === "user"
                     ? "bg-blue-600 text-white"
-                    : "bg-slate-100 text-slate-900"
+                    : "bg-white border border-slate-200 text-slate-900 shadow-sm"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <p className="text-sm whitespace-pre-wrap font-medium">{message.content}</p>
                 <span
                   className={`text-xs mt-1 block ${
                     message.role === "user"
                       ? "text-blue-100"
-                      : "text-slate-500"
+                      : "text-slate-600"
                   }`}
                 >
                   {message.timestamp.toLocaleTimeString("es-MX", {
@@ -263,8 +263,8 @@ export function AIConversationalBuilder({
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-slate-100 rounded-2xl px-4 py-3">
-                <Loader2 className="w-5 h-5 text-slate-600 animate-spin" />
+              <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
+                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
               </div>
             </div>
           )}
