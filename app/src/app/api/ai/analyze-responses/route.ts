@@ -40,10 +40,10 @@ export async function POST(req: NextRequest) {
       where: eq(tenants.id, session.user.tenantId),
     });
 
-    if (!tenant || tenant.plan !== 'pro') {
+    if (!tenant || (tenant.plan !== 'pro' && tenant.plan !== 'business')) {
       return NextResponse.json({
         error: 'AI_NOT_AVAILABLE',
-        message: 'El análisis AI solo está disponible en el plan Pro',
+        message: 'El análisis AI solo está disponible en los planes Pro y Business',
       }, { status: 403 });
     }
 

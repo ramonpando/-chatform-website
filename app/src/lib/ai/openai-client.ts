@@ -31,15 +31,19 @@ export const AI_CONFIG = {
 export const AI_LIMITS = {
   free: {
     generations: 0,
-    message: 'Actualiza a Starter para usar AI Generator'
+    message: 'Actualiza a Pro para usar AI Generator'
   },
   starter: {
-    generations: 30,
-    message: '30 generaciones AI/mes'
+    generations: 0,
+    message: 'Actualiza a Pro para usar AI Generator'
   },
   pro: {
-    generations: 100,
-    message: '100 generaciones AI/mes + análisis'
+    generations: -1, // Unlimited
+    message: 'Generaciones AI ilimitadas + análisis'
+  },
+  business: {
+    generations: -1, // Unlimited
+    message: 'Generaciones AI ilimitadas + análisis + prioridad'
   }
 } as const;
 

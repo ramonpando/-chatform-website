@@ -50,6 +50,7 @@ export function AIConversationalBuilder({
     title: "",
     questions: [],
   });
+  const [showDraftNotification, setShowDraftNotification] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -137,6 +138,11 @@ export function AIConversationalBuilder({
             } as Question,
           ],
         }));
+        // Show notification when questions are added
+        if (workingDraft.questions.length === 0) {
+          setShowDraftNotification(true);
+          setTimeout(() => setShowDraftNotification(false), 5000);
+        }
         break;
 
       case "modify_question":
@@ -158,7 +164,9 @@ export function AIConversationalBuilder({
         break;
 
       case "generate_draft":
-        // Handle full draft generation
+        // Show prominent notification for complete draft
+        setShowDraftNotification(true);
+        setTimeout(() => setShowDraftNotification(false), 8000);
         break;
     }
   };
@@ -210,18 +218,38 @@ export function AIConversationalBuilder({
 
         {/* Draft Preview */}
         {workingDraft.questions.length > 0 && (
-          <div className="px-6 py-3 bg-blue-50 border-b border-blue-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-blue-900">
-                <Sparkles className="w-4 h-4" />
-                <span className="font-medium">
-                  Borrador: {workingDraft.questions.length} pregunta{workingDraft.questions.length !== 1 ? "s" : ""}
-                </span>
+          <div className={`px-6 py-4 border-b transition-all ${
+            showDraftNotification
+              ? "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 animate-pulse"
+              : "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
+          }`}>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className={`p-2 rounded-lg ${
+                  showDraftNotification ? "bg-green-100" : "bg-blue-100"
+                }`}>
+                  <Sparkles className={`w-4 h-4 ${
+                    showDraftNotification ? "text-green-600" : "text-blue-600"
+                  }`} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {showDraftNotification ? "✨ Encuesta generada!" : "Borrador listo"}: {workingDraft.questions.length} pregunta{workingDraft.questions.length !== 1 ? "s" : ""}
+                  </p>
+                  <p className="text-xs text-slate-600">
+                    Haz clic en "Aplicar" para agregar las preguntas a tu encuesta
+                  </p>
+                </div>
               </div>
               <button
                 onClick={handleApply}
-                className="px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+                className={`px-5 py-2.5 text-white rounded-lg text-sm font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-2 whitespace-nowrap ${
+                  showDraftNotification
+                    ? "bg-green-600 hover:bg-green-700 animate-bounce"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
               >
+                <Sparkles className="w-4 h-4" />
                 Aplicar Encuesta
               </button>
             </div>
@@ -244,12 +272,12 @@ export function AIConversationalBuilder({
                     : "bg-slate-100 text-slate-900 shadow-sm"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap font-medium text-slate-900">{message.content}</p>
+                <p className="text-sm whitespace-pre-wrap font-medium">{message.content}</p>
                 <span
                   className={`text-xs mt-1 block ${
                     message.role === "user"
                       ? "text-blue-100"
-                      : "text-slate-700"
+                      : "text-slate-500"
                   }`}
                 >
                   {message.timestamp.toLocaleTimeString("es-MX", {

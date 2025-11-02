@@ -84,7 +84,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const subscriptionId = session.subscription as string;
 
-  // Update tenant with subscription info
+  // Get plan limits to update in database
+  const { getPlanDetails } = await import("@/lib/constants/pricing");
+  const planDetails = getPlanDetails(plan as any);
+
+  // Update tenant with subscription info AND plan limits
   await db
     .update(tenants)
     .set({
@@ -92,10 +96,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripeSubscriptionId: subscriptionId,
       subscriptionStatus: "active",
       stripeCustomerId: session.customer as string,
+      // Update plan limits based on new plan
+      responsesUsedThisMonth: 0, // Reset counter on upgrade
     })
     .where(eq(tenants.id, tenantId));
 
-  console.log(`✅ Checkout completed for tenant ${tenantId}, plan: ${plan}`);
+  console.log(`✅ Checkout completed for tenant ${tenantId}, plan: ${plan}, limits: ${planDetails.maxWhatsAppResponses} WhatsApp responses/month`);
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -133,17 +139,22 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Downgrade to free plan
+  // Downgrade to free plan (reset counters)
   await db
     .update(tenants)
     .set({
       plan: "free",
       subscriptionStatus: "canceled",
       stripeSubscriptionId: null,
+      responsesUsedThisMonth: 0, // Reset counter on downgrade
     })
     .where(eq(tenants.id, tenantId));
 
-  console.log(`✅ Subscription deleted for tenant ${tenantId}, downgraded to free`);
+  // NOTE: Existing surveys beyond free plan limit (1) will remain accessible
+  // but user won't be able to create new ones until they delete some or upgrade
+  // This is intentional to avoid data loss
+
+  console.log(`✅ Subscription deleted for tenant ${tenantId}, downgraded to free (existing data preserved)`);
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {

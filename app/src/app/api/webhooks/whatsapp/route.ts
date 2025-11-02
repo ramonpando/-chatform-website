@@ -236,6 +236,28 @@ async function handleSurveyResponse(session: any, messageBody: string) {
     const isLastQuestion = nextIndex >= questions.length;
 
     if (isLastQuestion) {
+      // CRITICAL: Check quota before completing survey
+      const { canReceiveWhatsAppResponse, incrementWhatsAppResponses } = await import("@/lib/plan-limits");
+      const quotaCheck = await canReceiveWhatsAppResponse(survey.tenantId);
+
+      if (!quotaCheck.allowed) {
+        // Quota exceeded - mark session as failed and notify tenant
+        await db.update(surveySessions)
+          .set({
+            status: "abandoned",
+            lastInteractionAt: new Date(),
+          })
+          .where(eq(surveySessions.id, session.id));
+
+        console.error(`WhatsApp quota exceeded for tenant ${survey.tenantId}: ${quotaCheck.reason}`);
+
+        // Send message to user
+        return sendWhatsAppMessage(
+          session.phoneNumber,
+          "⚠️ Lo sentimos, no podemos completar tu encuesta en este momento. Por favor contacta al organizador."
+        );
+      }
+
       // Survey completed!
       await db.update(surveySessions)
         .set({
@@ -251,6 +273,9 @@ async function handleSurveyResponse(session: any, messageBody: string) {
           responseCount: survey.responseCount + 1,
         })
         .where(eq(surveys.id, survey.id));
+
+      // Increment WhatsApp response counter
+      await incrementWhatsAppResponses(survey.tenantId);
 
       const thankYouMessage = survey.thankYouMessage || "¡Gracias por completar la encuesta! Tu opinión es muy valiosa para nosotros.";
       return sendWhatsAppMessage(session.phoneNumber, `✅ ${thankYouMessage}`);
