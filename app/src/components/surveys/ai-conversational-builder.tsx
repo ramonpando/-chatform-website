@@ -241,15 +241,15 @@ export function AIConversationalBuilder({
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   message.role === "user"
                     ? "bg-blue-600 text-white"
-                    : "bg-white border border-slate-200 text-slate-900 shadow-sm"
+                    : "bg-slate-100 text-slate-900 shadow-sm"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap font-medium">{message.content}</p>
+                <p className="text-sm whitespace-pre-wrap font-medium text-slate-900">{message.content}</p>
                 <span
                   className={`text-xs mt-1 block ${
                     message.role === "user"
                       ? "text-blue-100"
-                      : "text-slate-600"
+                      : "text-slate-700"
                   }`}
                 >
                   {message.timestamp.toLocaleTimeString("es-MX", {
@@ -293,7 +293,7 @@ export function AIConversationalBuilder({
               onKeyPress={handleKeyPress}
               placeholder="Escribe tu mensaje..."
               disabled={isLoading || messagesRemaining <= 0}
-              className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed bg-white text-slate-900 placeholder:text-slate-500"
             />
             <button
               onClick={handleSendMessage}

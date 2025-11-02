@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
+import { db } from "@/lib/db";
+import { tenants } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import OpenAI from "openai";
 
 // Initialize OpenAI client
@@ -15,12 +18,20 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
 
-    if (!session?.user) {
+    if (!session?.user?.tenantId) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
 
-    // Check if user has AI access (Pro/Business only)
-    const userPlan = session.user.tenantPlan || "free";
+    // Check if user has AI access (Pro/Business only) - fetch from DB for latest plan
+    const tenant = await db.query.tenants.findFirst({
+      where: eq(tenants.id, session.user.tenantId),
+    });
+
+    if (!tenant) {
+      return NextResponse.json({ error: "Tenant no encontrado" }, { status: 404 });
+    }
+
+    const userPlan = tenant.plan || "free";
     if (userPlan !== "pro" && userPlan !== "business") {
       return NextResponse.json(
         {
