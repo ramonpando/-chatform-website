@@ -1,130 +1,125 @@
 # ChatForm
 
-> Crea encuestas con IA y envíalas por WhatsApp - 10x más respuestas que email
+**Encuestas conversacionales por WhatsApp con IA**
 
-**La IA crea tu encuesta en segundos.** Describe lo que quieres preguntar y nuestra IA genera el formulario completo. Envía por WhatsApp, obtén análisis automático y toma decisiones basadas en datos reales.
+ChatForm es una plataforma SaaS completa que permite crear, distribuir y analizar encuestas a través de WhatsApp de forma conversacional. Incluye generación automática con IA, análisis inteligente de respuestas, y una API REST para integraciones.
 
-## Estructura del Proyecto
+---
 
-Este repositorio contiene dos proyectos Next.js separados:
+## 🚀 Quick Start
 
-```
-chatform/
-├── website/          # Landing page (Next.js 15)
-│   ├── components/   # Componentes de la landing
-│   ├── app/          # App Router de Next.js
-│   └── README.md     # Documentación del website
-│
-├── app/              # Aplicación ChatForm (Next.js 16)
-│   ├── src/          # Código fuente
-│   │   ├── app/      # App Router (auth, dashboard, surveys)
-│   │   ├── components/ # Componentes React
-│   │   └── lib/      # Auth, DB, utils
-│   ├── drizzle.config.ts # Configuración de Drizzle ORM
-│   └── README.md     # Documentación de la app
-│
-└── docs/             # Documentación general
-    ├── DEPLOYMENT.md     # Guía de deployment
-    ├── DOKPLOY-SETUP.md  # Guía de Dokploy
-    └── claude.md         # Documentación técnica
-```
-
-## Stack Tecnológico
-
-### Website (Landing Page)
-- **Framework:** Next.js 15
-- **Styling:** Tailwind CSS v4
-- **Deployment:** Dokploy → https://chatform.mx
-
-### App (Aplicación)
-- **Framework:** Next.js 16 + React 19
-- **Styling:** Tailwind CSS v4
-- **Database:** PostgreSQL (Supabase)
-- **ORM:** Drizzle ORM
-- **Auth:** NextAuth v5 (JWT strategy)
-- **Deployment:** Dokploy → https://app.chatform.mx (pendiente)
-
-## Desarrollo Local
-
-### Website
 ```bash
-cd website
-npm install
-npm run dev
-# → http://localhost:3000
-```
-
-### App
-```bash
-cd app
+cd chatform/app
 npm install
 
-# Configurar variables de entorno
+# Setup environment
 cp .env.example .env.local
-# Editar .env.local con credenciales
+# Edita .env.local con tus credenciales
 
-# Migrar base de datos
+# Database
 npm run db:push
 
-# Iniciar servidor
+# Run
 npm run dev
-# → http://localhost:3002
 ```
 
-## Deployment
+Abre [http://localhost:3000](http://localhost:3000)
 
-Ver [DEPLOYMENT.md](DEPLOYMENT.md) y [DOKPLOY-SETUP.md](DOKPLOY-SETUP.md) para instrucciones completas.
+---
 
-### Resumen:
+## ✨ Features
 
-**Website:**
-- Build path: `website`
-- Puerto: 3000
-- Dominio: chatform.mx
-- Env vars: `NEXT_PUBLIC_APP_URL`
+- ✅ **WhatsApp Conversacional** - Encuestas nativas en WhatsApp vía Twilio
+- ✅ **AI Generator** - Genera encuestas completas con GPT-4o-mini
+- ✅ **AI Analysis** - Análisis de sentimientos e insights automáticos
+- ✅ **20+ Templates** - NPS, satisfacción, feedback prediseñados
+- ✅ **Analytics Dashboard** - Métricas en tiempo real
+- ✅ **Stripe Billing** - Free, Starter ($39), Pro ($99), Business ($249)
+- ✅ **REST API** - Documentación completa en `/docs`
+- ✅ **Multi-tenant** - RBAC con roles
 
-**App:**
-- Build path: `app`
-- Puerto: 3000
-- Dominio: app.chatform.mx
-- Env vars: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `NEXT_PUBLIC_APP_URL`
+---
 
-## Documentación
+## 🛠️ Tech Stack
 
-### 📚 Guías Principales
+**Frontend**: Next.js 16, TypeScript, Tailwind CSS  
+**Backend**: Node.js, PostgreSQL (Supabase), Drizzle ORM  
+**Auth**: NextAuth 5.0  
+**Payments**: Stripe  
+**WhatsApp**: Twilio  
+**AI**: OpenAI GPT-4o-mini  
 
-- **[DEPLOYMENT_WORKFLOW.md](DEPLOYMENT_WORKFLOW.md)** - ⭐ Workflow completo de deployment (NUEVO)
-- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - ⚡ Referencia rápida (NUEVO)
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guía básica de deployment
-- **[DOKPLOY-SETUP.md](DOKPLOY-SETUP.md)** - Setup en Dokploy paso a paso
-- **[claude.md](claude.md)** - Documentación técnica completa
+---
 
-## Estado Actual
+## 🔌 API
 
-✅ **Completado:**
-- Landing page deployada en chatform.mx
-- App base con autenticación multi-tenant
-- Survey builder completo (create, edit, list, results)
-- API REST para CRUD de surveys
-- Database schema en Supabase con stats
-- Dockerfile optimizado con Node 20
-- Compatibilidad con Next.js 16 + React 19
-- Zod v4 y TypeScript errors resueltos
-- Documentación completa de deployment
-- Configuración de Dokploy lista
+Base URL: `https://chatform.mx/api/v1`
 
-🚀 **Deployment Status:**
-- ✅ Website: Deployado en chatform.mx
-- ✅ App: Configurado y listo para deploy en app.chatform.mx
-- ✅ Git: Todo el código en GitHub
+```bash
+# Get responses
+curl https://chatform.mx/api/v1/surveys/abc123/responses \
+  -H "Authorization: Bearer tu_api_key"
 
-📝 **Próximos Pasos:**
-- WhatsApp Business API integration
-- Stripe payments
-- Analytics dashboard
-- Team management
-- Auditoría de endpoints API cuando el sistema esté 100% funcional (alinear implementación y documentación)
+# Trigger survey
+curl -X POST https://chatform.mx/api/v1/surveys/abc123/trigger \
+  -H "Authorization: Bearer tu_api_key" \
+  -d '{"phoneNumber": "+521234567890"}'
+```
 
-## Licencia
+Docs completas: [/docs](https://chatform.mx/docs)
+
+---
+
+## 📊 Plans
+
+| Plan | Precio | Surveys | WhatsApp/mes | AI |
+|------|--------|---------|--------------|-----|
+| Free | $0 | 1 | 0 | ❌ |
+| Starter | $39 | 5 | 200 | ❌ |
+| Pro | $99 | 20 | 1000 | ✅ |
+| Business | $249 | ∞ | 3000 | ✅ |
+
+---
+
+## 🚀 Deployment
+
+**Vercel** (Recomendado):
+1. Push a GitHub
+2. Conectar en Vercel
+3. Configurar env vars
+4. Deploy automático
+
+**Webhooks Post-Deploy**:
+- Stripe: `https://tu-dominio.com/api/billing/webhook`
+- Twilio: `https://tu-dominio.com/api/webhooks/whatsapp`
+
+---
+
+## 📚 Documentation
+
+- **API**: `/docs` en la app
+- **Schema**: `/app/src/lib/db/schema.ts`
+- **Audit**: `/WEBSITE_AUDIT_REPORT.md`
+
+---
+
+## 📝 Changelog
+
+### v1.0.0 (2025-11-02) 🚀
+
+**Production Ready**:
+- Landing page profesional
+- API docs completa
+- Settings handlers (password, delete account)
+- Middleware fix (landing pública)
+- Todos los bugs críticos resueltos
+
+---
+
+## 📄 License
 
 MIT
+
+---
+
+**Made with ❤️ using Claude Code**
