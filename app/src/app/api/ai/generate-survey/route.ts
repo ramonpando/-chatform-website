@@ -45,9 +45,10 @@ export async function POST(req: Request) {
 
     const plan = (tenant.plan || 'free') as keyof typeof AI_LIMITS;
     const planLimits = AI_LIMITS[plan];
+    const generationsLimit = planLimits.generations;
 
     // 4. Verificar si el plan permite AI
-    if (planLimits.generations === 0) {
+    if (generationsLimit === 0) {
       return NextResponse.json(
         {
           error: 'AI_NOT_AVAILABLE',
@@ -77,9 +78,9 @@ export async function POST(req: Request) {
 
     const usedThisMonth = monthlyUsage[0]?.count || 0;
 
-    // Check if plan has unlimited generations (-1)
-    if (planLimits.generations !== -1) {
-      const remaining = planLimits.generations - usedThisMonth;
+    // Only check limit if not unlimited
+    if (generationsLimit !== -1) {
+      const remaining = generationsLimit - usedThisMonth;
 
       if (remaining <= 0) {
         // Calcular fecha de reset
@@ -89,7 +90,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
           {
             error: 'LIMIT_EXCEEDED',
-            message: `Has alcanzado el límite de ${planLimits.generations} generaciones este mes`,
+            message: `Has alcanzado el límite de ${generationsLimit} generaciones este mes`,
             resetDate: nextMonth.toISOString(),
             upgradeUrl: '/settings/billing'
           },
@@ -183,8 +184,8 @@ export async function POST(req: Request) {
       data: survey,
       usage: {
         used: usedThisMonth + 1,
-        limit: planLimits.generations,
-        remaining: remaining - 1,
+        limit: generationsLimit,
+        remaining: generationsLimit === -1 ? -1 : generationsLimit - usedThisMonth - 1,
       },
       meta: {
         latency,
