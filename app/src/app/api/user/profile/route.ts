@@ -24,7 +24,6 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
-        image: true,
         createdAt: true,
       },
     });
@@ -70,7 +69,7 @@ export async function PATCH(request: Request) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: validation.error.errors[0].message },
+        { error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
@@ -98,14 +97,14 @@ export async function PATCH(request: Request) {
         );
       }
 
-      if (!user.password) {
+      if (!user.passwordHash) {
         return NextResponse.json(
           { error: "Usuario creado con OAuth, no puede cambiar contraseña" },
           { status: 400 }
         );
       }
 
-      const validPassword = await bcrypt.compare(currentPassword, user.password);
+      const validPassword = await bcrypt.compare(currentPassword, user.passwordHash);
       if (!validPassword) {
         return NextResponse.json(
           { error: "Contraseña actual incorrecta" },
@@ -134,7 +133,7 @@ export async function PATCH(request: Request) {
     if (name) updateData.name = name;
     if (email) updateData.email = email;
     if (newPassword) {
-      updateData.password = await bcrypt.hash(newPassword, 10);
+      updateData.passwordHash = await bcrypt.hash(newPassword, 10);
     }
 
     // Update user
@@ -146,7 +145,6 @@ export async function PATCH(request: Request) {
         id: users.id,
         name: users.name,
         email: users.email,
-        image: users.image,
       });
 
     return NextResponse.json({
