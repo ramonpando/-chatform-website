@@ -77,10 +77,8 @@ export async function canReceiveWhatsAppResponse(tenantId: string): Promise<Plan
     };
   }
 
-  // -1 means unlimited
-  if (limit === -1) {
-    return { allowed: true };
-  }
+  // maxWhatsAppResponses is never -1 (only maxSurveys can be unlimited)
+  // Valid values: 0, 200, 1000, 3000
 
   const used = tenant.responsesUsedThisMonth;
 
