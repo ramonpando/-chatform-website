@@ -2,6 +2,65 @@
 
 ## [Unreleased] - 2025-11-01
 
+### Added - Survey Templates System (2025-11-01)
+
+**Feature implementado:** Sistema completo de plantillas de encuestas SaaS listas para usar
+
+**20 Templates SaaS implementados:**
+
+**Growth & Acquisition (5):**
+- ✅ Abandono de Registro/Trial - Recupera usuarios que no completaron signup
+- ✅ Product-Market Fit Survey - Método Sean Ellis para medir PMF
+- ✅ Onboarding / Primera Experiencia - Feedback de nuevos usuarios
+- ✅ Pricing Sensitivity - Test Van Westendorp para sensibilidad de precio
+- ✅ Competitor Comparison - Análisis win/loss vs competencia
+
+**Retention & Engagement (6):**
+- ✅ Churn Prevention / Exit Survey - Por qué cancelan usuarios
+- ✅ NPS para SaaS - Net Promoter Score trimestral
+- ✅ Post-Upgrade Satisfaction - Feedback después de upgrade
+- ✅ Downgrade Prevention - Retención antes de downgrade
+- ✅ Referral Program Feedback - Optimiza programa de referidos
+- ✅ Seasonal / End of Year Review - Revisión anual
+
+**Product Development (5):**
+- ✅ Feature Request / Roadmap Voting - Prioriza features por demanda
+- ✅ Beta Tester Feedback - Feedback de early adopters
+- ✅ Integration Request / Ecosystem - Qué integraciones necesitan
+- ✅ API / Developer Experience - Feedback de developers
+- ✅ Mobile App Feedback - Experiencia móvil vs web
+
+**Customer Success (4):**
+- ✅ Freemium to Paid Conversion - Convierte usuarios gratuitos
+- ✅ Support Satisfaction - Calidad de atención al cliente
+- ✅ Multi-User / Team Feedback - Colaboración en equipo
+- ✅ Enterprise / Custom Plan Inquiry - Calificación de leads enterprise
+
+**Archivos creados:**
+- `/app/src/lib/constants/survey-templates.ts` - 20 templates + metadata
+- `/app/src/components/surveys/template-selector.tsx` - Modal selector con búsqueda y filtros
+
+**Archivos modificados:**
+- `/app/src/components/surveys/form-builder-v2.tsx` - Integración de templates
+
+**Características:**
+- ✅ Búsqueda por nombre y descripción
+- ✅ Filtrado por categoría (Growth, Retention, Product, Customer Success)
+- ✅ Templates "Recomendados" destacados
+- ✅ Priorización (Must-have, Should-have, Nice-to-have)
+- ✅ Tiempo estimado de completado por template
+- ✅ Vista de 20 plantillas en grid responsive
+- ✅ Un clic para aplicar template completo
+- ✅ Todas las plantillas son editables después de seleccionarlas
+
+**UX mejorada:**
+- Botón "Usar Plantilla" en estado vacío del form builder
+- Modal fullscreen con categorías visuales
+- Icons y badges de prioridad por template
+- Preview de número de preguntas y tiempo estimado
+
+---
+
 ### Added - Role-Based Access Control (RBAC) System (2025-11-01)
 
 **Feature implementado:** Sistema completo de validación de permisos por rol de usuario

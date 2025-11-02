@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Save, Loader2, GripVertical, AlertTriangle, Check } from "lucide-react";
+import { Sparkles, Save, Loader2, GripVertical, AlertTriangle, Check, FileText } from "lucide-react";
 import { nanoid } from "nanoid";
 import { AIGeneratorModal } from "./ai-generator-modal";
+import { TemplateSelector } from "./template-selector";
+import { type SurveyTemplate } from "@/lib/constants/survey-templates";
 import {
   DndContext,
   closestCenter,
@@ -76,6 +78,7 @@ export function FormBuilderV2({
     mode === "create" ? "active" : initialStatus
   );
   const [showAIModal, setShowAIModal] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
   // Handlers
@@ -156,6 +159,41 @@ export function FormBuilderV2({
         setSelectedItem(newQuestions[0].id);
       }
     }
+  };
+
+  const handleTemplateSelect = (template: SurveyTemplate) => {
+    // Set title from template name
+    setTitle(template.name);
+
+    // Convert template questions to Question format
+    const newQuestions: Question[] = template.questions.map((tq, index) => {
+      // Map template question types to FormBuilder question types
+      const questionType: QuestionType = tq.questionType === "multiple_choice"
+        ? "multiple_choice"
+        : tq.questionType === "rating"
+        ? "rating"
+        : "open_text";
+
+      return {
+        id: nanoid(),
+        type: questionType,
+        text: tq.questionText,
+        options: tq.options,
+        required: tq.isRequired,
+        validateEmail: undefined,
+        order: index,
+      };
+    });
+
+    setQuestions(newQuestions);
+
+    // Select first question
+    if (newQuestions.length > 0) {
+      setSelectedItem(newQuestions[0].id);
+    }
+
+    // Close modal
+    setShowTemplateSelector(false);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -355,6 +393,7 @@ export function FormBuilderV2({
             onAddQuestion={addQuestion}
             onDeleteQuestion={handleDeleteClick}
             onOpenAIModal={() => setShowAIModal(true)}
+            onOpenTemplateSelector={() => setShowTemplateSelector(true)}
           />
         </DndContext>
 
@@ -384,6 +423,14 @@ export function FormBuilderV2({
           onGenerate={handleAIGenerate}
           onClose={() => setShowAIModal(false)}
           userPlan={userPlan}
+        />
+      )}
+
+      {/* Template Selector Modal */}
+      {showTemplateSelector && (
+        <TemplateSelector
+          onSelect={handleTemplateSelect}
+          onClose={() => setShowTemplateSelector(false)}
         />
       )}
 
@@ -431,6 +478,7 @@ function StructurePanel({
   onAddQuestion,
   onDeleteQuestion,
   onOpenAIModal,
+  onOpenTemplateSelector,
 }: {
   questions: Question[];
   selectedItem: string | null;
@@ -438,6 +486,7 @@ function StructurePanel({
   onAddQuestion: (type: QuestionType) => void;
   onDeleteQuestion: (id: string) => void;
   onOpenAIModal?: () => void;
+  onOpenTemplateSelector?: () => void;
 }) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -500,6 +549,15 @@ function StructurePanel({
               {questions.length === 0 ? (
                 <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                   <p className="text-sm font-medium text-slate-700 mb-3">Sin preguntas aún</p>
+                  {onOpenTemplateSelector && (
+                    <button
+                      onClick={onOpenTemplateSelector}
+                      className="w-full py-2 px-3 bg-blue-600 text-white rounded-md flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors font-medium text-sm mb-2"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Usar Plantilla
+                    </button>
+                  )}
                   {onOpenAIModal && (
                     <button
                       onClick={onOpenAIModal}
