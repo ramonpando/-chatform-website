@@ -1,6 +1,44 @@
 # ChatForm - Changelog
 
-## [Unreleased] - 2025-11-01
+## [Unreleased] - 2025-11-02
+
+### Added - Conversational AI Survey Builder (2025-11-02)
+
+**Feature implementado:** Chat iterativo con IA para diseñar encuestas conversacionalmente
+
+**Capacidades:**
+- ✅ Chat en tiempo real con AI (GPT-4o-mini)
+- ✅ Comandos naturales: "agrega pregunta sobre precio", "cambia pregunta 3"
+- ✅ Rate limiting: 20 mensajes por conversación
+- ✅ Vista previa del borrador en tiempo real
+- ✅ Aplicar encuesta directamente al form builder
+- ✅ Solo Pro/Business plans
+
+**Archivos creados:**
+- `/app/src/app/api/ai/survey-chat/route.ts` - API endpoint con OpenAI
+- `/app/src/components/surveys/ai-conversational-builder.tsx` - Chat UI component
+
+**Archivos modificados:**
+- `/app/src/components/surveys/form-builder-v2.tsx` - Integración con botón "Chat con IA"
+- `/app/.env.local` - Agregado OPENAI_API_KEY placeholder
+
+**Comandos AI soportados:**
+- [ADD_QUESTION] - Agregar nueva pregunta
+- [MODIFY_QUESTION] - Modificar pregunta existente
+- [DELETE_QUESTION] - Eliminar pregunta
+- [GENERATE_DRAFT] - Generar borrador completo
+
+**UX:**
+- Botón destacado "Chat con IA" en empty state (gradiente purple-blue)
+- Modal fullscreen con historial de conversación
+- Mensajes restantes visibles
+- Apply button cuando hay preguntas
+
+**Costos estimados:**
+- ~$0.15 por conversación completa (20 mensajes)
+- Margen: 98.5% con 1000 conversaciones/mes
+
+---
 
 ### Added - Survey Templates System (2025-11-01)
 

@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Save, Loader2, GripVertical, AlertTriangle, Check, FileText } from "lucide-react";
+import { Sparkles, Save, Loader2, GripVertical, AlertTriangle, Check, FileText, MessageCircle } from "lucide-react";
 import { nanoid } from "nanoid";
 import { AIGeneratorModal } from "./ai-generator-modal";
 import { TemplateSelector } from "./template-selector";
+import { AIConversationalBuilder } from "./ai-conversational-builder";
 import { type SurveyTemplate } from "@/lib/constants/survey-templates";
 import {
   DndContext,
@@ -79,6 +80,7 @@ export function FormBuilderV2({
   );
   const [showAIModal, setShowAIModal] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [showConversationalBuilder, setShowConversationalBuilder] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
   // Handlers
@@ -194,6 +196,34 @@ export function FormBuilderV2({
 
     // Close modal
     setShowTemplateSelector(false);
+  };
+
+  const handleApplyConversationalSurvey = (survey: {
+    title: string;
+    questions: Question[];
+    welcomeMessage?: string;
+    thankYouMessage?: string;
+  }) => {
+    // Apply title
+    if (survey.title) {
+      setTitle(survey.title);
+    }
+
+    // Apply messages
+    if (survey.welcomeMessage) {
+      setWelcomeMessage(survey.welcomeMessage);
+    }
+    if (survey.thankYouMessage) {
+      setThankYouMessage(survey.thankYouMessage);
+    }
+
+    // Apply questions
+    setQuestions(survey.questions);
+
+    // Select first question
+    if (survey.questions.length > 0) {
+      setSelectedItem(survey.questions[0].id);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -394,6 +424,8 @@ export function FormBuilderV2({
             onDeleteQuestion={handleDeleteClick}
             onOpenAIModal={() => setShowAIModal(true)}
             onOpenTemplateSelector={() => setShowTemplateSelector(true)}
+            onOpenConversationalBuilder={() => setShowConversationalBuilder(true)}
+            userPlan={userPlan}
           />
         </DndContext>
 
@@ -431,6 +463,20 @@ export function FormBuilderV2({
         <TemplateSelector
           onSelect={handleTemplateSelect}
           onClose={() => setShowTemplateSelector(false)}
+        />
+      )}
+
+      {/* Conversational AI Builder Modal */}
+      {showConversationalBuilder && (
+        <AIConversationalBuilder
+          onClose={() => setShowConversationalBuilder(false)}
+          onApplySurvey={handleApplyConversationalSurvey}
+          currentDraft={{
+            title,
+            questions,
+            welcomeMessage,
+            thankYouMessage,
+          }}
         />
       )}
 
@@ -479,6 +525,8 @@ function StructurePanel({
   onDeleteQuestion,
   onOpenAIModal,
   onOpenTemplateSelector,
+  onOpenConversationalBuilder,
+  userPlan,
 }: {
   questions: Question[];
   selectedItem: string | null;
@@ -487,6 +535,8 @@ function StructurePanel({
   onDeleteQuestion: (id: string) => void;
   onOpenAIModal?: () => void;
   onOpenTemplateSelector?: () => void;
+  onOpenConversationalBuilder?: () => void;
+  userPlan?: string;
 }) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -549,6 +599,16 @@ function StructurePanel({
               {questions.length === 0 ? (
                 <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                   <p className="text-sm font-medium text-slate-700 mb-3">Sin preguntas aún</p>
+                  {/* Conversational Builder (Pro/Business only) */}
+                  {onOpenConversationalBuilder && (userPlan === "pro" || userPlan === "business") && (
+                    <button
+                      onClick={onOpenConversationalBuilder}
+                      className="w-full py-2 px-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md flex items-center justify-center gap-2 hover:from-purple-700 hover:to-blue-700 transition-all font-medium text-sm mb-2 shadow-sm"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      Chat con IA
+                    </button>
+                  )}
                   {onOpenTemplateSelector && (
                     <button
                       onClick={onOpenTemplateSelector}
