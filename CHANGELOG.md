@@ -2,6 +2,56 @@
 
 ## [Unreleased] - 2025-11-02
 
+### Added - AI Response Analyzer (2025-11-02)
+
+**Feature implementado:** Análisis automático de respuestas con insights de IA
+
+**Capacidades:**
+- ✅ Análisis con GPT-4o-mini de respuestas de texto abierto
+- ✅ Sentiment analysis (positivo/neutral/negativo con %)
+- ✅ Extracción de temas principales con frecuencia
+- ✅ Keywords más mencionadas
+- ✅ Resumen ejecutivo generado por IA
+- ✅ Insights accionables numerados
+- ✅ Recomendaciones específicas
+- ✅ Solo Pro plan (upgrade prompt para Free/Starter)
+
+**Archivos creados:**
+- `/app/src/app/api/ai/analyze-responses/route.ts` - Backend API con OpenAI
+- `/app/src/components/surveys/ai-insights-panel.tsx` - Frontend UI component
+- `/app/src/lib/types/ai-analysis.ts` - Type definitions
+
+**Archivos modificados:**
+- `/app/src/app/(dashboard)/surveys/[id]/results/page.tsx` - Integración del panel (línea 198-200)
+
+**Flujo de usuario:**
+1. Usuario Pro abre results page de encuesta con respuestas
+2. Ve panel "Análisis AI de Respuestas" con botón "Analizar Respuestas"
+3. Click → Backend extrae respuestas open_text
+4. OpenAI analiza con prompt estructurado (JSON response)
+5. Frontend muestra insights en cards visuales:
+   - Sentiment breakdown con iconos y colores
+   - Temas con barras de frecuencia y sentiment
+   - Keywords en badges
+   - Insights numerados
+   - Recomendaciones en card destacado
+6. Botón "Regenerar Análisis" para actualizar
+
+**Características técnicas:**
+- ✅ Guarda análisis en `aiGenerations` table
+- ✅ Tracking de tokens usados (input/output)
+- ✅ Tracking de costo en USD (microdollars)
+- ✅ Tracking de latencia
+- ✅ Model version guardado
+- ✅ Solo analiza `questionType: 'open_text'`
+- ✅ Error handling para sin respuestas, sin plan, API errors
+
+**Costos estimados:**
+- ~$0.02-0.05 por análisis de 20-50 respuestas
+- Modelo: GPT-4o-mini (más barato que GPT-4-turbo)
+
+---
+
 ### Added - Conversational AI Survey Builder (2025-11-02)
 
 **Feature implementado:** Chat iterativo con IA para diseñar encuestas conversacionalmente
