@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, FileText, BarChart3, Settings, LogOut, Sparkles } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -16,18 +17,39 @@ const navigation = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/login" });
   };
 
+  // Fetch current plan from API to get the latest value
+  useEffect(() => {
+    const fetchCurrentPlan = async () => {
+      try {
+        const response = await fetch("/api/user/plan");
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentPlan(data.plan);
+        }
+      } catch (error) {
+        console.error("Error fetching plan:", error);
+      }
+    };
+
+    if (session?.user?.tenantId) {
+      fetchCurrentPlan();
+    }
+  }, [session?.user?.tenantId]);
+
   const planColors = {
     free: "bg-slate-100 text-slate-700",
     starter: "bg-blue-100 text-blue-700",
     pro: "bg-gradient-to-r from-blue-600 to-cyan-600 text-white",
+    business: "bg-gradient-to-r from-emerald-600 to-teal-600 text-white",
   };
 
-  const userPlan = (session?.user?.tenantPlan || "free").toLowerCase();
+  const userPlan = (currentPlan || session?.user?.tenantPlan || "free").toLowerCase();
 
   return (
     <div className="flex h-screen w-64 flex-col bg-white border-r border-slate-200">

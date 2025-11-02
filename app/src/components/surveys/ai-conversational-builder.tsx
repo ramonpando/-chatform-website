@@ -87,7 +87,7 @@ export function AIConversationalBuilder({
           sessionId,
           message: userMessage.content,
           conversationHistory: messages.map((msg) => ({
-            role: msg.role,
+            role: msg.role === "ai" ? "assistant" : msg.role,
             content: msg.content,
           })),
           currentDraft: workingDraft,
