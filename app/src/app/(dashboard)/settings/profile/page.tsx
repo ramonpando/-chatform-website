@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth/config";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "./profile-form";
+import { PasswordForm } from "./password-form";
+import { DeleteAccountButton } from "./delete-account-button";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -42,47 +44,7 @@ export default async function ProfilePage() {
         </div>
 
         <div className="p-6">
-          <form className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Contraseña Actual
-              </label>
-              <input
-                type="password"
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Ingresa tu contraseña actual"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Nueva Contraseña
-              </label>
-              <input
-                type="password"
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Mínimo 8 caracteres"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Confirmar Nueva Contraseña
-              </label>
-              <input
-                type="password"
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Repite la nueva contraseña"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="px-5 py-2.5 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors font-semibold"
-            >
-              Actualizar Contraseña
-            </button>
-          </form>
+          <PasswordForm />
         </div>
       </div>
 
@@ -106,9 +68,7 @@ export default async function ProfilePage() {
                 Esta acción no se puede deshacer.
               </p>
             </div>
-            <button className="ml-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-semibold text-sm">
-              Eliminar Cuenta
-            </button>
+            <DeleteAccountButton />
           </div>
         </div>
       </div>

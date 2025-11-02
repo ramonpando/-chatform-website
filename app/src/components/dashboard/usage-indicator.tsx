@@ -173,7 +173,7 @@ export function UsageIndicator({ plan, responsesUsed, surveysCount }: UsageIndic
                 Desde $39/mes - 200 respuestas WhatsApp, AI Generator y más
               </p>
               <Link
-                href="/billing"
+                href="/settings/billing"
                 className="inline-block mt-2 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700 transition-colors"
               >
                 Ver Planes
