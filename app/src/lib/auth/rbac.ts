@@ -83,7 +83,7 @@ export async function checkPermission(
   }
 
   // Check if role has permission
-  const allowedRoles = PERMISSIONS[permission];
+  const allowedRoles = PERMISSIONS[permission] as readonly UserRole[];
   const hasPermission = allowedRoles.includes(userRole);
 
   if (!hasPermission) {
