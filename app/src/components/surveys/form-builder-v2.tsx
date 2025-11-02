@@ -915,6 +915,38 @@ function PreviewPanel({
 
     const currentQuestion = questions[currentQuestionIndex];
 
+    // Validate response based on question type
+    if (currentQuestion.type === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(answer)) {
+        alert("Por favor ingresa un email válido");
+        return;
+      }
+    }
+
+    if (currentQuestion.type === "phone") {
+      // Basic phone validation (at least 10 digits)
+      const phoneRegex = /\d{10,}/;
+      if (!phoneRegex.test(answer.replace(/\D/g, ""))) {
+        alert("Por favor ingresa un número de teléfono válido (mínimo 10 dígitos)");
+        return;
+      }
+    }
+
+    if (currentQuestion.type === "number") {
+      if (isNaN(Number(answer))) {
+        alert("Por favor ingresa un número válido");
+        return;
+      }
+    }
+
+    if (currentQuestion.type === "short_text") {
+      if (answer.length > 100) {
+        alert("El texto debe ser menor a 100 caracteres");
+        return;
+      }
+    }
+
     // Save the response
     setUserResponses((prev) => ({ ...prev, [currentQuestion.id]: answer }));
 
@@ -1192,33 +1224,44 @@ function PreviewPanel({
 
                 {/* Email, Phone, Short Text, Number or Open Text - Show input */}
                 {currentQuestion && !showTyping && (currentQuestion.type === "email" || currentQuestion.type === "phone" || currentQuestion.type === "short_text" || currentQuestion.type === "number" || currentQuestion.type === "open_text") && (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type={currentQuestion.type === "email" ? "email" : currentQuestion.type === "number" ? "number" : currentQuestion.type === "phone" ? "tel" : "text"}
-                      placeholder={
-                        currentQuestion.type === "email" ? "tu@email.com" :
-                        currentQuestion.type === "phone" ? "+52 55 1234 5678" :
-                        currentQuestion.type === "short_text" ? "Texto corto (máx. 100 caracteres)" :
-                        currentQuestion.type === "number" ? "123" :
-                        "Escribe tu respuesta..."
-                      }
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && inputValue.trim() && !showTyping) {
-                          handleResponse(inputValue.trim());
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type={currentQuestion.type === "email" ? "email" : currentQuestion.type === "number" ? "number" : currentQuestion.type === "phone" ? "tel" : "text"}
+                        placeholder={
+                          currentQuestion.type === "email" ? "tu@email.com" :
+                          currentQuestion.type === "phone" ? "+52 55 1234 5678" :
+                          currentQuestion.type === "short_text" ? "Texto corto (máx. 100 caracteres)" :
+                          currentQuestion.type === "number" ? "123" :
+                          "Escribe tu respuesta..."
                         }
-                      }}
-                      className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      autoFocus
-                    />
-                    <button
-                      onClick={() => !showTyping && inputValue.trim() && handleResponse(inputValue.trim())}
-                      disabled={!inputValue.trim() || showTyping}
-                      className="w-10 h-10 rounded-full bg-[#075E54] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      ▶
-                    </button>
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && inputValue.trim() && !showTyping) {
+                            handleResponse(inputValue.trim());
+                          }
+                        }}
+                        maxLength={currentQuestion.type === "short_text" ? 100 : undefined}
+                        className="flex-1 px-4 py-2 border border-slate-300 rounded-full text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => !showTyping && inputValue.trim() && handleResponse(inputValue.trim())}
+                        disabled={!inputValue.trim() || showTyping}
+                        className="w-10 h-10 rounded-full bg-[#075E54] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        ▶
+                      </button>
+                    </div>
+                    {/* Character counter for short_text */}
+                    {currentQuestion.type === "short_text" && inputValue && (
+                      <div className="text-right">
+                        <span className={`text-xs ${inputValue.length > 100 ? "text-red-600 font-semibold" : "text-slate-500"}`}>
+                          {inputValue.length}/100
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
               </>
