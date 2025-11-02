@@ -120,6 +120,15 @@ export async function canUseAI(tenantId: string): Promise<PlanLimitCheck> {
 }
 
 /**
+ * Check if a plan has AI features (helper for type-safe plan checking)
+ */
+export function hasAIFeatures(plan: string): boolean {
+  const planType = plan.toLowerCase() as PlanType;
+  const planDetails = getPlanDetails(planType);
+  return planDetails.maxAIGenerations !== 0;
+}
+
+/**
  * Increment WhatsApp responses counter
  */
 export async function incrementWhatsAppResponses(tenantId: string): Promise<void> {

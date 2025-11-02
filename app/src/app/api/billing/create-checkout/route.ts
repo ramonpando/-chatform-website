@@ -8,7 +8,7 @@ import { isOwner } from "@/lib/auth/rbac";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2024-11-20.acacia",
+    apiVersion: "2025-10-29.clover",
   });
 }
 
@@ -70,6 +70,28 @@ export async function POST(request: Request) {
         { error: "Ya tienes una suscripción activa. Cancela primero o usa el Customer Portal para cambiar de plan." },
         { status: 400 }
       );
+    }
+
+    // Check for pending checkout sessions (prevent race condition)
+    if (tenant.stripeCustomerId) {
+      const checkoutSessions = await stripe.checkout.sessions.list({
+        customer: tenant.stripeCustomerId,
+        limit: 5,
+      });
+
+      const pendingSession = checkoutSessions.data.find(
+        (s) => s.status === 'open' && s.expires_at * 1000 > Date.now()
+      );
+
+      if (pendingSession) {
+        return NextResponse.json(
+          {
+            error: "Ya tienes un checkout en proceso. Por favor completa o espera a que expire.",
+            url: pendingSession.url,
+          },
+          { status: 409 } // Conflict
+        );
+      }
     }
 
     // Create or retrieve Stripe customer

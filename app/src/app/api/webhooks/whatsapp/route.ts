@@ -101,6 +101,8 @@ async function handleStartSurvey(phoneNumber: string, message: string, profileNa
     }
 
     // Reuse existing active session if available
+    // NOTE: Race condition mitigation - we check again before inserting
+    // For production with high concurrency, consider adding unique index on (phoneNumber, surveyId, status)
     let activeSession = await db.query.surveySessions.findFirst({
       where: and(
         eq(surveySessions.phoneNumber, phoneNumber),
@@ -113,17 +115,31 @@ async function handleStartSurvey(phoneNumber: string, message: string, profileNa
     const now = new Date();
 
     if (!activeSession) {
-      const [createdSession] = await db.insert(surveySessions).values({
-        surveyId: survey.id,
-        tenantId: survey.tenantId,
-        phoneNumber,
-        whatsappName: profileName || null,
-        status: "active",
-        currentQuestionIndex: 0,
-        deliveryMethod: "link",
-      }).returning();
+      // Double-check pattern: query again right before insert to minimize race window
+      const doubleCheck = await db.query.surveySessions.findFirst({
+        where: and(
+          eq(surveySessions.phoneNumber, phoneNumber),
+          eq(surveySessions.surveyId, survey.id),
+          eq(surveySessions.status, "active")
+        ),
+      });
 
-      activeSession = createdSession;
+      if (doubleCheck) {
+        // Another request created it in the meantime, use that one
+        activeSession = doubleCheck;
+      } else {
+        const [createdSession] = await db.insert(surveySessions).values({
+          surveyId: survey.id,
+          tenantId: survey.tenantId,
+          phoneNumber,
+          whatsappName: profileName || null,
+          status: "active",
+          currentQuestionIndex: 0,
+          deliveryMethod: "link",
+        }).returning();
+
+        activeSession = createdSession;
+      }
     } else {
       if (activeSession.currentQuestionIndex < 0) {
         const [updated] = await db.update(surveySessions)

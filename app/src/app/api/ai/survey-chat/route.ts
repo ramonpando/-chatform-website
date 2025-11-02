@@ -10,7 +10,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Rate limiting (simple in-memory, upgrade to Redis later)
+// Rate limiting (in-memory per instance)
+// NOTE: This resets on server restart/redeploy. For production with multiple
+// instances, consider Redis. Current approach is acceptable for MVP since:
+// 1. Conversations are temporary (1 hour timeout)
+// 2. Each user session is sticky to same instance
+// 3. Main AI generation rate limiting is in DB (aiGenerations table)
 const conversationLimits = new Map<string, { count: number; resetAt: number }>();
 const MAX_MESSAGES_PER_CONVERSATION = 20;
 
@@ -31,8 +36,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Tenant no encontrado" }, { status: 404 });
     }
 
-    const userPlan = tenant.plan || "free";
-    if (userPlan !== "pro" && userPlan !== "business") {
+    // Use centralized AI check
+    const { hasAIFeatures } = await import("@/lib/plan-limits");
+    if (!hasAIFeatures(tenant.plan || "free")) {
       return NextResponse.json(
         {
           error: "Esta función requiere un plan Pro o Business",
