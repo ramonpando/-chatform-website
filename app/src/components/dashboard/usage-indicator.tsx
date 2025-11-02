@@ -53,7 +53,7 @@ export function UsageIndicator({ plan, responsesUsed, surveysCount }: UsageIndic
               Respuestas WhatsApp
             </span>
             <span className="text-sm text-slate-600">
-              {responsesUsed} / {responsesLimit === -1 ? '∞' : responsesLimit}
+              {responsesUsed} / {responsesLimit}
             </span>
           </div>
           {responsesLimit > 0 && (
@@ -86,14 +86,6 @@ export function UsageIndicator({ plan, responsesUsed, surveysCount }: UsageIndic
               <Zap className="w-3.5 h-3.5 text-slate-400" />
               <span className="text-xs text-slate-500">
                 No disponible en plan FREE
-              </span>
-            </div>
-          )}
-          {responsesLimit === -1 && (
-            <div className="flex items-center gap-1.5 mt-1">
-              <Zap className="w-3.5 h-3.5 text-green-600" />
-              <span className="text-xs text-green-600 font-medium">
-                Ilimitadas
               </span>
             </div>
           )}
