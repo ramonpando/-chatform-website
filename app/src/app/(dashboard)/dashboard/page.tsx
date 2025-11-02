@@ -174,7 +174,7 @@ export default async function DashboardPage() {
         <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
             <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-            <span>Gratis 25 respuestas</span>
+            <span>1 encuesta gratis</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
             <CheckCircle className="w-3.5 h-3.5 text-green-500" />
