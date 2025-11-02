@@ -26,14 +26,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Root redirect
+  // Root redirect - authenticated users go to dashboard
   if (pathname === "/" && isAuthenticated) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (pathname === "/" && !isAuthenticated) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // Landing page is public - no redirect for unauthenticated users
 
   return NextResponse.next();
 }
