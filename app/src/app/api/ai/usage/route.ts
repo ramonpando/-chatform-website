@@ -49,7 +49,10 @@ export async function GET() {
       );
 
     const usedThisMonth = monthlyUsage[0]?.count || 0;
-    const remaining = Math.max(0, planLimits.generations - usedThisMonth);
+    // Handle unlimited plans (-1)
+    const remaining = planLimits.generations === -1
+      ? -1
+      : Math.max(0, planLimits.generations - usedThisMonth);
 
     // 4. Calcular rate limit actual (última hora)
     const oneHourAgo = new Date(Date.now() - RATE_LIMIT.window_minutes * 60 * 1000);
@@ -77,7 +80,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      data: {
+      usage: {
         plan,
         limits: {
           surveyGenerator: {
@@ -85,7 +88,8 @@ export async function GET() {
             limit: planLimits.generations,
             remaining,
             resetDate: nextMonth.toISOString(),
-            available: planLimits.generations > 0,
+            available: planLimits.generations === -1 || planLimits.generations > 0,
+            unlimited: planLimits.generations === -1,
           },
         },
         rateLimit: {

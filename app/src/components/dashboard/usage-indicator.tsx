@@ -38,7 +38,7 @@ export function UsageIndicator({ plan, responsesUsed, surveysCount }: UsageIndic
           Plan Actual: {planDetails.name}
         </h3>
         <Link
-          href="/billing"
+          href="/settings/billing"
           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
         >
           Actualizar
@@ -150,7 +150,7 @@ export function UsageIndicator({ plan, responsesUsed, surveysCount }: UsageIndic
                 Actualiza tu plan para continuar recibiendo respuestas
               </p>
               <Link
-                href="/billing"
+                href="/settings/billing"
                 className="inline-block mt-2 px-3 py-1.5 bg-orange-600 text-white text-xs font-semibold rounded hover:bg-orange-700 transition-colors"
               >
                 Ver Planes

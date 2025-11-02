@@ -6,7 +6,7 @@ import Stripe from "stripe";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-10-29.clover",
+    apiVersion: "2024-11-20.acacia",
   });
 }
 
@@ -97,11 +97,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       subscriptionStatus: "active",
       stripeCustomerId: session.customer as string,
       // Update plan limits based on new plan
+      responsesLimit: planDetails.maxWhatsAppResponses,
+      surveysLimit: planDetails.maxSurveys === -1 ? 999999 : planDetails.maxSurveys,
       responsesUsedThisMonth: 0, // Reset counter on upgrade
     })
     .where(eq(tenants.id, tenantId));
 
-  console.log(`✅ Checkout completed for tenant ${tenantId}, plan: ${plan}, limits: ${planDetails.maxWhatsAppResponses} WhatsApp responses/month`);
+  console.log(`✅ Checkout completed for tenant ${tenantId}, plan: ${plan}, limits: ${planDetails.maxSurveys} surveys, ${planDetails.maxWhatsAppResponses} WhatsApp responses/month`);
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -139,13 +141,18 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Downgrade to free plan (reset counters)
+  // Downgrade to free plan (reset counters and limits)
+  const { getPlanDetails } = await import("@/lib/constants/pricing");
+  const freePlanDetails = getPlanDetails("free");
+
   await db
     .update(tenants)
     .set({
       plan: "free",
       subscriptionStatus: "canceled",
       stripeSubscriptionId: null,
+      responsesLimit: freePlanDetails.maxWhatsAppResponses,
+      surveysLimit: freePlanDetails.maxSurveys,
       responsesUsedThisMonth: 0, // Reset counter on downgrade
     })
     .where(eq(tenants.id, tenantId));

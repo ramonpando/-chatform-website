@@ -76,23 +76,28 @@ export async function POST(req: Request) {
       );
 
     const usedThisMonth = monthlyUsage[0]?.count || 0;
-    const remaining = planLimits.generations - usedThisMonth;
 
-    if (remaining <= 0) {
-      // Calcular fecha de reset
-      const nextMonth = new Date(startOfMonth);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
+    // Check if plan has unlimited generations (-1)
+    if (planLimits.generations !== -1) {
+      const remaining = planLimits.generations - usedThisMonth;
 
-      return NextResponse.json(
-        {
-          error: 'LIMIT_EXCEEDED',
-          message: `Has alcanzado el límite de ${planLimits.generations} generaciones este mes`,
-          resetDate: nextMonth.toISOString(),
-          upgradeUrl: '/settings/billing'
-        },
-        { status: 429 }
-      );
+      if (remaining <= 0) {
+        // Calcular fecha de reset
+        const nextMonth = new Date(startOfMonth);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+        return NextResponse.json(
+          {
+            error: 'LIMIT_EXCEEDED',
+            message: `Has alcanzado el límite de ${planLimits.generations} generaciones este mes`,
+            resetDate: nextMonth.toISOString(),
+            upgradeUrl: '/settings/billing'
+          },
+          { status: 429 }
+        );
+      }
     }
+    // If generations === -1, skip limit check (unlimited)
 
     // 6. Verificar rate limit (últimas 1 hora)
     const oneHourAgo = new Date(Date.now() - RATE_LIMIT.window_minutes * 60 * 1000);

@@ -6,7 +6,7 @@ import { eq, and, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/rbac";
 
-const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email"] as const;
+const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email", "phone", "short_text", "number"] as const;
 
 const questionSchema = z.object({
   id: z.string().optional(), // Optional porque puede ser nueva pregunta

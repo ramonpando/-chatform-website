@@ -6,7 +6,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/rbac";
 
-const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email"] as const;
+const QUESTION_TYPES = ["multiple_choice", "rating", "open_text", "yes_no", "email", "phone", "short_text", "number"] as const;
 
 const questionSchema = z.object({
   id: z.string(),
@@ -114,6 +114,7 @@ export async function POST(req: Request) {
         .insert(surveys)
         .values({
           tenantId: session.user.tenantId,
+          createdBy: session.user.id,
           title,
           description: description || null,
           welcomeMessage: welcomeMessage || null,

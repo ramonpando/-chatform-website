@@ -17,10 +17,10 @@ export const tenants = pgTable('tenants', {
   apiKeyHash: varchar('api_key_hash', { length: 128 }),
   apiKeyPrefix: varchar('api_key_prefix', { length: 32 }),
 
-  // Limits (según plan)
-  responsesLimit: integer('responses_limit').notNull().default(50),
+  // Limits (según plan - defaults para FREE plan)
+  responsesLimit: integer('responses_limit').notNull().default(0), // FREE: 0 WhatsApp responses
   responsesUsedThisMonth: integer('responses_used_this_month').notNull().default(0),
-  surveysLimit: integer('surveys_limit').notNull().default(1),
+  surveysLimit: integer('surveys_limit').notNull().default(1), // FREE: 1 survey
   sendCreditsLimit: integer('send_credits_limit').notNull().default(0), // envíos automáticos
   sendCreditsUsed: integer('send_credits_used').notNull().default(0),
 
