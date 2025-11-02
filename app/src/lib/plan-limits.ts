@@ -5,7 +5,7 @@
 
 import { db } from "@/lib/db";
 import { tenants, surveys, surveySessions } from "@/lib/db/schema";
-import { eq, and, gte } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { PLAN_LIMITS, getPlanDetails, type PlanType } from "@/lib/constants/pricing";
 
 export interface PlanLimitCheck {
@@ -126,11 +126,7 @@ export async function incrementWhatsAppResponses(tenantId: string): Promise<void
   await db
     .update(tenants)
     .set({
-      responsesUsedThisMonth: db
-        .select({ count: tenants.responsesUsedThisMonth })
-        .from(tenants)
-        .where(eq(tenants.id, tenantId))
-        .then((rows) => (rows[0]?.count || 0) + 1),
+      responsesUsedThisMonth: sql`${tenants.responsesUsedThisMonth} + 1`,
     })
     .where(eq(tenants.id, tenantId));
 }
