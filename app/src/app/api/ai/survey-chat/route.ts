@@ -108,6 +108,9 @@ export async function POST(req: Request) {
     // Parse AI response to detect actions
     const action = parseAIAction(aiResponse, currentDraft);
 
+    // Clean response by removing command markers for user-facing display
+    const cleanResponse = cleanAIResponse(aiResponse);
+
     // Update rate limit
     if (userLimit) {
       userLimit.count++;
@@ -119,7 +122,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      message: aiResponse,
+      message: cleanResponse,
       action,
       messagesRemaining: MAX_MESSAGES_PER_CONVERSATION - (userLimit?.count || 1),
     });
@@ -326,4 +329,26 @@ function extractGenerateDraftAction(aiResponse: string): any {
     type: "generate_draft",
     // In real implementation, we'd parse the full draft from AI response
   };
+}
+
+/**
+ * Clean AI response by removing technical command markers
+ * This ensures users only see natural language, not internal commands
+ */
+function cleanAIResponse(aiResponse: string): string {
+  return aiResponse
+    // Remove [ADD_QUESTION] commands and their format details
+    .replace(/\[ADD_QUESTION\][^\n]*/g, '')
+    // Remove [MODIFY_QUESTION] commands
+    .replace(/\[MODIFY_QUESTION\s*#?\d+\][^\n]*/g, '')
+    // Remove [DELETE_QUESTION] commands
+    .replace(/\[DELETE_QUESTION\s*#?\d+\][^\n]*/g, '')
+    // Remove [GENERATE_DRAFT] command
+    .replace(/\[GENERATE_DRAFT\]/g, '')
+    // Remove [SHOW_DRAFT] command
+    .replace(/\[SHOW_DRAFT\]/g, '')
+    // Clean up multiple consecutive newlines
+    .replace(/\n{3,}/g, '\n\n')
+    // Trim whitespace
+    .trim();
 }
