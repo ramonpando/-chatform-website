@@ -322,9 +322,9 @@ export function FormBuilderV2({
       setTimeout(() => setSaveSuccess(false), 2000);
 
       if (mode === "create") {
-        router.push(`/surveys/${data.survey.id}/edit`);
+        router.push(`/surveys/${data.survey.id}/share`);
       } else {
-        router.push("/surveys");
+        router.push(`/surveys/${surveyId}/share`);
       }
     } catch (error: any) {
       alert(error.message || "Error al guardar la encuesta");
