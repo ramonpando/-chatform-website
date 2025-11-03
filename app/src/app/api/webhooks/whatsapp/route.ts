@@ -328,7 +328,8 @@ function formatQuestion(question: any, index: number, total: number): string {
     // Use cache to avoid repeated JSON.parse
     let options = optionsCache.get(question.id);
     if (!options) {
-      options = JSON.parse(question.options);
+      const parsed = JSON.parse(question.options);
+      options = Array.isArray(parsed) ? parsed : [];
       optionsCache.set(question.id, options);
     }
     text += "\n\n*Opciones:*";
@@ -363,7 +364,8 @@ function validateAnswer(question: any, answer: string): { valid: boolean; value?
     // Use cache to avoid repeated JSON.parse
     let options = optionsCache.get(question.id);
     if (!options) {
-      options = JSON.parse(question.options || "[]");
+      const parsed = JSON.parse(question.options || "[]");
+      options = Array.isArray(parsed) ? parsed : [];
       optionsCache.set(question.id, options);
     }
     const optionIndex = parseInt(trimmed) - 1;

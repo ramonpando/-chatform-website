@@ -1,0 +1,195 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth/config";
+import { db } from "@/lib/db";
+import { surveys, surveySessions, tenants } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: surveyId } = await params;
+    const session = await auth();
+
+    if (!session?.user?.tenantId) {
+      return NextResponse.json(
+        { error: "unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // Parse body
+    const body = await req.json();
+    const { phone, name } = body;
+
+    if (!phone || !/^\+\d{10,15}$/.test(phone)) {
+      return NextResponse.json(
+        { error: "invalid_phone", message: "Phone must be in E.164 format (+52...)" },
+        { status: 400 }
+      );
+    }
+
+    // Get survey
+    const survey = await db.query.surveys.findFirst({
+      where: and(
+        eq(surveys.id, surveyId),
+        eq(surveys.tenantId, session.user.tenantId)
+      ),
+      with: {
+        tenant: true,
+        questions: {
+          orderBy: (questions, { asc }) => [asc(questions.orderIndex)],
+        },
+      },
+    });
+
+    if (!survey) {
+      return NextResponse.json(
+        { error: "not_found" },
+        { status: 404 }
+      );
+    }
+
+    if (survey.status !== "active") {
+      return NextResponse.json(
+        { error: "survey_inactive" },
+        { status: 403 }
+      );
+    }
+
+    const tenant = survey.tenant;
+
+    // Check if has API key
+    if (!tenant.apiKeyHash) {
+      return NextResponse.json(
+        { error: "no_api_key", message: "Generate an API key first" },
+        { status: 403 }
+      );
+    }
+
+    // Check credits
+    if (tenant.sendCreditsUsed >= tenant.sendCreditsLimit) {
+      return NextResponse.json(
+        { error: "no_credits", message: "No send credits available" },
+        { status: 403 }
+      );
+    }
+
+    // Check if Twilio is configured
+    const hasTwilio = Boolean(
+      process.env.TWILIO_ACCOUNT_SID &&
+      process.env.TWILIO_AUTH_TOKEN &&
+      process.env.TWILIO_WHATSAPP_NUMBER
+    );
+
+    if (!hasTwilio) {
+      // Generate link instead
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const publicUrl = `${baseUrl}/s/${survey.shortCode}`;
+
+      return NextResponse.json({
+        status: "link_generated",
+        deliveryMethod: "link",
+        link: publicUrl,
+        message: "Twilio not configured, link generated instead",
+      });
+    }
+
+    // Send via WhatsApp
+    try {
+      const result = await sendWhatsAppSurvey(survey, { phone, name });
+
+      // Increment credits
+      await db
+        .update(tenants)
+        .set({
+          sendCreditsUsed: tenant.sendCreditsUsed + 1,
+        })
+        .where(eq(tenants.id, tenant.id));
+
+      return NextResponse.json({
+        status: "sent",
+        deliveryMethod: "automatic",
+        messageId: result.messageId,
+        sessionId: result.sessionId,
+      });
+    } catch (error) {
+      console.error("Failed to send WhatsApp:", error);
+      return NextResponse.json(
+        { error: "send_failed", message: String(error) },
+        { status: 500 }
+      );
+    }
+  } catch (error) {
+    console.error("Error in send-bulk:", error);
+    return NextResponse.json(
+      { error: "internal_error" },
+      { status: 500 }
+    );
+  }
+}
+
+async function sendWhatsAppSurvey(
+  survey: any,
+  recipient: { phone: string; name?: string }
+) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER || "whatsapp:+14155238886";
+
+  if (!accountSid || !authToken) {
+    throw new Error("Twilio credentials not configured");
+  }
+
+  // Create session
+  const [session] = await db.insert(surveySessions).values({
+    surveyId: survey.id,
+    tenantId: survey.tenantId,
+    phoneNumber: recipient.phone,
+    whatsappName: recipient.name || null,
+    status: "active",
+    currentQuestionIndex: -1,
+    deliveryMethod: "automatic",
+  }).returning();
+
+  // Prepare message
+  const message = `¡Hola${recipient.name ? ` ${recipient.name}` : ""}! 👋\n\nTe invitamos a compartir tu opinión sobre: *${survey.title}*\n\nPara empezar, responde con: START_${survey.shortCode}\n\n📊 Solo ${survey.questions.length} preguntas, ~${Math.ceil(survey.questions.length * 0.5)} minutos.`;
+
+  // Send via Twilio
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+
+  const params = new URLSearchParams({
+    From: fromNumber,
+    To: recipient.phone.startsWith("whatsapp:") ? recipient.phone : `whatsapp:${recipient.phone}`,
+    Body: message,
+  });
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: "Basic " + Buffer.from(`${accountSid}:${authToken}`).toString("base64"),
+    },
+    body: params.toString(),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error("Twilio API error:", error);
+
+    // Delete session if send failed
+    await db
+      .delete(surveySessions)
+      .where(eq(surveySessions.id, session.id));
+
+    throw new Error("Failed to send WhatsApp message");
+  }
+
+  const result = await response.json();
+
+  return {
+    messageId: result.sid,
+    sessionId: session.id,
+  };
+}
