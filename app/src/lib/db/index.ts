@@ -20,8 +20,8 @@ const queryClient = postgres(databaseUrl, {
   ssl: 'require',
   // Use fetch mode to avoid connection pooling issues
   fetch_types: false,
-  // Prepare statements
-  prepare: false,
+  // Prepare statements for better performance
+  prepare: true,
 });
 export const db = drizzle(queryClient, { schema });
 

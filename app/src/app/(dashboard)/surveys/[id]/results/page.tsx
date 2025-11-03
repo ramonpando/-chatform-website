@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { surveys, surveySessions, tenants } from "@/lib/db/schema";
-import { eq, and, gte, lt } from "drizzle-orm";
+import { eq, and, gte, lt, count, sql } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -49,7 +49,20 @@ export default async function SurveyResultsPage({
 
   const userPlan = tenant?.plan || "free";
 
-  // Get sessions (responses) from DB
+  // Get total count using SQL for performance (avoid loading all records)
+  const [countResult] = await db
+    .select({ count: count() })
+    .from(surveySessions)
+    .where(
+      and(
+        eq(surveySessions.surveyId, id),
+        eq(surveySessions.status, "completed")
+      )
+    );
+
+  const responseCount = countResult?.count || 0;
+
+  // Get sessions (responses) from DB - limit to most recent 1000 for performance
   const sessions = await db.query.surveySessions.findMany({
     where: and(
       eq(surveySessions.surveyId, id),
@@ -63,9 +76,8 @@ export default async function SurveyResultsPage({
       },
     },
     orderBy: (sessions, { desc }) => [desc(sessions.completedAt)],
+    limit: 1000, // Optimize: Only load recent sessions for chart rendering
   });
-
-  const responseCount = sessions.length;
   const viewCount = survey.viewCount || 0;
   const completionRate =
     viewCount > 0 ? Math.round((responseCount / viewCount) * 100) : 0;
@@ -89,26 +101,40 @@ export default async function SurveyResultsPage({
     return `${mins}m ${secs}s`;
   };
 
-  // Calculate trends comparing this month vs last month
+  // Calculate trends comparing this month vs last month (using SQL counts for performance)
   const now = new Date();
   const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const endOfLastMonth = startOfThisMonth;
 
-  // Get last month's responses
-  const lastMonthSessions = await db.query.surveySessions.findMany({
-    where: and(
-      eq(surveySessions.surveyId, id),
-      eq(surveySessions.status, "completed"),
-      gte(surveySessions.completedAt, startOfLastMonth),
-      lt(surveySessions.completedAt, endOfLastMonth)
-    ),
-  });
+  // Get last month's count using SQL
+  const [lastMonthResult] = await db
+    .select({ count: count() })
+    .from(surveySessions)
+    .where(
+      and(
+        eq(surveySessions.surveyId, id),
+        eq(surveySessions.status, "completed"),
+        gte(surveySessions.completedAt, startOfLastMonth),
+        lt(surveySessions.completedAt, endOfLastMonth)
+      )
+    );
 
-  // Get this month's responses
-  const thisMonthSessions = sessions.filter(
-    s => s.completedAt && new Date(s.completedAt) >= startOfThisMonth
-  );
+  const lastMonthCount = lastMonthResult?.count || 0;
+
+  // Get this month's count using SQL
+  const [thisMonthResult] = await db
+    .select({ count: count() })
+    .from(surveySessions)
+    .where(
+      and(
+        eq(surveySessions.surveyId, id),
+        eq(surveySessions.status, "completed"),
+        gte(surveySessions.completedAt, startOfThisMonth)
+      )
+    );
+
+  const thisMonthCount = thisMonthResult?.count || 0;
 
   // Calculate trend percentages
   const calculateTrend = (current: number, previous: number) => {
@@ -120,8 +146,8 @@ export default async function SurveyResultsPage({
     return `${sign}${Math.round(change)}%`;
   };
 
-  const responseTrend = calculateTrend(thisMonthSessions.length, lastMonthSessions.length);
-  const responseTrendUp = thisMonthSessions.length >= lastMonthSessions.length;
+  const responseTrend = calculateTrend(thisMonthCount, lastMonthCount);
+  const responseTrendUp = thisMonthCount >= lastMonthCount;
 
   return (
     <div className="space-y-6">
@@ -175,7 +201,7 @@ export default async function SurveyResultsPage({
           icon={<Eye className="w-5 h-5" />}
           label="Vistas"
           value={viewCount.toString()}
-          trend={`${thisMonthSessions.length} este mes`}
+          trend={`${thisMonthCount} este mes`}
           trendUp={true}
         />
         <StatCard

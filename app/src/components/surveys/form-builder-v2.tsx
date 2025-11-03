@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Save, Loader2, GripVertical, AlertTriangle, Check, FileText, MessageCircle } from "lucide-react";
 import { nanoid } from "nanoid";
@@ -83,8 +83,8 @@ export function FormBuilderV2({
   const [showConversationalBuilder, setShowConversationalBuilder] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
-  // Handlers
-  const addQuestion = (type: QuestionType) => {
+  // Handlers (memoized with useCallback to prevent unnecessary re-renders)
+  const addQuestion = useCallback((type: QuestionType) => {
     const defaultOptions =
       type === "multiple_choice"
         ? ["Opción 1", "Opción 2"]
@@ -103,11 +103,11 @@ export function FormBuilderV2({
     };
     setQuestions([...questions, newQuestion]);
     setSelectedItem(newQuestion.id);
-  };
+  }, [questions.length]);
 
-  const updateQuestion = (id: string, updates: Partial<Question>) => {
-    setQuestions(questions.map((q) => (q.id === id ? { ...q, ...updates } : q)));
-  };
+  const updateQuestion = useCallback((id: string, updates: Partial<Question>) => {
+    setQuestions(prev => prev.map((q) => (q.id === id ? { ...q, ...updates } : q)));
+  }, []);
 
   const handleDeleteClick = (id: string) => {
     setQuestionToDelete(id);
@@ -517,7 +517,7 @@ export function FormBuilderV2({
 }
 
 // Structure Panel Component (Left)
-function StructurePanel({
+const StructurePanel = React.memo(function StructurePanel({
   questions,
   selectedItem,
   onSelectItem,
@@ -775,10 +775,10 @@ function StructurePanel({
       </div>
     </div>
   );
-}
+});
 
 // Sortable Question Card Component
-function SortableQuestionCard({
+const SortableQuestionCard = React.memo(function SortableQuestionCard({
   question,
   index,
   isSelected,
@@ -868,10 +868,10 @@ function SortableQuestionCard({
       </div>
     </div>
   );
-}
+});
 
 // Preview Panel Component (Center) - Interactive Simulator
-function PreviewPanel({
+const PreviewPanel = React.memo(function PreviewPanel({
   title,
   welcomeMessage,
   questions,
@@ -1271,10 +1271,10 @@ function PreviewPanel({
       </div>
     </div>
   );
-}
+});
 
 // Properties Panel Component (Right)
-function PropertiesPanel({
+const PropertiesPanel = React.memo(function PropertiesPanel({
   selectedItem,
   questions,
   welcomeMessage,
@@ -1559,4 +1559,4 @@ function PropertiesPanel({
       </div>
     </div>
   );
-}
+});

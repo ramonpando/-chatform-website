@@ -15,6 +15,9 @@ import {
 import Link from "next/link";
 import { AnalyticsCharts } from "./analytics-charts";
 
+// Revalidate this page every 5 minutes for better performance (Next.js caching)
+export const revalidate = 300;
+
 export default async function AnalyticsPage() {
   const session = await auth();
 
@@ -32,7 +35,23 @@ export default async function AnalyticsPage() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  // Get all completed sessions in last 30 days
+  // Use SQL aggregation for better performance instead of loading all sessions
+  const [responseStats] = await db
+    .select({
+      totalResponses: count(),
+    })
+    .from(surveySessions)
+    .where(
+      and(
+        eq(surveySessions.tenantId, session.user.tenantId),
+        eq(surveySessions.status, "completed"),
+        sql`${surveySessions.completedAt} >= ${thirtyDaysAgo.toISOString()}`
+      )
+    );
+
+  const totalResponses = responseStats?.totalResponses || 0;
+
+  // Get recent sessions for activity feed (limit to 10 for performance)
   const recentSessions = await db.query.surveySessions.findMany({
     where: and(
       eq(surveySessions.tenantId, session.user.tenantId),
@@ -44,38 +63,66 @@ export default async function AnalyticsPage() {
       responses: true,
     },
     orderBy: [desc(surveySessions.completedAt)],
+    limit: 10, // Performance: Only load 10 most recent for activity feed
   });
 
   // Calculate stats
   const totalSurveys = tenantSurveys.length;
   const activeSurveys = tenantSurveys.filter((s) => s.status === "active").length;
-  const totalResponses = recentSessions.length;
   const totalViews = tenantSurveys.reduce((sum, s) => sum + (s.viewCount || 0), 0);
 
   // Calculate average completion rate
   const avgCompletionRate =
     totalViews > 0 ? Math.round((totalResponses / totalViews) * 100) : 0;
 
-  // Group responses by date for chart
-  const responsesByDate = recentSessions.reduce((acc: Record<string, number>, session) => {
-    if (session.completedAt) {
-      const date = session.completedAt.toISOString().split("T")[0];
-      acc[date] = (acc[date] || 0) + 1;
-    }
-    return acc;
-  }, {});
+  // Group responses by date for chart using SQL aggregation (much faster)
+  const responsesByDateRaw = await db
+    .select({
+      date: sql<string>`DATE(${surveySessions.completedAt})`.as('date'),
+      count: count(),
+    })
+    .from(surveySessions)
+    .where(
+      and(
+        eq(surveySessions.tenantId, session.user.tenantId),
+        eq(surveySessions.status, "completed"),
+        sql`${surveySessions.completedAt} >= ${thirtyDaysAgo.toISOString()}`
+      )
+    )
+    .groupBy(sql`DATE(${surveySessions.completedAt})`)
+    .orderBy(sql`DATE(${surveySessions.completedAt})`);
 
-  // Convert to array for chart
-  const chartData = Object.entries(responsesByDate)
-    .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  // Convert to chart format
+  const chartData = responsesByDateRaw.map(row => ({
+    date: row.date,
+    count: Number(row.count),
+  }));
+
+  // Top performing surveys using SQL aggregation
+  const surveyResponseCounts = await db
+    .select({
+      surveyId: surveySessions.surveyId,
+      responseCount: count(),
+    })
+    .from(surveySessions)
+    .where(
+      and(
+        eq(surveySessions.tenantId, session.user.tenantId),
+        eq(surveySessions.status, "completed"),
+        sql`${surveySessions.completedAt} >= ${thirtyDaysAgo.toISOString()}`
+      )
+    )
+    .groupBy(surveySessions.surveyId);
+
+  // Create a map for quick lookup
+  const responsesMap = new Map(
+    surveyResponseCounts.map(r => [r.surveyId, Number(r.responseCount)])
+  );
 
   // Top performing surveys
   const surveyPerformance = tenantSurveys
     .map((survey) => {
-      const surveyResponses = recentSessions.filter(
-        (s) => s.surveyId === survey.id
-      ).length;
+      const surveyResponses = responsesMap.get(survey.id) || 0;
       const completionRate =
         survey.viewCount > 0
           ? Math.round((surveyResponses / survey.viewCount) * 100)
@@ -92,20 +139,25 @@ export default async function AnalyticsPage() {
     .sort((a, b) => b.responses - a.responses)
     .slice(0, 5);
 
-  // Calculate trend (compare with previous 30 days)
+  // Calculate trend (compare with previous 30 days) using SQL count
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-  const previousPeriodSessions = await db.query.surveySessions.findMany({
-    where: and(
-      eq(surveySessions.tenantId, session.user.tenantId),
-      eq(surveySessions.status, "completed"),
-      sql`${surveySessions.completedAt} >= ${sixtyDaysAgo.toISOString()}`,
-      sql`${surveySessions.completedAt} < ${thirtyDaysAgo.toISOString()}`
-    ),
-  });
+  const [previousPeriodStats] = await db
+    .select({
+      count: count(),
+    })
+    .from(surveySessions)
+    .where(
+      and(
+        eq(surveySessions.tenantId, session.user.tenantId),
+        eq(surveySessions.status, "completed"),
+        sql`${surveySessions.completedAt} >= ${sixtyDaysAgo.toISOString()}`,
+        sql`${surveySessions.completedAt} < ${thirtyDaysAgo.toISOString()}`
+      )
+    );
 
-  const previousResponses = previousPeriodSessions.length;
+  const previousResponses = previousPeriodStats?.count || 0;
   const responseTrend =
     previousResponses > 0
       ? Math.round(((totalResponses - previousResponses) / previousResponses) * 100)

@@ -317,12 +317,20 @@ async function handleSurveyResponse(session: any, messageBody: string) {
   }
 }
 
+// Cache for parsed options to avoid repeated JSON.parse (performance optimization)
+const optionsCache = new Map<string, string[]>();
+
 // Format question based on type
 function formatQuestion(question: any, index: number, total: number): string {
   let text = `*Pregunta ${index}/${total}*\n\n${question.questionText}`;
 
   if (question.questionType === "multiple_choice" && question.options) {
-    const options = JSON.parse(question.options);
+    // Use cache to avoid repeated JSON.parse
+    let options = optionsCache.get(question.id);
+    if (!options) {
+      options = JSON.parse(question.options);
+      optionsCache.set(question.id, options);
+    }
     text += "\n\n*Opciones:*";
     options.forEach((opt: string, i: number) => {
       text += `\n${i + 1}. ${opt}`;
@@ -352,7 +360,12 @@ function validateAnswer(question: any, answer: string): { valid: boolean; value?
   const trimmed = answer.trim();
 
   if (question.questionType === "multiple_choice") {
-    const options = JSON.parse(question.options || "[]");
+    // Use cache to avoid repeated JSON.parse
+    let options = optionsCache.get(question.id);
+    if (!options) {
+      options = JSON.parse(question.options || "[]");
+      optionsCache.set(question.id, options);
+    }
     const optionIndex = parseInt(trimmed) - 1;
 
     if (isNaN(optionIndex) || optionIndex < 0 || optionIndex >= options.length) {

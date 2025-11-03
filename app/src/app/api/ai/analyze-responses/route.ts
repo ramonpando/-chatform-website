@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
 
-    // Obtener todas las respuestas de texto abierto
+    // Obtener respuestas de texto abierto (limitamos a las 200 sesiones más recientes para performance)
     const sessions = await db.query.surveySessions.findMany({
       where: and(
         eq(surveySessions.surveyId, surveyId),
@@ -60,17 +60,21 @@ export async function POST(req: NextRequest) {
           },
         },
       },
+      orderBy: (sessions, { desc }) => [desc(sessions.completedAt)],
+      limit: 200, // Performance: Limit to most recent 200 sessions
     });
 
-    // Filtrar solo respuestas de texto abierto
-    const openTextResponses = sessions.flatMap(s =>
-      s.responses
-        .filter(r => r.question.questionType === 'open_text' && r.answerText)
-        .map(r => ({
-          questionText: r.question.questionText,
-          answer: r.answerText!,
-        }))
-    );
+    // Filtrar solo respuestas de texto abierto (limitamos a 500 respuestas para evitar prompts muy largos)
+    const openTextResponses = sessions
+      .flatMap(s =>
+        s.responses
+          .filter(r => r.question.questionType === 'open_text' && r.answerText)
+          .map(r => ({
+            questionText: r.question.questionText,
+            answer: r.answerText!,
+          }))
+      )
+      .slice(0, 500); // Performance: Limit to 500 responses max for AI analysis
 
     if (openTextResponses.length === 0) {
       return NextResponse.json({
