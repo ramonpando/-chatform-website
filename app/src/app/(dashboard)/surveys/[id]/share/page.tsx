@@ -4,7 +4,7 @@ import { surveys } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, QrCode, Copy, MessageCircle } from "lucide-react";
+import { ArrowLeft, ExternalLink, QrCode, Copy, MessageCircle, Send } from "lucide-react";
 import { SharePageClient } from "@/components/surveys/share-page-client";
 
 export default async function ShareSurveyPage({
@@ -57,12 +57,21 @@ export default async function ShareSurveyPage({
           </div>
         </div>
 
-        <Link
-          href={`/surveys/${survey.id}/edit`}
-          className="px-4 py-2 text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors font-semibold"
-        >
-          Editar Encuesta
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href={`/surveys/${survey.id}/send`}
+            className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-md hover:from-green-700 hover:to-emerald-700 transition-all font-semibold inline-flex items-center gap-2"
+          >
+            <Send className="w-4 h-4" />
+            Envío Masivo
+          </Link>
+          <Link
+            href={`/surveys/${survey.id}/edit`}
+            className="px-4 py-2 text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors font-semibold"
+          >
+            Editar Encuesta
+          </Link>
+        </div>
       </div>
 
       {/* Main Grid */}
