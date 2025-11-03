@@ -262,6 +262,54 @@ async function sendWhatsAppSurvey(
 
   const result = await response.json();
 
+  console.log("[SEND-BULK] Message sent successfully:", {
+    messageSid: result.sid,
+    sessionId: session.id,
+    to: recipient.phone,
+  });
+
+  // After sending the approved template, send a follow-up message with instructions
+  // This second message can use Body (text) because we're now within the 24-hour window
+  try {
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+
+    const followUpMessage = `Para comenzar, responde: *Sí* ✅`;
+
+    const followUpParams = new URLSearchParams({
+      From: fromNumber,
+      To: recipient.phone.startsWith("whatsapp:") ? recipient.phone : `whatsapp:${recipient.phone}`,
+      Body: followUpMessage,
+    });
+
+    console.log("[SEND-BULK] Sending follow-up message:", {
+      to: recipient.phone,
+      message: followUpMessage.substring(0, 50),
+    });
+
+    const followUpResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: "Basic " + Buffer.from(`${accountSid}:${authToken}`).toString("base64"),
+      },
+      body: followUpParams.toString(),
+    });
+
+    if (!followUpResponse.ok) {
+      const error = await followUpResponse.text();
+      console.error("[SEND-BULK] Follow-up message failed (non-critical):", {
+        status: followUpResponse.status,
+        error: error,
+      });
+      // Don't throw - the main message was sent successfully
+    } else {
+      console.log("[SEND-BULK] Follow-up message sent successfully");
+    }
+  } catch (error) {
+    console.error("[SEND-BULK] Failed to send follow-up message:", error);
+    // Don't throw - the main message was sent successfully
+  }
+
   return {
     messageId: result.sid,
     sessionId: session.id,

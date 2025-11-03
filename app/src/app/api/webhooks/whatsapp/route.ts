@@ -46,12 +46,78 @@ export async function POST(req: Request) {
       return await handleSurveyResponse(activeSession, body);
     }
 
+    // Check for pending session (created by bulk send but not started yet)
+    const pendingSession = await db.query.surveySessions.findFirst({
+      where: and(
+        eq(surveySessions.phoneNumber, from),
+        eq(surveySessions.status, "active"),
+        eq(surveySessions.currentQuestionIndex, -1) // Not started yet
+      ),
+      with: {
+        survey: {
+          with: {
+            questions: {
+              orderBy: (questions, { asc }) => [asc(questions.orderIndex)],
+            },
+          },
+        },
+      },
+    });
+
+    if (pendingSession) {
+      // Any response starts the survey
+      console.log("[WEBHOOK] Starting pending survey for:", from);
+      return await handleStartPendingSurvey(pendingSession);
+    }
+
     // No active session, send help message
     return sendWhatsAppMessage(from, "👋 ¡Hola! Para empezar una encuesta, envía START_ seguido del código de la encuesta.\n\nEjemplo: START_abc123");
 
   } catch (error) {
     console.error("WhatsApp webhook error:", error);
     return new NextResponse("Internal server error", { status: 500 });
+  }
+}
+
+// Handle pending survey start (session created by bulk send)
+async function handleStartPendingSurvey(session: any) {
+  try {
+    const survey = session.survey;
+    const questions = survey.questions;
+
+    if (questions.length === 0) {
+      return sendWhatsAppMessage(session.phoneNumber, "❌ Esta encuesta no tiene preguntas configuradas.");
+    }
+
+    // Update session to start from question 0
+    await db.update(surveySessions)
+      .set({
+        currentQuestionIndex: 0,
+        lastInteractionAt: new Date(),
+      })
+      .where(eq(surveySessions.id, session.id));
+
+    // Send first question
+    const firstQuestion = questions[0];
+    const questionNumber = 1;
+    const totalQuestions = questions.length;
+
+    let questionText = `📋 *Pregunta ${questionNumber} de ${totalQuestions}*\n\n${firstQuestion.text}`;
+
+    if (firstQuestion.type === "multiple_choice" && firstQuestion.options) {
+      const options = JSON.parse(firstQuestion.options as string);
+      questionText += "\n\n" + options.map((opt: string, idx: number) => `${idx + 1}. ${opt}`).join("\n");
+      questionText += "\n\n_Responde con el número o el texto de tu opción_";
+    } else if (firstQuestion.type === "rating") {
+      questionText += "\n\n_Responde con un número del 1 al 5_\n⭐ = 1 | ⭐⭐⭐⭐⭐ = 5";
+    } else {
+      questionText += "\n\n_Escribe tu respuesta_";
+    }
+
+    return sendWhatsAppMessage(session.phoneNumber, questionText);
+  } catch (error) {
+    console.error("Error starting pending survey:", error);
+    return sendWhatsAppMessage(session.phoneNumber, "❌ Hubo un error al iniciar la encuesta. Por favor intenta de nuevo.");
   }
 }
 
