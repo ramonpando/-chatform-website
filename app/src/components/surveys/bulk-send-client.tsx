@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Users, Send, CheckCircle, XCircle, AlertCircle, Download, Loader2 } from "lucide-react";
+import { Upload, Users, Send, CheckCircle, XCircle, AlertCircle, Download, Loader2, MessageSquare } from "lucide-react";
+import { WhatsAppTemplateSelector } from "./whatsapp-template-selector";
 
 interface Contact {
   phone: string;
@@ -37,9 +38,11 @@ export function BulkSendClient({
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("friendly-short");
+  const [customVariables, setCustomVariables] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Parse CSV
+  // Parse CSV or TSV
   const parseCSV = (text: string): Contact[] => {
     const lines = text.trim().split("\n");
     if (lines.length === 0) return [];
@@ -48,13 +51,18 @@ export function BulkSendClient({
     const hasHeaders = lines[0].toLowerCase().includes("phone") || lines[0].toLowerCase().includes("tel");
     const dataLines = hasHeaders ? lines.slice(1) : lines;
 
+    // Detectar separador (tab o coma)
+    const separator = lines[0].includes("\t") ? "\t" : ",";
+
     const parsed: Contact[] = [];
 
     for (const line of dataLines) {
-      const parts = line.split(",").map(p => p.trim());
+      // Remove surrounding quotes and apostrophes, then trim
+      const parts = line.split(separator).map(p => p.trim().replace(/^["']+|["']+$/g, ""));
       if (parts.length === 0 || !parts[0]) continue;
 
-      const phone = parts[0].replace(/[^+\d]/g, ""); // Clean phone
+      // Clean phone: remove everything except + and digits (this also removes leading apostrophes)
+      const phone = parts[0].replace(/[^+\d]/g, "");
       const name = parts[1] || undefined;
 
       // Validate phone (E.164 format)
@@ -122,13 +130,15 @@ export function BulkSendClient({
       const contact = contacts[i];
 
       try {
-        // Call the API endpoint (we'll use the internal API, not external)
+        // Call the API endpoint with template information
         const response = await fetch(`/api/surveys/${surveyId}/send-bulk`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             phone: contact.phone,
             name: contact.name,
+            templateId: selectedTemplateId,
+            customVariables: customVariables,
           }),
         });
 
@@ -172,12 +182,14 @@ export function BulkSendClient({
 
   // Download example CSV
   const downloadExample = () => {
+    // Add apostrophe prefix to force Excel to treat phone numbers as text
+    // This prevents Excel from converting them to scientific notation
     const csv = `phone,name
-"+5215512345678","Juan Pérez"
-"+5215587654321","María López"
-"+5215523456789","Carlos Rodríguez"
-"+5215598765432","Ana García"
-"+5215556781234","Pedro Martínez"`;
+'+5215512345678,Juan Pérez
+'+5215587654321,María López
+'+5215523456789,Carlos Rodríguez
+'+5215598765432,Ana García
+'+5215556781234,Pedro Martínez`;
 
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -230,14 +242,14 @@ export function BulkSendClient({
         </div>
 
         <p className="text-sm text-slate-600 mb-4">
-          Sube un archivo CSV con tus contactos. Formato: <code className="px-2 py-0.5 bg-slate-100 rounded text-xs">phone,name</code>
+          Sube un archivo CSV con tus contactos. Los números deben tener el formato: <code className="px-2 py-0.5 bg-slate-100 rounded text-xs">'+5215512345678,Juan Pérez</code>
         </p>
 
         <div className="flex gap-3">
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv"
+            accept=".csv,.tsv,.txt"
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -259,6 +271,27 @@ export function BulkSendClient({
         </div>
       </div>
 
+      {/* Template Selector Section */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-green-50 rounded-lg">
+            <MessageSquare className="w-5 h-5 text-green-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-slate-900">2. Personaliza el Mensaje</h2>
+        </div>
+
+        <WhatsAppTemplateSelector
+          surveyTitle={surveyTitle}
+          questionCount={questionCount}
+          recipientName={contacts.length > 0 ? contacts[0].name : undefined}
+          onSelect={(templateId, variables) => {
+            setSelectedTemplateId(templateId);
+            setCustomVariables(variables);
+          }}
+          defaultTemplateId={selectedTemplateId}
+        />
+      </div>
+
       {/* Preview Section */}
       {contacts.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -266,7 +299,7 @@ export function BulkSendClient({
             <div className="p-2 bg-purple-50 rounded-lg">
               <Users className="w-5 h-5 text-purple-600" />
             </div>
-            <h2 className="text-lg font-semibold text-slate-900">2. Vista Previa</h2>
+            <h2 className="text-lg font-semibold text-slate-900">3. Vista Previa de Contactos</h2>
           </div>
 
           <div className="max-h-64 overflow-y-auto border border-slate-200 rounded-lg">
@@ -306,7 +339,7 @@ export function BulkSendClient({
             <div className="p-2 bg-green-50 rounded-lg">
               <Send className="w-5 h-5 text-green-600" />
             </div>
-            <h2 className="text-lg font-semibold text-slate-900">3. Enviar Encuestas</h2>
+            <h2 className="text-lg font-semibold text-slate-900">4. Enviar Encuestas</h2>
           </div>
 
           <p className="text-sm text-slate-600 mb-4">

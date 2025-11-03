@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { surveys, surveySessions, tenants } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/whatsapp/templates";
 
 export async function POST(
   req: Request,
@@ -21,7 +22,7 @@ export async function POST(
 
     // Parse body
     const body = await req.json();
-    const { phone, name } = body;
+    const { phone, name, templateId, customVariables } = body;
 
     if (!phone || !/^\+\d{10,15}$/.test(phone)) {
       return NextResponse.json(
@@ -98,7 +99,12 @@ export async function POST(
 
     // Send via WhatsApp
     try {
-      const result = await sendWhatsAppSurvey(survey, { phone, name });
+      const result = await sendWhatsAppSurvey(survey, {
+        phone,
+        name,
+        templateId: templateId || "friendly-short",
+        customVariables: customVariables || {}
+      });
 
       // Increment credits
       await db
@@ -132,7 +138,12 @@ export async function POST(
 
 async function sendWhatsAppSurvey(
   survey: any,
-  recipient: { phone: string; name?: string }
+  recipient: {
+    phone: string;
+    name?: string;
+    templateId: string;
+    customVariables: Record<string, string>;
+  }
 ) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -153,17 +164,66 @@ async function sendWhatsAppSurvey(
     deliveryMethod: "automatic",
   }).returning();
 
-  // Prepare message
-  const message = `¡Hola${recipient.name ? ` ${recipient.name}` : ""}! 👋\n\nTe invitamos a compartir tu opinión sobre: *${survey.title}*\n\nPara empezar, responde con: START_${survey.shortCode}\n\n📊 Solo ${survey.questions.length} preguntas, ~${Math.ceil(survey.questions.length * 0.5)} minutos.`;
+  const tenant = survey.tenant;
+
+  // Build variables for template
+  const variables: Record<string, string> = {
+    // Automatic variables
+    name: recipient.name || "Usuario",
+    topic: survey.title,
+    question_count: survey.questions.length.toString(),
+    estimated_time: Math.max(1, Math.ceil(survey.questions.length * 0.5)).toString(),
+    link: `Para empezar, responde con: START_${survey.shortCode}`,
+
+    // From tenant
+    company: tenant?.name || "nuestro equipo",
+    sender: tenant?.name || "el equipo",
+
+    // Custom variables (e.g., context, incentive)
+    ...recipient.customVariables,
+  };
 
   // Send via Twilio
   const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+  let params: URLSearchParams;
 
-  const params = new URLSearchParams({
-    From: fromNumber,
-    To: recipient.phone.startsWith("whatsapp:") ? recipient.phone : `whatsapp:${recipient.phone}`,
-    Body: message,
-  });
+  // Check if using Twilio Content API or ChatForm templates
+  if (tenant?.whatsappProvider === "twilio" && tenant?.twilioContentSid) {
+    // Use Twilio Content API
+    const contentVariables: Record<string, string> = {};
+
+    // Map configured variables
+    if (tenant.twilioContentVariables) {
+      for (const [key, template] of Object.entries(tenant.twilioContentVariables as Record<string, string>)) {
+        // Replace placeholders like {{name}} with actual values
+        const value = template.replace(/\{\{(\w+)\}\}/g, (_, varName: string) => {
+          return variables[varName] || "";
+        });
+        contentVariables[key] = value;
+      }
+    }
+
+    params = new URLSearchParams({
+      From: fromNumber,
+      To: recipient.phone.startsWith("whatsapp:") ? recipient.phone : `whatsapp:${recipient.phone}`,
+      ContentSid: tenant.twilioContentSid,
+      ContentVariables: JSON.stringify(contentVariables),
+    });
+  } else {
+    // Use ChatForm templates (default)
+    // Get selected template
+    const template = DEFAULT_TEMPLATES.find(t => t.id === recipient.templateId)
+      || DEFAULT_TEMPLATES.find(t => t.id === "friendly-short")!;
+
+    // Fill template with variables
+    const message = fillTemplate(template.message, variables);
+
+    params = new URLSearchParams({
+      From: fromNumber,
+      To: recipient.phone.startsWith("whatsapp:") ? recipient.phone : `whatsapp:${recipient.phone}`,
+      Body: message,
+    });
+  }
 
   const response = await fetch(url, {
     method: "POST",

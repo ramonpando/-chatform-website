@@ -145,47 +145,76 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Empty State - AI Highlight */}
-      <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
-          <Sparkles className="h-8 w-8 text-blue-600" />
+      {/* Empty State - AI Highlight (only show if no surveys) */}
+      {tenantSurveys.length === 0 ? (
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
+            <Sparkles className="h-8 w-8 text-blue-600" />
+          </div>
+          <h3 className="mt-4 text-xl font-bold text-slate-900">
+            Crea tu primera encuesta con IA
+          </h3>
+          <p className="mt-2 text-sm text-slate-600 max-w-md mx-auto">
+            Describe lo que quieres preguntar y la IA genera la encuesta completa en segundos
+          </p>
+          <div className="mt-6">
+            <div className="relative inline-block group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-md opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
+              <Link
+                href="/surveys/new"
+                className="relative inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-md font-semibold hover:bg-slate-800 transition-all text-sm"
+              >
+                <Sparkles className="w-4 h-4" />
+                Crear con IA
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Quick Benefits */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
+            <div className="flex items-center gap-1.5 text-xs text-slate-600">
+              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+              <span>1 encuesta gratis</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-slate-600">
+              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+              <span>Lista en 2 minutos</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-slate-600">
+              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+              <span>Sin tarjeta</span>
+            </div>
+          </div>
         </div>
-        <h3 className="mt-4 text-xl font-bold text-slate-900">
-          Crea tu primera encuesta con IA
-        </h3>
-        <p className="mt-2 text-sm text-slate-600 max-w-md mx-auto">
-          Describe lo que quieres preguntar y la IA genera la encuesta completa en segundos
-        </p>
-        <div className="mt-6">
-          <div className="relative inline-block group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-md opacity-75 group-hover:opacity-100 transition duration-300 blur-sm"></div>
+      ) : (
+        // Quick Action - For existing users
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
+                <Sparkles className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Crea otra encuesta con IA
+                </h3>
+                <p className="text-sm text-slate-600">
+                  Lista en 2 minutos con el generador inteligente
+                </p>
+              </div>
+            </div>
             <Link
               href="/surveys/new"
-              className="relative inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-md font-semibold hover:bg-slate-800 transition-all text-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg font-semibold hover:bg-slate-800 transition-all text-sm group"
             >
               <Sparkles className="w-4 h-4" />
-              Crear con IA
+              Crear Encuesta
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
-
-        {/* Quick Benefits */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
-          <div className="flex items-center gap-1.5 text-xs text-slate-600">
-            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-            <span>1 encuesta gratis</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-600">
-            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-            <span>Lista en 2 minutos</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-600">
-            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-            <span>Sin tarjeta</span>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Quick Start Guide - AI Version */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">

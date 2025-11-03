@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, CreditCard, Building2, Key } from "lucide-react";
+import { User, CreditCard, Building2, Key, MessageSquare } from "lucide-react";
 
 const tabs = [
   {
@@ -24,6 +24,11 @@ const tabs = [
     name: "API",
     href: "/settings/api",
     icon: Key,
+  },
+  {
+    name: "WhatsApp",
+    href: "/settings/whatsapp",
+    icon: MessageSquare,
   },
 ];
 

@@ -71,7 +71,7 @@ export function WorkspaceForm({
           Slug del Workspace
         </label>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-500">chatform.io/</span>
+          <span className="text-sm text-slate-500">chatform.mx/</span>
           <input
             type="text"
             value={slug}

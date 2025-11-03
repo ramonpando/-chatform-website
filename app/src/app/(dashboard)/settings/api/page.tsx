@@ -65,7 +65,7 @@ export default async function ApiPage() {
             <div className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-md font-mono text-sm">
               <Code className="w-4 h-4 text-slate-500" />
               <code className="text-slate-700">
-                https://app.chatform.io/api/v1
+                https://app.chatform.mx/api/v1
               </code>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default async function ApiPage() {
               <pre className="text-sm text-slate-100 font-mono">
                 <code>
                   {`curl -X GET \\
-  https://app.chatform.io/api/v1/surveys/SURVEY_ID/responses/export \\
+  https://app.chatform.mx/api/v1/surveys/SURVEY_ID/responses/export \\
   -H "Authorization: Bearer YOUR_API_KEY"`}
                 </code>
               </pre>
@@ -119,7 +119,7 @@ export default async function ApiPage() {
                   <div className="mt-3 p-3 bg-slate-50 rounded border border-slate-200">
                     <pre className="text-xs font-mono overflow-x-auto">
                       <code className="text-slate-700">
-                        {`curl https://app.chatform.io/api/v1/surveys/abc123/responses/export \\
+                        {`curl https://app.chatform.mx/api/v1/surveys/abc123/responses/export \\
   -H "Authorization: Bearer sk_..."
 
 # Response (CSV):
@@ -153,7 +153,7 @@ sess_1,¿Califica el servicio?,rating,9,2025-10-31T...,+1234567890`}
                   <div className="mt-3 p-3 bg-slate-50 rounded border border-slate-200">
                     <pre className="text-xs font-mono overflow-x-auto">
                       <code className="text-slate-700">
-                        {`curl -X POST https://app.chatform.io/api/v1/surveys/abc123/trigger \\
+                        {`curl -X POST https://app.chatform.mx/api/v1/surveys/abc123/trigger \\
   -H "Authorization: Bearer sk_..." \\
   -H "Content-Type: application/json" \\
   -d '{"phoneNumber": "+1234567890"}'
@@ -180,7 +180,7 @@ sess_1,¿Califica el servicio?,rating,9,2025-10-31T...,+1234567890`}
               </p>
             </div>
             <a
-              href="https://docs.chatform.io/api"
+              href="https://docs.chatform.mx/api"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold text-sm flex items-center gap-2 whitespace-nowrap"

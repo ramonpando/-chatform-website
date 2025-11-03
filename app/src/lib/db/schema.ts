@@ -17,6 +17,11 @@ export const tenants = pgTable('tenants', {
   apiKeyHash: varchar('api_key_hash', { length: 128 }),
   apiKeyPrefix: varchar('api_key_prefix', { length: 32 }),
 
+  // WhatsApp / Twilio Configuration
+  twilioContentSid: varchar('twilio_content_sid', { length: 100 }), // HX... Content Template SID
+  twilioContentVariables: jsonb('twilio_content_variables'), // Variable mapping for Content API
+  whatsappProvider: varchar('whatsapp_provider', { length: 50 }).default('chatform'), // 'chatform' (local templates) or 'twilio' (Content API)
+
   // Limits (según plan - defaults para FREE plan)
   responsesLimit: integer('responses_limit').notNull().default(0), // FREE: 0 WhatsApp responses
   responsesUsedThisMonth: integer('responses_used_this_month').notNull().default(0),
@@ -191,6 +196,7 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
   tenantUsers: many(tenantUsers),
   surveys: many(surveys),
   sessions: many(surveySessions),
+  whatsappTemplates: many(whatsappTemplates),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -381,5 +387,45 @@ export const supportTicketsRelations = relations(supportTickets, ({ one }) => ({
   resolver: one(users, {
     fields: [supportTickets.resolvedBy],
     references: [users.id],
+  }),
+}));
+
+// WhatsApp Templates (plantillas personalizadas de mensajes)
+export const whatsappTemplates = pgTable('whatsapp_templates', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+
+  // Template info
+  name: varchar('name', { length: 100 }).notNull(),
+  description: text('description'),
+  message: text('message').notNull(),
+  variables: jsonb('variables').notNull().default('[]'), // array de strings: ["name", "topic", "link"]
+
+  // Category & Classification
+  category: varchar('category', { length: 50 }).notNull().default('custom'), // professional, friendly, direct, minimal, custom
+
+  // Status & Approval
+  status: varchar('status', { length: 20 }).notNull().default('pending'), // pending, approved, rejected, active
+  whatsappTemplateId: varchar('whatsapp_template_id', { length: 100 }), // ID del template en WhatsApp Business API
+  rejectionReason: text('rejection_reason'),
+
+  // Stats
+  usageCount: integer('usage_count').notNull().default(0),
+  estimatedResponseRate: varchar('estimated_response_rate', { length: 10 }), // ej: "~35%"
+
+  // Timestamps
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  approvedAt: timestamp('approved_at'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => [
+  index('whatsapp_templates_tenant_idx').on(table.tenantId),
+  index('whatsapp_templates_status_idx').on(table.status),
+  index('whatsapp_templates_template_id_idx').on(table.whatsappTemplateId),
+]);
+
+export const whatsappTemplatesRelations = relations(whatsappTemplates, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [whatsappTemplates.tenantId],
+    references: [tenants.id],
   }),
 }));

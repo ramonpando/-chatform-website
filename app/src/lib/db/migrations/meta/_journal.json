@@ -36,6 +36,20 @@
       "when": 1762127654247,
       "tag": "0004_uneven_bruce_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1762201727896,
+      "tag": "0005_petite_sue_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1762202390538,
+      "tag": "0006_overjoyed_vector",
+      "breakpoints": true
     }
   ]
 }
