@@ -43,31 +43,15 @@ export async function POST(req: Request) {
     });
 
     if (activeSession) {
+      // Check if this is a pending session (not started yet)
+      if (activeSession.currentQuestionIndex === -1) {
+        // Any response starts the survey
+        console.log("[WEBHOOK] Starting pending survey for:", from);
+        return await handleStartPendingSurvey(activeSession);
+      }
+
+      // Normal active session, handle response
       return await handleSurveyResponse(activeSession, body);
-    }
-
-    // Check for pending session (created by bulk send but not started yet)
-    const pendingSession = await db.query.surveySessions.findFirst({
-      where: and(
-        eq(surveySessions.phoneNumber, from),
-        eq(surveySessions.status, "active"),
-        eq(surveySessions.currentQuestionIndex, -1) // Not started yet
-      ),
-      with: {
-        survey: {
-          with: {
-            questions: {
-              orderBy: (questions, { asc }) => [asc(questions.orderIndex)],
-            },
-          },
-        },
-      },
-    });
-
-    if (pendingSession) {
-      // Any response starts the survey
-      console.log("[WEBHOOK] Starting pending survey for:", from);
-      return await handleStartPendingSurvey(pendingSession);
     }
 
     // No active session, send help message
