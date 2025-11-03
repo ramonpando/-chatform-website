@@ -10,8 +10,8 @@ export function middleware(request: NextRequest) {
 
   const isAuthenticated = !!sessionToken;
 
-  // Public routes
-  const publicRoutes = ["/login", "/signup"];
+  // Public routes (including survey short links)
+  const publicRoutes = ["/login", "/signup", "/s/"];
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
   // Protected routes (dashboard)
