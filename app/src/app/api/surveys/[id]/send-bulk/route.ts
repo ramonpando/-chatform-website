@@ -225,6 +225,15 @@ async function sendWhatsAppSurvey(
     });
   }
 
+  // Log what we're sending (for debugging)
+  console.log("[SEND-BULK] Sending to Twilio:", {
+    provider: tenant?.whatsappProvider,
+    contentSid: tenant?.twilioContentSid,
+    to: recipient.phone,
+    method: tenant?.whatsappProvider === "twilio" ? "ContentSid" : "Body",
+    params: params.toString().substring(0, 200), // First 200 chars
+  });
+
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -236,7 +245,12 @@ async function sendWhatsAppSurvey(
 
   if (!response.ok) {
     const error = await response.text();
-    console.error("Twilio API error:", error);
+    console.error("[SEND-BULK] Twilio API error:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: error,
+      to: recipient.phone,
+    });
 
     // Delete session if send failed
     await db
