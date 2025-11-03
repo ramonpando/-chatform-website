@@ -173,11 +173,13 @@ export function BulkSendClient({
   // Download example CSV
   const downloadExample = () => {
     const csv = `phone,name
-+5215512345678,Juan Pérez
-+5215587654321,María López
-+5215523456789,Carlos Rodríguez`;
+"+5215512345678","Juan Pérez"
+"+5215587654321","María López"
+"+5215523456789","Carlos Rodríguez"
+"+5215598765432","Ana García"
+"+5215556781234","Pedro Martínez"`;
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
