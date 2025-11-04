@@ -77,14 +77,18 @@ export async function POST(
       );
     }
 
-    // Check if Twilio is configured
+    // Check if Meta WhatsApp is configured (priority)
+    const { isMetaWhatsAppConfigured } = await import("@/lib/whatsapp/meta-api");
+    const hasMeta = isMetaWhatsAppConfigured();
+
+    // Check if Twilio is configured (fallback)
     const hasTwilio = Boolean(
       process.env.TWILIO_ACCOUNT_SID &&
       process.env.TWILIO_AUTH_TOKEN &&
       process.env.TWILIO_WHATSAPP_NUMBER
     );
 
-    if (!hasTwilio) {
+    if (!hasMeta && !hasTwilio) {
       // Generate link instead
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const publicUrl = `${baseUrl}/s/${survey.shortCode}`;
@@ -93,17 +97,18 @@ export async function POST(
         status: "link_generated",
         deliveryMethod: "link",
         link: publicUrl,
-        message: "Twilio not configured, link generated instead",
+        message: "WhatsApp not configured, link generated instead",
       });
     }
 
-    // Send via WhatsApp
+    // Send via WhatsApp (Meta or Twilio)
     try {
       const result = await sendWhatsAppSurvey(survey, {
         phone,
         name,
         templateId: templateId || "friendly-short",
-        customVariables: customVariables || {}
+        customVariables: customVariables || {},
+        provider: hasMeta ? "meta" : "twilio",
       });
 
       // Increment credits
@@ -143,7 +148,100 @@ async function sendWhatsAppSurvey(
     name?: string;
     templateId: string;
     customVariables: Record<string, string>;
+    provider: "meta" | "twilio";
   }
+) {
+  // Create session first (for both providers)
+  const normalizedPhone = recipient.phone.startsWith("whatsapp:")
+    ? recipient.phone
+    : `whatsapp:${recipient.phone}`;
+
+  const [session] = await db.insert(surveySessions).values({
+    surveyId: survey.id,
+    tenantId: survey.tenantId,
+    phoneNumber: normalizedPhone,
+    whatsappName: recipient.name || null,
+    status: "active",
+    currentQuestionIndex: -1,
+    deliveryMethod: "automatic",
+  }).returning();
+
+  const tenant = survey.tenant;
+
+  // Use Meta or Twilio based on provider
+  if (recipient.provider === "meta") {
+    return await sendViaMeta(survey, session, recipient, tenant);
+  } else {
+    return await sendViaTwilio(survey, session, recipient, tenant);
+  }
+}
+
+async function sendViaMeta(
+  survey: any,
+  session: any,
+  recipient: { phone: string; name?: string; customVariables: Record<string, string> },
+  tenant: any
+) {
+  const { sendTextMessage } = await import("@/lib/whatsapp/meta-api");
+
+  // Build variables for template
+  const variables: Record<string, string> = {
+    name: recipient.name || "Usuario",
+    topic: survey.title,
+    question_count: survey.questions.length.toString(),
+    estimated_time: Math.max(1, Math.ceil(survey.questions.length * 0.5)).toString(),
+    company: tenant?.name || "nuestro equipo",
+    sender: tenant?.name || "el equipo",
+    ...recipient.customVariables,
+  };
+
+  // For now, send a simple text message with START_ link
+  // TODO: Implement template support when user creates approved templates
+  const message = `👋 Hola ${variables.name},
+
+${tenant?.name || "Nuestro equipo"} te invita a participar en una breve encuesta sobre: *${survey.title}*
+
+📊 Son ${variables.question_count} preguntas y toma aproximadamente ${variables.estimated_time} minutos.
+
+Para comenzar, responde a este mensaje con:
+START_${survey.shortCode}
+
+¡Gracias por tu tiempo!`;
+
+  console.log("[SEND-BULK META] Sending to:", recipient.phone);
+
+  try {
+    // Remove whatsapp: prefix for Meta
+    const cleanPhone = recipient.phone.replace(/^whatsapp:\+?/, "");
+    const result = await sendTextMessage(cleanPhone, message);
+
+    console.log("[SEND-BULK META] Message sent successfully:", {
+      messageId: result.messages[0].id,
+      sessionId: session.id,
+      to: recipient.phone,
+    });
+
+    return {
+      messageId: result.messages[0].id,
+      sessionId: session.id,
+    };
+  } catch (error) {
+    console.error("[SEND-BULK META] Error:", error);
+
+    // Delete session if send failed
+    await db
+      .delete(surveySessions)
+      .where(eq(surveySessions.id, session.id));
+
+    throw new Error("Failed to send WhatsApp message via Meta");
+  }
+}
+
+async function sendViaTwilio(
+  survey: any,
+  session: any,
+  recipient: { phone: string; name?: string; templateId: string; customVariables: Record<string, string> },
+  tenant: any
 ) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -152,19 +250,6 @@ async function sendWhatsAppSurvey(
   if (!accountSid || !authToken) {
     throw new Error("Twilio credentials not configured");
   }
-
-  // Create session
-  const [session] = await db.insert(surveySessions).values({
-    surveyId: survey.id,
-    tenantId: survey.tenantId,
-    phoneNumber: recipient.phone,
-    whatsappName: recipient.name || null,
-    status: "active",
-    currentQuestionIndex: -1,
-    deliveryMethod: "automatic",
-  }).returning();
-
-  const tenant = survey.tenant;
 
   // Build variables for template
   const variables: Record<string, string> = {

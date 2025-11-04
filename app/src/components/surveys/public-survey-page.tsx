@@ -186,31 +186,51 @@ export function PublicSurveyPage({ survey, waLink, estimatedTime }: PublicSurvey
                           </div>
                         )}
 
-                        {question.questionType === "multiple_choice" && question.options && (
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            {(JSON.parse(question.options) as string[]).map((opt, i) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1.5 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-slate-300 transition-colors"
-                              >
-                                {opt}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        {question.questionType === "multiple_choice" && question.options && (() => {
+                          try {
+                            const opts = typeof question.options === 'string'
+                              ? JSON.parse(question.options)
+                              : question.options;
+                            return (
+                              <div className="flex flex-wrap gap-2 mt-3">
+                                {(Array.isArray(opts) ? opts : []).map((opt: string, i: number) => (
+                                  <span
+                                    key={i}
+                                    className="px-3 py-1.5 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-slate-300 transition-colors"
+                                  >
+                                    {opt}
+                                  </span>
+                                ))}
+                              </div>
+                            );
+                          } catch (e) {
+                            console.error("Error parsing question options", e);
+                            return null;
+                          }
+                        })()}
 
-                        {question.questionType === "yes_no" && question.options && (
-                          <div className="flex gap-2 mt-3">
-                            {(JSON.parse(question.options) as string[]).map((opt, i) => (
-                              <span
-                                key={i}
-                                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-semibold text-slate-700"
-                              >
-                                {opt}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        {question.questionType === "yes_no" && question.options && (() => {
+                          try {
+                            const opts = typeof question.options === 'string'
+                              ? JSON.parse(question.options)
+                              : question.options;
+                            return (
+                              <div className="flex gap-2 mt-3">
+                                {(Array.isArray(opts) ? opts : []).map((opt: string, i: number) => (
+                                  <span
+                                    key={i}
+                                    className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-semibold text-slate-700"
+                                  >
+                                    {opt}
+                                  </span>
+                                ))}
+                              </div>
+                            );
+                          } catch (e) {
+                            console.error("Error parsing question options", e);
+                            return null;
+                          }
+                        })()}
                       </div>
                     </div>
                   </div>
